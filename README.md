@@ -1,7 +1,18 @@
 # Personal Dashboard - Multi-User Management System
 
+## Repository Information
+
+**Repository:** https://github.com/malaface/personal-dashboard (private)
+**Original Location:** Extracted from docker-contenedores infrastructure
+**Status:** Phase 0 Completed - Ready for Phase 1 Development
+**Migration Date:** 2025-12-10
+
+This project is designed to integrate with but not depend on the parent infrastructure.
+
+---
+
 **Proyecto:** Dashboard Personal Interactivo
-**Última actualización:** 2025-12-09
+**Última actualización:** 2025-12-10
 **Estado:** Fase 0 ✅ COMPLETADA
 
 ---
