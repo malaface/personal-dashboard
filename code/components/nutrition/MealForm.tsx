@@ -13,7 +13,7 @@ interface MealFormProps {
     date: Date
     notes?: string | null
     foodItems: Array<{
-      id: string
+      id?: string
       name: string
       quantity: number
       unit: string

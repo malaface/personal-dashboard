@@ -12,9 +12,7 @@ export const FoodItemSchema = z.object({
 
 export const MealSchema = z.object({
   name: z.string().min(2, "Meal name is required").max(100),
-  mealType: z.enum(["BREAKFAST", "LUNCH", "DINNER", "SNACK"], {
-    required_error: "Meal type is required",
-  }),
+  mealType: z.enum(["BREAKFAST", "LUNCH", "DINNER", "SNACK"]),
   date: z.string().or(z.date()),
   notes: z.string().max(300).optional(),
 })

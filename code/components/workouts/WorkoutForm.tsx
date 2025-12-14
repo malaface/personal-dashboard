@@ -9,8 +9,8 @@ interface Exercise {
   name: string
   sets: number
   reps: number
-  weight?: number
-  notes?: string
+  weight?: number | null
+  notes?: string | null
 }
 
 interface WorkoutFormProps {
