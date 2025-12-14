@@ -2,6 +2,7 @@ import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { compare } from "bcryptjs"
 import { prisma } from "@/lib/db/prisma"
+import { createAuditLog } from "@/lib/audit/logger"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -12,31 +13,74 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
+        // Validate credentials exist
         if (!credentials?.email || !credentials?.password) {
+          await createAuditLog({
+            action: "LOGIN_FAILED",
+            metadata: {
+              reason: "missing_credentials",
+              email: credentials?.email || null,
+            },
+          })
           return null
         }
 
+        // Find user
         const user = await prisma.user.findUnique({
           where: { email: credentials.email as string }
         })
 
+        // User not found
         if (!user || !user.password) {
+          await createAuditLog({
+            action: "LOGIN_FAILED",
+            metadata: {
+              reason: "user_not_found",
+              email: credentials.email,
+            },
+          })
           return null
         }
 
+        // Verify password
         const isPasswordValid = await compare(credentials.password as string, user.password)
 
         if (!isPasswordValid) {
+          await createAuditLog({
+            userId: user.id,
+            action: "LOGIN_FAILED",
+            metadata: {
+              reason: "invalid_password",
+              email: credentials.email,
+            },
+          })
           return null
         }
 
+        // CRITICAL SECURITY: Require email verification for production
+        // This prevents unauthorized access to the dashboard
         if (!user.emailVerified) {
-          // For development, auto-verify users
-          await prisma.user.update({
-            where: { id: user.id },
-            data: { emailVerified: new Date() }
+          await createAuditLog({
+            userId: user.id,
+            action: "LOGIN_FAILED",
+            metadata: {
+              reason: "email_not_verified",
+              email: credentials.email,
+            },
           })
+          throw new Error("Please verify your email before logging in. Check your inbox for the verification link.")
         }
+
+        // Successful login - log it
+        await createAuditLog({
+          userId: user.id,
+          action: "LOGIN",
+          metadata: {
+            email: credentials.email,
+          },
+        })
+
+        console.log(`✅ User logged in: ${user.email}`)
 
         return {
           id: user.id,

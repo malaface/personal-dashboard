@@ -37,6 +37,7 @@ model User {
   events        Event[]
   reminders     Reminder[]
   notifications Notification[]
+  auditLogs     AuditLog[]
 
   @@map("users")
 }
@@ -410,4 +411,25 @@ enum NotificationType {
   WARNING
   ERROR
   SUCCESS
+}
+
+// ============================================
+// AUDIT & SECURITY
+// ============================================
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?  // Nullable for failed login attempts
+  action    String   // LOGIN, LOGOUT, REGISTER, PASSWORD_CHANGE, LOGIN_FAILED, EMAIL_VERIFIED
+  ipAddress String?
+  userAgent String?  @db.Text
+  metadata  Json?    // Additional contextual information
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
+  @@index([ipAddress, createdAt])
+  @@map("audit_logs")
 }

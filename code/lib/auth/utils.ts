@@ -1,7 +1,10 @@
 import { redirect } from "next/navigation"
 import { hash } from "bcryptjs"
+import crypto from "crypto"
 import { auth } from "./config"
 import { prisma } from "@/lib/db/prisma"
+import { sendVerificationEmail } from "@/lib/email/resend"
+import { createAuditLog } from "@/lib/audit/logger"
 
 /**
  * Require authentication - redirect to login if not authenticated
@@ -19,6 +22,7 @@ export async function requireAuth() {
 
 /**
  * Register a new user with email and password
+ * Creates user WITHOUT email verification and sends verification email
  */
 export async function registerUser(email: string, password: string, name: string) {
   // Check if user already exists
@@ -30,18 +34,52 @@ export async function registerUser(email: string, password: string, name: string
     throw new Error("User already exists")
   }
 
-  // Hash password
+  // Hash password with 12 rounds (secure against brute force)
   const hashedPassword = await hash(password, 12)
 
-  // Create user
+  // Create user WITHOUT email verification (security improvement)
   const user = await prisma.user.create({
     data: {
       email,
       password: hashedPassword,
       name,
-      emailVerified: new Date(), // Auto-verify for development
+      emailVerified: null, // ← CRITICAL: Do NOT auto-verify
     }
   })
+
+  // Generate cryptographically secure token (32 bytes = 256 bits)
+  const token = crypto.randomBytes(32).toString('hex')
+
+  // Hash the token before storing (security best practice)
+  // If DB is compromised, tokens can't be used to verify emails
+  const hashedToken = await hash(token, 10)
+
+  // Store hashed token with 24h expiration
+  await prisma.verificationToken.create({
+    data: {
+      identifier: email,
+      token: hashedToken,
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+    }
+  })
+
+  // Send verification email (plain token, not hashed)
+  // The email service will create a link with the plain token
+  const emailResult = await sendVerificationEmail(email, token)
+
+  // Audit log for security tracking
+  await createAuditLog({
+    userId: user.id,
+    action: "REGISTER",
+    metadata: {
+      email,
+      name,
+      emailSent: emailResult.success,
+      devMode: emailResult.dev || false,
+    },
+  })
+
+  console.log(`✅ User registered: ${email}${emailResult.dev ? ' (dev mode - check console for verification link)' : ''}`)
 
   return {
     id: user.id,
