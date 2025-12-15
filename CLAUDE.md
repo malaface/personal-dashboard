@@ -204,6 +204,72 @@ SUPABASE_SERVICE_ROLE_KEY=[from AI Platform .env]
 - ❌ Never push directly to main branch
 - ✅ Always work from submodule directory: `/home/badfaceserverlap/docker/contenedores`
 
+**Git Versioning with Tags:**
+
+Cuando el proyecto alcance versiones estables, utilizar Git tags para marcar esos puntos específicos:
+
+**Semantic Versioning Strategy:**
+
+- **v0.x (Pre-release versions):**
+  - Comenzar con `v0.1` cuando tengamos algo funcional básico
+  - Incrementar progresivamente: `v0.2`, `v0.3`, etc.
+  - Usar para features completadas pero aún en desarrollo activo
+  - Ejemplo: `v0.1` - Auth + Basic CRUD functional
+
+- **v1.0 (First Major Release):**
+  - ⚠️ SOLO cuando demos un cambio MUY RADICAL que amerite dar ese salto
+  - Ejemplos que ameritan v1.0:
+    - Aplicación completamente funcional con todos los módulos
+    - Primera versión production-ready
+    - Breaking changes fundamentales en arquitectura
+  - **NO usar v1.0 para features individuales**
+
+- **v2.0, v3.0, etc. (Major Versions):**
+  - Aplicar la misma lógica que v1.0
+  - Solo para cambios radicales/breaking changes mayores
+  - Ejemplos:
+    - Migración de framework (Next.js 15 → 16)
+    - Cambio de arquitectura completa
+    - Refactor masivo que rompe compatibilidad
+
+**Comandos para crear tags:**
+
+```bash
+# Crear tag para versión estable
+git tag -a v0.1 -m "feat: First functional version - Auth & Registration working"
+
+# Push tag al repositorio
+git push origin v0.1
+
+# Listar todos los tags
+git tag -l
+
+# Ver detalles de un tag específico
+git show v0.1
+
+# Crear tag para versión actual (post-commit)
+git tag -a v0.1 [commit-hash] -m "Message"
+```
+
+**Criterios para crear un tag:**
+
+✅ Crear tag cuando:
+- Feature mayor completada y testeada
+- Health checks pasando
+- Build exitoso sin errores
+- Funcionalidad verificada manualmente
+- Documentación actualizada
+
+❌ NO crear tag cuando:
+- Cambio menor o fix pequeño
+- Feature a medias
+- Tests fallando
+- Errores conocidos sin resolver
+
+**Current Version Status:**
+- **Latest stable tag:** (Pending - será v0.1 cuando auth esté completo)
+- **Next milestone:** v0.1 - Authentication + Basic User Management
+
 **For comprehensive rules:** Invoke respective skill (e.g., `nextjs-app-router-patterns`)
 
 ---
@@ -360,6 +426,7 @@ This project uses **on-demand skills loading** to:
 
 ---
 
-**Last Updated:** 2025-12-09
+**Last Updated:** 2025-12-14
 **Skills Version:** 1.0.0
 **Context Optimization:** Active (-78% initial context)
+**Git Versioning:** Implemented (Semantic Tags v0.x → v1.0+)

@@ -58,8 +58,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
 
         // CRITICAL SECURITY: Require email verification for production
-        // This prevents unauthorized access to the dashboard
-        if (!user.emailVerified) {
+        // Allow bypass in development for easier testing
+        if (!user.emailVerified && process.env.NODE_ENV !== 'development') {
           await createAuditLog({
             userId: user.id,
             action: "LOGIN_FAILED",
@@ -69,6 +69,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             },
           })
           throw new Error("Please verify your email before logging in. Check your inbox for the verification link.")
+        }
+
+        // Log development bypass if used
+        if (!user.emailVerified && process.env.NODE_ENV === 'development') {
+          console.log(`[DEV MODE] Bypassing email verification for ${credentials.email}`)
         }
 
         // Successful login - log it

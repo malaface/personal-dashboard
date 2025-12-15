@@ -15,6 +15,7 @@ export default function RegisterForm() {
   })
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -59,24 +60,54 @@ export default function RegisterForm() {
         throw new Error(data.error || "Registration failed")
       }
 
-      // Auto sign in after successful registration
-      const result = await signIn("credentials", {
-        redirect: false,
-        email: formData.email,
-        password: formData.password,
-      })
-
-      if (result?.error) {
-        setError("Registration successful but login failed. Please try logging in.")
-      } else {
-        router.push("/dashboard")
-        router.refresh()
-      }
+      // Show success message instead of auto-login
+      setSuccess(true)
     } catch (error: any) {
       setError(error.message || "An error occurred during registration")
     } finally {
       setLoading(false)
     }
+  }
+
+  // Show success message if registration was successful
+  if (success) {
+    return (
+      <div className="mt-8 space-y-6">
+        <div className="rounded-lg border border-green-500 bg-green-50 p-4 dark:bg-green-950">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-green-800 dark:text-green-200">
+                ¡Cuenta creada exitosamente!
+              </h3>
+              <div className="mt-2 text-sm text-green-700 dark:text-green-300">
+                <p>
+                  Te hemos enviado un email de verificación a <strong>{formData.email}</strong>.
+                </p>
+                <p className="mt-1">
+                  Por favor revisa tu bandeja de entrada y haz clic en el link de verificación para activar tu cuenta.
+                </p>
+                <p className="mt-2 text-xs italic">
+                  Nota: Si estás en modo desarrollo, puedes iniciar sesión directamente sin verificar el email.
+                </p>
+              </div>
+              <div className="mt-4">
+                <Link
+                  href="/login"
+                  className="text-sm font-medium text-green-800 hover:text-green-600 dark:text-green-200 dark:hover:text-green-100"
+                >
+                  Ir al login →
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
