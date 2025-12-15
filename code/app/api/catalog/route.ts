@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth/utils"
 import { getUserCatalogItems, getCatalogItemsByParent } from "@/lib/catalog/queries"
 import { buildCatalogTree } from "@/lib/catalog/utils"
+import { createCatalogItem } from "@/lib/catalog/mutations"
 import { CatalogType } from "@/lib/catalog/types"
+import { CatalogItemSchema } from "@/lib/validations/catalog"
 
 /**
  * GET /api/catalog
@@ -62,6 +64,64 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
+      )
+    }
+
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    )
+  }
+}
+
+/**
+ * POST /api/catalog
+ * Create a new user catalog item
+ */
+export async function POST(request: NextRequest) {
+  try {
+    await requireAuth()
+
+    const body = await request.json()
+
+    // Validate input
+    const validatedData = CatalogItemSchema.parse(body)
+
+    // Generate slug if not provided
+    const slug = validatedData.slug || validatedData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+
+    // Create catalog item
+    const result = await createCatalogItem({
+      ...validatedData,
+      slug
+    })
+
+    if (!result.success) {
+      return NextResponse.json(
+        { error: result.error },
+        { status: 400 }
+      )
+    }
+
+    return NextResponse.json({
+      success: true,
+      item: result.catalogItem
+    }, { status: 201 })
+
+  } catch (error: any) {
+    console.error("POST /api/catalog error:", error)
+
+    if (error.message === "Unauthorized") {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      )
+    }
+
+    if (error.name === "ZodError") {
+      return NextResponse.json(
+        { error: "Validation error", details: error.errors },
+        { status: 400 }
       )
     }
 
