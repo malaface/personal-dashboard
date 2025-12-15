@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache"
 import { requireAuth } from "@/lib/auth/utils"
 import { prisma } from "@/lib/db/prisma"
 import { MealWithFoodItemsSchema } from "@/lib/validations/nutrition"
+import { createAuditLog } from "@/lib/audit/logger"
 
 export async function createMeal(formData: FormData) {
   try {
@@ -43,6 +44,13 @@ export async function createMeal(formData: FormData) {
       },
     })
 
+    // Log meal creation
+    await createAuditLog({
+      userId: user.id,
+      action: "MEAL_CREATED",
+      metadata: { mealId: meal.id, mealType: meal.mealType },
+    })
+
     revalidatePath("/dashboard/nutrition")
 
     return { success: true, meal }
@@ -66,6 +74,13 @@ export async function deleteMeal(mealId: string) {
     if (!meal) {
       return { success: false, error: "Meal not found or access denied" }
     }
+
+    // Log before deleting
+    await createAuditLog({
+      userId: user.id,
+      action: "MEAL_DELETED",
+      metadata: { mealId },
+    })
 
     await prisma.meal.delete({
       where: { id: mealId },
@@ -133,6 +148,13 @@ export async function updateMeal(mealId: string, formData: FormData) {
           foodItems: true,
         },
       })
+    })
+
+    // Log meal update
+    await createAuditLog({
+      userId: user.id,
+      action: "MEAL_UPDATED",
+      metadata: { mealId },
     })
 
     revalidatePath("/dashboard/nutrition")

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache"
 import { requireAuth } from "@/lib/auth/utils"
 import { prisma } from "@/lib/db/prisma"
 import { WorkoutWithExercisesSchema } from "@/lib/validations/workouts"
+import { createAuditLog } from "@/lib/audit/logger"
 
 export async function createWorkout(formData: FormData) {
   try {
@@ -42,6 +43,13 @@ export async function createWorkout(formData: FormData) {
       include: { exercises: true },
     })
 
+    // Log workout creation
+    await createAuditLog({
+      userId: user.id,
+      action: "WORKOUT_CREATED",
+      metadata: { workoutId: workout.id, workoutName: workout.name },
+    })
+
     revalidatePath("/dashboard/workouts")
 
     return { success: true, workout }
@@ -69,6 +77,16 @@ export async function deleteWorkout(workoutId: string) {
     if (!workout) {
       return { success: false, error: "Workout not found or access denied" }
     }
+
+    // Capture workout name before deleting
+    const workoutName = workout.name
+
+    // Log before deleting
+    await createAuditLog({
+      userId: user.id,
+      action: "WORKOUT_DELETED",
+      metadata: { workoutId, workoutName },
+    })
 
     // Delete workout (exercises will cascade delete)
     await prisma.workout.delete({
@@ -138,6 +156,13 @@ export async function updateWorkout(workoutId: string, formData: FormData) {
         },
         include: { exercises: true },
       })
+    })
+
+    // Log workout update
+    await createAuditLog({
+      userId: user.id,
+      action: "WORKOUT_UPDATED",
+      metadata: { workoutId, workoutName: validatedData.name },
     })
 
     revalidatePath("/dashboard/workouts")

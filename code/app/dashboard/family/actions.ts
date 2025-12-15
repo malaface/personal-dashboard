@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache"
 import { requireAuth } from "@/lib/auth/utils"
 import { prisma } from "@/lib/db/prisma"
 import { FamilyMemberSchema } from "@/lib/validations/family"
+import { createAuditLog } from "@/lib/audit/logger"
 
 export async function createFamilyMember(formData: FormData) {
   try {
@@ -32,6 +33,13 @@ export async function createFamilyMember(formData: FormData) {
       },
     })
 
+    // Log family member creation
+    await createAuditLog({
+      userId: user.id,
+      action: "FAMILY_MEMBER_CREATED",
+      metadata: { familyMemberId: familyMember.id, name: familyMember.name },
+    })
+
     revalidatePath("/dashboard/family")
 
     return { success: true, familyMember }
@@ -55,6 +63,16 @@ export async function deleteFamilyMember(familyMemberId: string) {
     if (!familyMember) {
       return { success: false, error: "Family member not found or access denied" }
     }
+
+    // Capture name before deleting
+    const memberName = familyMember.name
+
+    // Log before deleting
+    await createAuditLog({
+      userId: user.id,
+      action: "FAMILY_MEMBER_DELETED",
+      metadata: { familyMemberId, name: memberName },
+    })
 
     await prisma.familyMember.delete({
       where: { id: familyMemberId },
@@ -105,6 +123,13 @@ export async function updateFamilyMember(familyMemberId: string, formData: FormD
         phone: validatedData.phone || null,
         notes: validatedData.notes || null,
       },
+    })
+
+    // Log family member update
+    await createAuditLog({
+      userId: user.id,
+      action: "FAMILY_MEMBER_UPDATED",
+      metadata: { familyMemberId, name: validatedData.name },
     })
 
     revalidatePath("/dashboard/family")

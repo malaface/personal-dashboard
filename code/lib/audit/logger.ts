@@ -17,6 +17,12 @@ export type AuditAction =
   | "TRANSACTION_CREATED"
   | "TRANSACTION_UPDATED"
   | "TRANSACTION_DELETED"
+  | "MEAL_CREATED"
+  | "MEAL_UPDATED"
+  | "MEAL_DELETED"
+  | "FAMILY_MEMBER_CREATED"
+  | "FAMILY_MEMBER_UPDATED"
+  | "FAMILY_MEMBER_DELETED"
 
 interface AuditLogData {
   userId?: string

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache"
 import { requireAuth } from "@/lib/auth/utils"
 import { prisma } from "@/lib/db/prisma"
 import { TransactionSchema } from "@/lib/validations/finance"
+import { createAuditLog } from "@/lib/audit/logger"
 
 export async function createTransaction(formData: FormData) {
   try {
@@ -30,6 +31,18 @@ export async function createTransaction(formData: FormData) {
       },
     })
 
+    // Log transaction creation
+    await createAuditLog({
+      userId: user.id,
+      action: "TRANSACTION_CREATED",
+      metadata: {
+        transactionId: transaction.id,
+        type: transaction.type,
+        amount: transaction.amount,
+        category: transaction.category,
+      },
+    })
+
     revalidatePath("/dashboard/finance")
 
     return { success: true, transaction }
@@ -53,6 +66,17 @@ export async function deleteTransaction(transactionId: string) {
     if (!transaction) {
       return { success: false, error: "Transaction not found or access denied" }
     }
+
+    // Capture transaction data before deleting
+    const amount = transaction.amount
+    const category = transaction.category
+
+    // Log before deleting
+    await createAuditLog({
+      userId: user.id,
+      action: "TRANSACTION_DELETED",
+      metadata: { transactionId, amount, category },
+    })
 
     await prisma.transaction.delete({
       where: { id: transactionId },
@@ -101,6 +125,13 @@ export async function updateTransaction(transactionId: string, formData: FormDat
         description: validatedData.description,
         date: new Date(validatedData.date),
       },
+    })
+
+    // Log transaction update
+    await createAuditLog({
+      userId: user.id,
+      action: "TRANSACTION_UPDATED",
+      metadata: { transactionId, changes: validatedData },
     })
 
     revalidatePath("/dashboard/finance")

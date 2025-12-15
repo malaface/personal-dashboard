@@ -1,9 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { signOut } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { ChevronDownIcon, UserCircleIcon, ArrowRightOnRectangleIcon } from "@heroicons/react/24/outline"
+import { handleLogout } from "@/app/dashboard/actions"
 
 interface HeaderProps {
   user: {
@@ -17,7 +17,7 @@ export default function Header({ user }: HeaderProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
   const handleSignOut = async () => {
-    await signOut({ callbackUrl: "/login" })
+    await handleLogout()
   }
 
   const handleProfileClick = () => {

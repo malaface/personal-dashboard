@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache"
 import { requireAuth } from "@/lib/auth/utils"
 import { prisma } from "@/lib/db/prisma"
 import { ProfileSchema, PasswordChangeSchema } from "@/lib/validations/profile"
+import { createAuditLog } from "@/lib/audit/logger"
 import bcrypt from "bcryptjs"
 
 export async function updateProfile(formData: FormData) {
@@ -95,6 +96,16 @@ export async function changePassword(formData: FormData) {
     await prisma.user.update({
       where: { id: user.id },
       data: { password: hashedPassword },
+    })
+
+    // Log password change
+    await createAuditLog({
+      userId: user.id,
+      action: "PASSWORD_CHANGE",
+      metadata: {
+        email: user.email,
+        timestamp: new Date().toISOString(),
+      },
     })
 
     return { success: true }
