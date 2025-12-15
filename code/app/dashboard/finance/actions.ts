@@ -5,30 +5,49 @@ import { requireAuth } from "@/lib/auth/utils"
 import { prisma } from "@/lib/db/prisma"
 import { TransactionSchema } from "@/lib/validations/finance"
 import { createAuditLog } from "@/lib/audit/logger"
+import { getCatalogItemById } from "@/lib/catalog/queries"
 
 export async function createTransaction(formData: FormData) {
   try {
     const user = await requireAuth()
 
     const rawData = {
-      type: formData.get("type"),
+      typeId: formData.get("typeId"),
       amount: parseFloat(formData.get("amount") as string),
-      category: formData.get("category"),
+      categoryId: formData.get("categoryId"),
       description: formData.get("description") || undefined,
       date: formData.get("date"),
     }
 
     const validatedData = TransactionSchema.parse(rawData)
 
+    // Validate that user has access to selected catalog items
+    const [typeItem, categoryItem] = await Promise.all([
+      getCatalogItemById(validatedData.typeId, user.id),
+      getCatalogItemById(validatedData.categoryId, user.id)
+    ])
+
+    if (!typeItem) {
+      return { success: false, error: "Invalid transaction type" }
+    }
+
+    if (!categoryItem) {
+      return { success: false, error: "Invalid category" }
+    }
+
     const transaction = await prisma.transaction.create({
       data: {
         userId: user.id,
-        type: validatedData.type,
+        typeId: validatedData.typeId,
         amount: validatedData.amount,
-        category: validatedData.category,
+        categoryId: validatedData.categoryId,
         description: validatedData.description,
         date: new Date(validatedData.date),
       },
+      include: {
+        typeItem: true,
+        categoryItem: true
+      }
     })
 
     // Log transaction creation
@@ -37,9 +56,9 @@ export async function createTransaction(formData: FormData) {
       action: "TRANSACTION_CREATED",
       metadata: {
         transactionId: transaction.id,
-        type: transaction.type,
+        typeId: transaction.typeId,
         amount: transaction.amount,
-        category: transaction.category,
+        categoryId: transaction.categoryId,
       },
     })
 
@@ -107,24 +126,42 @@ export async function updateTransaction(transactionId: string, formData: FormDat
     }
 
     const rawData = {
-      type: formData.get("type"),
+      typeId: formData.get("typeId"),
       amount: parseFloat(formData.get("amount") as string),
-      category: formData.get("category"),
+      categoryId: formData.get("categoryId"),
       description: formData.get("description") || undefined,
       date: formData.get("date"),
     }
 
     const validatedData = TransactionSchema.parse(rawData)
 
+    // Validate that user has access to selected catalog items
+    const [typeItem, categoryItem] = await Promise.all([
+      getCatalogItemById(validatedData.typeId, user.id),
+      getCatalogItemById(validatedData.categoryId, user.id)
+    ])
+
+    if (!typeItem) {
+      return { success: false, error: "Invalid transaction type" }
+    }
+
+    if (!categoryItem) {
+      return { success: false, error: "Invalid category" }
+    }
+
     const transaction = await prisma.transaction.update({
       where: { id: transactionId },
       data: {
-        type: validatedData.type,
+        typeId: validatedData.typeId,
         amount: validatedData.amount,
-        category: validatedData.category,
+        categoryId: validatedData.categoryId,
         description: validatedData.description,
         date: new Date(validatedData.date),
       },
+      include: {
+        typeItem: true,
+        categoryItem: true
+      }
     })
 
     // Log transaction update

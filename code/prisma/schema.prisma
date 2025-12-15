@@ -38,6 +38,7 @@ model User {
   reminders     Reminder[]
   notifications Notification[]
   auditLogs     AuditLog[]
+  catalogItems  CatalogItem[]
 
   @@map("users")
 }
@@ -169,19 +170,30 @@ model WorkoutProgress {
 model Transaction {
   id          String        @id @default(cuid())
   userId      String
-  type        String        // 'income' | 'expense'
+
+  // Legacy fields (will be removed in cleanup migration)
+  type        String?       // 'income' | 'expense'
+  category    String?
+
+  // New CatalogItem references
+  typeId      String?       // Reference to CatalogItem (transaction type)
+  categoryId  String?       // Reference to CatalogItem (transaction category)
+
   amount      Float
-  category    String
   description String?
   date        DateTime      @default(now())
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
-  user   User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  audits TransactionAudit[]
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  typeItem        CatalogItem?       @relation("TransactionType", fields: [typeId], references: [id], onDelete: Restrict)
+  categoryItem    CatalogItem?       @relation("TransactionCategory", fields: [categoryId], references: [id], onDelete: Restrict)
+  audits          TransactionAudit[]
 
   @@index([userId, date])
   @@index([userId, category])
+  @@index([userId, categoryId])
+  @@index([typeId])
   @@map("transactions")
 }
 
@@ -209,7 +221,13 @@ model Investment {
   id           String   @id @default(cuid())
   userId       String
   name         String
-  type         String   // 'stock' | 'crypto' | 'bond' | 'real_estate'
+
+  // Legacy field (will be removed in cleanup migration)
+  type         String?  // 'stock' | 'crypto' | 'bond' | 'real_estate'
+
+  // New CatalogItem reference
+  typeId       String?  // Reference to CatalogItem (investment type)
+
   amount       Float
   currentValue Float?
   purchaseDate DateTime
@@ -217,26 +235,36 @@ model Investment {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user     User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  typeItem CatalogItem? @relation(fields: [typeId], references: [id], onDelete: Restrict)
 
   @@index([userId])
+  @@index([typeId])
   @@map("investments")
 }
 
 model Budget {
   id        String   @id @default(cuid())
   userId    String
-  category  String
+
+  // Legacy field (will be removed in cleanup migration)
+  category  String?
+
+  // New CatalogItem reference
+  categoryId String? // Reference to CatalogItem (budget category)
+
   limit     Float
   month     DateTime // YYYY-MM-01
   spent     Float    @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryItem CatalogItem? @relation(fields: [categoryId], references: [id], onDelete: Restrict)
 
   @@unique([userId, category, month])
   @@index([userId, month])
+  @@index([categoryId])
   @@map("budgets")
 }
 
@@ -411,6 +439,59 @@ enum NotificationType {
   WARNING
   ERROR
   SUCCESS
+}
+
+// ============================================
+// CATALOG SYSTEM (Nested Categories)
+// ============================================
+
+model CatalogItem {
+  id          String   @id @default(cuid())
+
+  // Identification
+  catalogType String   // 'transaction_category' | 'investment_type' | 'budget_category'
+  name        String   // Display name (e.g., "Food", "Restaurants")
+  slug        String   // URL-friendly identifier (e.g., "food", "restaurants")
+  description String?  // Optional description
+
+  // Hierarchy (Self-relation)
+  parentId    String?  // NULL for root level
+  level       Int      @default(0) // 0, 1, 2, or 3
+
+  // Ownership & Permissions
+  isSystem    Boolean  @default(false) // true = system category, false = user-specific
+  userId      String?  // NULL if isSystem=true, user's UUID if isSystem=false
+
+  // UI/UX Enhancements
+  icon        String?  // Emoji or icon class (e.g., "🍔", "lucide-home")
+  color       String?  // Hex color for UI (e.g., "#FF5733")
+  sortOrder   Int      @default(0) // Display order
+
+  // Metadata & Soft Delete
+  metadata    Json?    // Flexible additional data
+  isActive    Boolean  @default(true) // Soft delete flag
+
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent      CatalogItem? @relation("CatalogItemHierarchy", fields: [parentId], references: [id], onDelete: Restrict)
+  children    CatalogItem[] @relation("CatalogItemHierarchy")
+
+  // Finance Module Relations
+  transactionsAsType     Transaction[] @relation("TransactionType")
+  transactionsAsCategory Transaction[] @relation("TransactionCategory")
+  investments            Investment[]
+  budgets                Budget[]
+
+  // Indexes
+  @@unique([catalogType, slug, userId]) // Prevent duplicate slugs per catalog type per user
+  @@index([catalogType, isSystem, userId]) // Fast lookup for RLS
+  @@index([parentId]) // Fast hierarchy traversal
+  @@index([userId]) // User-specific queries
+  @@map("catalog_items")
 }
 
 // ============================================

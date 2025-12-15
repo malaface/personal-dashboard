@@ -7,9 +7,11 @@ import { TrashIcon, PencilIcon, ArrowUpIcon, ArrowDownIcon } from "@heroicons/re
 
 interface Transaction {
   id: string
-  type: string
+  type: string | null
+  typeId?: string | null
+  category: string | null
+  categoryId?: string | null
   amount: number
-  category: string
   description?: string | null
   date: Date
 }

@@ -1,38 +1,62 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
 import { createTransaction, updateTransaction } from "@/app/dashboard/finance/actions"
+import CategorySelector from "@/components/catalog/CategorySelector"
 
 interface TransactionFormProps {
   transaction?: {
     id: string
-    type: string
+    typeId?: string | null
+    categoryId?: string | null
+    // Legacy fields (for backward compatibility during migration)
+    type?: string | null
+    category?: string | null
     amount: number
-    category: string
     description?: string | null
     date: Date
   }
   onCancel?: () => void
 }
 
-const categories = {
-  income: ["Salary", "Freelance", "Investment", "Gift", "Other"],
-  expense: ["Food", "Transport", "Housing", "Entertainment", "Shopping", "Healthcare", "Other"],
-}
-
 export default function TransactionForm({ transaction, onCancel }: TransactionFormProps) {
   const router = useRouter()
+  const { data: session } = useSession()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
-  const [type, setType] = useState<"income" | "expense">(transaction?.type as any || "expense")
+  const [typeId, setTypeId] = useState(transaction?.typeId || transaction?.type || "")
+  const [categoryId, setCategoryId] = useState(transaction?.categoryId || transaction?.category || "")
   const [amount, setAmount] = useState(transaction?.amount?.toString() || "")
-  const [category, setCategory] = useState(transaction?.category || "")
   const [description, setDescription] = useState(transaction?.description || "")
   const [date, setDate] = useState(
     transaction?.date ? new Date(transaction.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
   )
+
+  // Get parent type for cascading category selection
+  const [selectedTypeItem, setSelectedTypeItem] = useState<any>(null)
+
+  useEffect(() => {
+    async function fetchTypeItem() {
+      if (typeId) {
+        try {
+          const response = await fetch(`/api/catalog/${typeId}`)
+          const data = await response.json()
+          if (data.item) {
+            setSelectedTypeItem(data.item)
+          }
+        } catch (err) {
+          console.error("Failed to fetch type item:", err)
+        }
+      } else {
+        setSelectedTypeItem(null)
+        setCategoryId("") // Reset category when type changes
+      }
+    }
+    fetchTypeItem()
+  }, [typeId])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -41,9 +65,9 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
 
     try {
       const formData = new FormData()
-      formData.append("type", type)
+      formData.append("typeId", typeId)
       formData.append("amount", amount)
-      formData.append("category", category)
+      formData.append("categoryId", categoryId)
       if (description) formData.append("description", description)
       formData.append("date", date)
 
@@ -80,18 +104,16 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Type *
             </label>
-            <select
-              value={type}
-              onChange={(e) => {
-                setType(e.target.value as "income" | "expense")
-                setCategory("") // Reset category when type changes
-              }}
+            <CategorySelector
+              catalogType="transaction_category"
+              value={typeId}
+              onChange={(id) => setTypeId(id)}
+              placeholder="Select type (Income/Expense)"
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="expense">Expense</option>
-              <option value="income">Income</option>
-            </select>
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Select Income or Expense
+            </p>
           </div>
 
           <div>
@@ -116,19 +138,18 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Category *
             </label>
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
+            <CategorySelector
+              catalogType="transaction_category"
+              value={categoryId}
+              onChange={(id) => setCategoryId(id)}
+              parentId={typeId}
+              placeholder={typeId ? "Select category" : "Select type first"}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Select category</option>
-              {categories[type].map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
+              disabled={!typeId}
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              {typeId ? "Select a specific category" : "Choose a type first to see categories"}
+            </p>
           </div>
 
           <div>
