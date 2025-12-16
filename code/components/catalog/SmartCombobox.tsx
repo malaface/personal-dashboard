@@ -36,8 +36,8 @@ export default function SmartCombobox({
   debounceMs = 300,
   parentId = null,
   allowCreate = true,
-  placeholder = 'Search or select...',
-  emptyMessage = 'No items found',
+  placeholder = 'Buscar o seleccionar...',
+  emptyMessage = 'No se encontraron resultados',
   required = false,
   disabled = false,
   error,
@@ -48,7 +48,7 @@ export default function SmartCombobox({
   const [selectedItem, setSelectedItem] = useState<any>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  const { query, setQuery, results, loading } = useComboboxSearch(catalogType, {
+  const { query, setQuery, results, loading, clearCache } = useComboboxSearch(catalogType, {
     debounceMs,
     minLength: minSearchLength,
     parentId
@@ -85,6 +85,8 @@ export default function SmartCombobox({
   }
 
   const handleCreateSuccess = (newItem: any) => {
+    // Clear cache so new searches include the newly created item
+    clearCache()
     handleSelect(newItem.id, newItem.name)
     setShowCreateDialog(false)
   }
@@ -117,7 +119,7 @@ export default function SmartCombobox({
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder={`Search ${catalogType.replace('_', ' ')}...`}
+                  placeholder={`Buscar ${catalogType.replace('_', ' ')}...`}
                   className="w-full px-2 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   autoFocus
                 />
@@ -127,7 +129,7 @@ export default function SmartCombobox({
             {/* Results */}
             <div className="py-1">
               {loading && (
-                <div className="px-3 py-2 text-sm text-gray-500">Loading...</div>
+                <div className="px-3 py-2 text-sm text-gray-500">Cargando...</div>
               )}
 
               {!loading && results.length === 0 && query.length >= minSearchLength && (
@@ -159,7 +161,7 @@ export default function SmartCombobox({
                   className="w-full px-3 py-2 text-left text-sm text-blue-600 hover:bg-blue-50 flex items-center border-t"
                 >
                   <PlusIcon className="h-4 w-4 mr-2" />
-                  Create "{query}"
+                  Crear "{query}"
                 </button>
               )}
             </div>
