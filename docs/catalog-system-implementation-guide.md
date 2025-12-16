@@ -1,9 +1,9 @@
 # Sistema de Catálogos Mejorado - Guía de Implementación
 
 **Proyecto**: Personal Dashboard
-**Estado**: 33% completado (19/57 tareas)
+**Estado**: 42% completado (24/57 tareas)
 **Última verificación**: 2025-12-15
-**Próximo paso**: Fase 1.6 - Frontend Migración a React Hook Form (WorkoutForm.tsx)
+**Próximo paso**: Fase 1.7 - Testing Manual (checklist de pruebas)
 
 ---
 
@@ -234,13 +234,12 @@ const age = parseInt(formData.get('age') as string)
 
 ## 📊 ESTADO ACTUAL
 
-### ✅ Completado (19 tareas)
+### ✅ Completado (24 tareas)
 
 **Sección 1.1 - Backend API de Búsqueda** ✅
 - `code/app/api/catalog/search/route.ts` - Full-text search con ranking (exact:100, starts:75, contains:50)
 - `code/app/api/catalog/route.ts` - Validación duplicados (ya existía en mutations.ts)
-- React Hook Form instalado (`v7.68.0`) pero NO usado
-- CategorySelector existe pero es `<select>` simple, NO SmartCombobox
+- React Hook Form instalado (`v7.68.0`) ✅ AHORA EN USO
 
 **Sección 1.2 - Backend Extensión de Tipos** ✅
 - `code/lib/catalog/types.ts` - Extendido con 9 nuevos tipos (Nutrition: 4, Family: 5)
@@ -263,17 +262,27 @@ const age = parseInt(formData.get('age') as string)
 - Build exitoso: `npm run build` - 0 errores
 - TypeScript validation: `npx tsc --noEmit` - 0 errores
 
+**Sección 1.6 - Frontend Migración a React Hook Form** ✅
+- `code/components/workouts/WorkoutForm.tsx` - Migrado completamente a React Hook Form v7.68.0
+- Validación con Zod schemas (exerciseSchema + workoutFormSchema)
+- SmartCombobox integrado con Controller pattern para 3 campos: exerciseTypeId, muscleGroupId, equipmentId
+- useFieldArray para manejo de array de ejercicios
+- Validación en tiempo real con mensajes de error personalizados
+- Build exitoso: `npm run build` - 0 errores
+- TypeScript validation: `npx tsc --noEmit` - 0 errores
+- **Reporte completo**: `docs/fase-1.6-react-hook-form-migration.md`
+
 **Tipos soportados ahora**: `transaction_category`, `investment_type`, `budget_category`, `exercise_category`, `equipment_type`, `muscle_group`, `meal_type`, `food_category`, `unit_type`, `nutrition_goal_type`, `relationship_type`, `event_category`, `reminder_category`, `activity_type`, `social_circle`
 
-### ❌ Pendiente (38 tareas)
+### ❌ Pendiente (33 tareas)
 
-- WorkoutForm.tsx migración a React Hook Form (próximo paso)
+- Fase 1.7 - Testing Manual (próximo paso)
 - Fase 2 (Templates): 0/19
 - Fase 3 (Analytics): 0/16
 
 ---
 
-## 🎯 FASE 1: SMART COMBOBOX (22 tareas, 19 ✅ 3 ❌)
+## 🎯 FASE 1: SMART COMBOBOX (22 tareas, 21 ✅ 1 ❌)
 
 ### 1.2 Backend - Extensión de Tipos [4/4] ✅ COMPLETADO
 
@@ -963,7 +972,7 @@ npx tsc --noEmit    # ✅ Exitoso - 0 errores de tipo
 
 ---
 
-### 1.6 Frontend - Migración a React Hook Form [0/5]
+### 1.6 Frontend - Migración a React Hook Form [5/5] ✅ COMPLETADO
 
 #### Modificar: `code/components/workouts/WorkoutForm.tsx`
 
