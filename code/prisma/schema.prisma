@@ -39,6 +39,8 @@ model User {
   notifications Notification[]
   auditLogs     AuditLog[]
   catalogItems  CatalogItem[]
+  workoutTemplates WorkoutTemplate[]
+  mealTemplates    MealTemplate[]
 
   @@map("users")
 }
@@ -132,7 +134,15 @@ model Workout {
 model Exercise {
   id          String   @id @default(cuid())
   workoutId   String
-  name        String
+
+  // Legacy field (nullable during transition)
+  name        String?
+
+  // NEW: CatalogItem references
+  exerciseTypeId  String?  @map("exercise_type_id")
+  muscleGroupId   String?  @map("muscle_group_id")
+  equipmentId     String?  @map("equipment_id")
+
   sets        Int
   reps        Int
   weight      Float?   // kg
@@ -140,10 +150,16 @@ model Exercise {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  workout  Workout          @relation(fields: [workoutId], references: [id], onDelete: Cascade)
-  progress WorkoutProgress[]
+  workout        Workout          @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  exerciseType   CatalogItem?     @relation("ExerciseType", fields: [exerciseTypeId], references: [id], onDelete: Restrict)
+  muscleGroup    CatalogItem?     @relation("MuscleGroup", fields: [muscleGroupId], references: [id], onDelete: Restrict)
+  equipment      CatalogItem?     @relation("Equipment", fields: [equipmentId], references: [id], onDelete: Restrict)
+  progress       WorkoutProgress[]
 
   @@index([workoutId])
+  @@index([exerciseTypeId])
+  @@index([muscleGroupId])
+  @@index([equipmentId])
   @@map("exercises")
 }
 
@@ -161,6 +177,61 @@ model WorkoutProgress {
 
   @@index([exerciseId, date])
   @@map("workout_progress")
+}
+
+// ============================================
+// WORKOUT TEMPLATES
+// ============================================
+
+model WorkoutTemplate {
+  id          String   @id @default(cuid())
+  userId      String?  // NULL = public template
+  name        String
+  description String?
+  isPublic    Boolean  @default(false) // Public templates visible to all users
+  difficulty  TemplateDifficulty? // BEGINNER | INTERMEDIATE | ADVANCED
+  tags        String[] @default([]) // e.g., ["strength", "upper-body", "push"]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user      User?                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercises WorkoutTemplateExercise[]
+
+  @@index([userId])
+  @@index([isPublic])
+  @@map("workout_templates")
+}
+
+model WorkoutTemplateExercise {
+  id         String  @id @default(cuid())
+  templateId String
+
+  exerciseTypeId String?
+  muscleGroupId  String?
+  equipmentId    String?
+
+  sets       Int
+  reps       Int
+  weight     Float?
+  notes      String?
+  sortOrder  Int     @default(0) // Order in template
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  template     WorkoutTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  exerciseType CatalogItem?    @relation("TemplateExerciseType", fields: [exerciseTypeId], references: [id], onDelete: Restrict)
+  muscleGroup  CatalogItem?    @relation("TemplateMuscleGroup", fields: [muscleGroupId], references: [id], onDelete: Restrict)
+  equipment    CatalogItem?    @relation("TemplateEquipment", fields: [equipmentId], references: [id], onDelete: Restrict)
+
+  @@index([templateId])
+  @@index([exerciseTypeId])
+  @@map("workout_template_exercises")
+}
+
+enum TemplateDifficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
 }
 
 // ============================================
@@ -333,6 +404,58 @@ model NutritionGoal {
 }
 
 // ============================================
+// MEAL TEMPLATES
+// ============================================
+
+model MealTemplate {
+  id          String   @id @default(cuid())
+  userId      String?  // NULL = public template
+  name        String
+  description String?
+  mealType    MealType? // BREAKFAST | LUNCH | DINNER | SNACK
+  isPublic    Boolean  @default(false) // Public templates visible to all users
+  tags        String[] @default([]) // e.g., ["high-protein", "low-carb", "vegan"]
+
+  // Auto-calculated totals (sum of all items)
+  totalCalories Float   @default(0)
+  totalProtein  Float   @default(0)
+  totalCarbs    Float   @default(0)
+  totalFats     Float   @default(0)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user      User?              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  foodItems MealTemplateItem[]
+
+  @@index([userId])
+  @@index([isPublic])
+  @@index([mealType])
+  @@map("meal_templates")
+}
+
+model MealTemplateItem {
+  id         String  @id @default(cuid())
+  templateId String
+
+  name       String
+  quantity   Float
+  unit       String   // g, ml, oz, cup, etc.
+  calories   Float?
+  protein    Float?   // grams
+  carbs      Float?   // grams
+  fats       Float?   // grams
+  sortOrder  Int     @default(0) // Order in template
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  template MealTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@index([templateId])
+  @@map("meal_template_items")
+}
+
+// ============================================
 // FAMILY CRM MODULE
 // ============================================
 
@@ -340,7 +463,13 @@ model FamilyMember {
   id          String   @id @default(cuid())
   userId      String
   name        String
+
+  // Legacy field (will be removed in cleanup migration)
   relationship String
+
+  // New CatalogItem reference
+  relationshipTypeId String? @map("relationship_type_id")
+
   birthday    DateTime?
   email       String?
   phone       String?
@@ -348,11 +477,13 @@ model FamilyMember {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  timeLogs TimeLog[]
-  events   Event[]
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  relationshipType CatalogItem? @relation("FamilyRelationshipType", fields: [relationshipTypeId], references: [id], onDelete: Restrict)
+  timeLogs         TimeLog[]
+  events           Event[]
 
   @@index([userId])
+  @@index([relationshipTypeId])
   @@map("family_members")
 }
 
@@ -361,6 +492,10 @@ model TimeLog {
   userId         String
   familyMemberId String?
   activity       String
+
+  // New CatalogItem reference
+  activityTypeId String? @map("activity_type_id")
+
   duration       Int      // minutes
   date           DateTime @default(now())
   notes          String?
@@ -369,8 +504,10 @@ model TimeLog {
 
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   familyMember FamilyMember? @relation(fields: [familyMemberId], references: [id], onDelete: SetNull)
+  activityType CatalogItem?  @relation("TimeLogActivityType", fields: [activityTypeId], references: [id], onDelete: Restrict)
 
   @@index([userId, date])
+  @@index([activityTypeId])
   @@map("time_logs")
 }
 
@@ -380,6 +517,10 @@ model Event {
   familyMemberId String?
   title          String
   description    String?
+
+  // New CatalogItem reference
+  categoryId     String? @map("category_id")
+
   date           DateTime
   location       String?
   createdAt      DateTime @default(now())
@@ -387,8 +528,10 @@ model Event {
 
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   familyMember FamilyMember? @relation(fields: [familyMemberId], references: [id], onDelete: SetNull)
+  category     CatalogItem?  @relation("EventCategory", fields: [categoryId], references: [id], onDelete: Restrict)
 
   @@index([userId, date])
+  @@index([categoryId])
   @@map("events")
 }
 
@@ -397,15 +540,21 @@ model Reminder {
   userId    String
   title     String
   description String?
+
+  // New CatalogItem reference
+  categoryId  String? @map("category_id")
+
   dueDate   DateTime
   priority  Priority  @default(MEDIUM)
   completed Boolean   @default(false)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user     User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category CatalogItem? @relation("ReminderCategory", fields: [categoryId], references: [id], onDelete: Restrict)
 
   @@index([userId, dueDate])
+  @@index([categoryId])
   @@map("reminders")
 }
 
@@ -485,6 +634,22 @@ model CatalogItem {
   transactionsAsCategory Transaction[] @relation("TransactionCategory")
   investments            Investment[]
   budgets                Budget[]
+
+  // Gym Module Relations
+  exercisesAsType        Exercise[] @relation("ExerciseType")
+  exercisesAsMuscleGroup Exercise[] @relation("MuscleGroup")
+  exercisesAsEquipment   Exercise[] @relation("Equipment")
+
+  // Workout Template Relations
+  templateExercisesAsType        WorkoutTemplateExercise[] @relation("TemplateExerciseType")
+  templateExercisesAsMuscleGroup WorkoutTemplateExercise[] @relation("TemplateMuscleGroup")
+  templateExercisesAsEquipment   WorkoutTemplateExercise[] @relation("TemplateEquipment")
+
+  // Family Module Relations
+  familyMembersAsRelationshipType FamilyMember[] @relation("FamilyRelationshipType")
+  timeLogsAsActivityType          TimeLog[]      @relation("TimeLogActivityType")
+  eventsAsCategory                Event[]        @relation("EventCategory")
+  remindersAsCategory             Reminder[]     @relation("ReminderCategory")
 
   // Indexes
   @@unique([catalogType, slug, userId]) // Prevent duplicate slugs per catalog type per user
