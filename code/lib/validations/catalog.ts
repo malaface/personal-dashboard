@@ -1,9 +1,28 @@
 import { z } from "zod"
 
 export const CatalogTypeEnum = z.enum([
+  // Finance Module (3)
   "transaction_category",
   "investment_type",
-  "budget_category"
+  "budget_category",
+
+  // Gym Training Module (3)
+  "exercise_category",
+  "equipment_type",
+  "muscle_group",
+
+  // Nutrition Module (4)
+  "meal_type",
+  "food_category",
+  "unit_type",
+  "nutrition_goal_type",
+
+  // Family CRM Module (5)
+  "relationship_type",
+  "event_category",
+  "reminder_category",
+  "activity_type",
+  "social_circle"
 ])
 
 export const CatalogItemSchema = z.object({

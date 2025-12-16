@@ -5,6 +5,7 @@ import { buildCatalogTree } from "@/lib/catalog/utils"
 import { createCatalogItem } from "@/lib/catalog/mutations"
 import { CatalogType } from "@/lib/catalog/types"
 import { CatalogItemSchema } from "@/lib/validations/catalog"
+import { prisma } from "@/lib/db/prisma"
 
 /**
  * GET /api/catalog
@@ -30,7 +31,16 @@ export async function GET(request: NextRequest) {
     }
 
     // Validate catalogType
-    const validTypes = ["transaction_category", "investment_type", "budget_category"]
+    const validTypes = [
+      // Finance (3)
+      "transaction_category", "investment_type", "budget_category",
+      // Gym (3)
+      "exercise_category", "equipment_type", "muscle_group",
+      // Nutrition (4)
+      "meal_type", "food_category", "unit_type", "nutrition_goal_type",
+      // Family (5)
+      "relationship_type", "event_category", "reminder_category", "activity_type", "social_circle"
+    ]
     if (!validTypes.includes(catalogType)) {
       return NextResponse.json(
         { error: "Invalid catalogType" },
@@ -103,9 +113,21 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Fetch complete item with all relations (parent, children)
+    const completeItem = await prisma.catalogItem.findUnique({
+      where: { id: result.catalogItem!.id },
+      include: {
+        parent: true,
+        children: {
+          where: { isActive: true },
+          orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }]
+        }
+      }
+    })
+
     return NextResponse.json({
       success: true,
-      item: result.catalogItem
+      item: completeItem
     }, { status: 201 })
 
   } catch (error: any) {
