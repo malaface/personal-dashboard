@@ -1,9 +1,9 @@
 # Sistema de Catálogos Mejorado - Guía de Implementación
 
 **Proyecto**: Personal Dashboard
-**Estado**: 47% completado (27/57 tareas)
-**Última verificación**: 2025-12-15
-**Próximo paso**: Fase 2.1 - Schema Migrations (Templates System)
+**Estado**: 80% completado (46/57 tareas)
+**Última verificación**: 2025-12-16
+**Próximo paso**: Fase 3 - Analytics (16 tareas pendientes)
 
 ---
 
@@ -234,7 +234,7 @@ const age = parseInt(formData.get('age') as string)
 
 ## 📊 ESTADO ACTUAL
 
-### ✅ Completado (27 tareas)
+### ✅ Completado (46 tareas)
 
 **Sección 1.1 - Backend API de Búsqueda** ✅
 - `code/app/api/catalog/search/route.ts` - Full-text search con ranking (exact:100, starts:75, contains:50)
@@ -281,10 +281,30 @@ const age = parseInt(formData.get('age') as string)
 
 **Tipos soportados ahora**: `transaction_category`, `investment_type`, `budget_category`, `exercise_category`, `equipment_type`, `muscle_group`, `meal_type`, `food_category`, `unit_type`, `nutrition_goal_type`, `relationship_type`, `event_category`, `reminder_category`, `activity_type`, `social_circle`
 
-### ❌ Pendiente (30 tareas)
+**Sección 2 - Templates System** ✅
+- `lib/validations/templates.ts` - Zod schemas para workout y meal templates (86 líneas)
+- `lib/templates/workout-queries.ts` - 6 funciones CRUD (getWorkoutTemplates, getById, create, update, delete, load) con filtros avanzados
+- `lib/templates/meal-queries.ts` - 6 funciones CRUD con cálculo automático de macros (totalCalories, totalProtein, totalCarbs, totalFats)
+- `app/api/templates/workouts/route.ts` - GET (con filtros difficulty/tags/search) y POST
+- `app/api/templates/workouts/[id]/route.ts` - GET, PUT, DELETE con ownership validation
+- `app/api/templates/workouts/[id]/load/route.ts` - GET para pre-fill de formularios
+- `app/api/templates/meals/route.ts` - GET (con filtros mealType/tags/search) y POST
+- `app/api/templates/meals/[id]/route.ts` - GET, PUT, DELETE con ownership validation
+- `app/api/templates/meals/[id]/load/route.ts` - GET para pre-fill de formularios
+- `components/templates/WorkoutTemplateSelector.tsx` - Selector dropdown con badges (BEGINNER/INTERMEDIATE/ADVANCED)
+- `components/templates/MealTemplateSelector.tsx` - Selector dropdown con macros totales
+- `components/templates/WorkoutTemplateManager.tsx` - CRUD completo con React Hook Form + useFieldArray (650+ líneas)
+- `components/templates/MealTemplateManager.tsx` - CRUD completo con cálculo en tiempo real de macros (680+ líneas)
+- `app/dashboard/templates/workouts/page.tsx` - Página de gestión de workout templates
+- `app/dashboard/templates/meals/page.tsx` - Página de gestión de meal templates
+- `prisma/seeds/templates-public.ts` - 3 workout templates + 3 meal templates públicos ejecutados exitosamente
+- Validación TypeScript: 0 errores
+- RLS implementado: usuarios solo acceden a templates públicos + propios
+- Seeds ejecutados: 6 templates públicos creados (3 workouts: Full Body Beginner, Upper Body Intermediate, Strength Advanced; 3 meals: High Protein Breakfast, Post-Workout Lunch, Light Dinner)
 
-- Fase 2 (Templates): 0/19 (próximo paso)
-- Fase 3 (Analytics): 0/16
+### ❌ Pendiente (11 tareas)
+
+- Fase 3 (Analytics): 0/11 (próximo paso)
 
 ---
 
@@ -1153,7 +1173,7 @@ npm run dev
 
 ---
 
-## 🏋️ FASE 2: TEMPLATES (19 tareas, 0% completado)
+## 🏋️ FASE 2: TEMPLATES (19 tareas, 19 ✅) ✅ COMPLETADO
 
 ### Resumen de Archivos Nuevos
 
@@ -1310,7 +1330,7 @@ bash shared/scripts/health-check.sh
 
 ---
 
-**Última actualización**: 2025-12-15
-**Progreso actual**: 27/57 tareas (47%)
-**Próximo paso**: Fase 2.1 - Schema Migrations (Templates System)
-**Completado recientemente**: ✅ Fase 1.7 (Testing Manual) - **FASE 1 COMPLETA** 🎉
+**Última actualización**: 2025-12-16
+**Progreso actual**: 46/57 tareas (80%)
+**Próximo paso**: Fase 3 - Analytics (Gráficos y visualizaciones)
+**Completado recientemente**: ✅ Fase 2 (Templates System) - **SISTEMA DE TEMPLATES COMPLETO** 🎉
