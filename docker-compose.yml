@@ -25,7 +25,7 @@ services:
     container_name: dashboard-postgres
     restart: unless-stopped
     ports:
-      - "5433:5432"
+      - "5434:5432"
     environment:
       POSTGRES_DB: dashboard
       POSTGRES_USER: dashboard_user
@@ -71,38 +71,44 @@ services:
           memory: 128M
 
   # Next.js Dashboard (Phase F - Dockerization)
-  # Descomentar después de Phase E
-  # nextjs-dashboard:
-  #   build:
-  #     context: ./code
-  #     dockerfile: Dockerfile
-  #   container_name: nextjs-dashboard
-  #   restart: unless-stopped
-  #   ports:
-  #     - "3003:3000"
-  #   environment:
-  #     NODE_ENV: production
-  #     PORT: 3000
-  #     DATABASE_URL: postgresql://dashboard_user:${DASHBOARD_DB_PASSWORD}@dashboard-db:5432/dashboard
-  #     NEXTAUTH_URL: http://localhost:3003
-  #     NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
-  #     REDIS_URL: redis://:${DASHBOARD_REDIS_PASSWORD}@dashboard-redis:6379
-  #     # AI Platform integration
-  #     N8N_BASE_URL: http://n8n:5678
-  #     FLOWISE_BASE_URL: http://flowise:3001
-  #     QDRANT_URL: http://qdrant:6333
-  #   depends_on:
-  #     dashboard-db:
-  #       condition: service_healthy
-  #     dashboard-redis:
-  #       condition: service_healthy
-  #   networks:
-  #     - dashboard_internal
-  #     - localai_default
-  #     - monitoring
-  #   healthcheck:
-  #     test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 3
-  #     start_period: 60s
+  nextjs-dashboard:
+    build:
+      context: ./code
+      dockerfile: Dockerfile
+    container_name: nextjs-dashboard
+    restart: unless-stopped
+    ports:
+      - "3003:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+      DATABASE_URL: postgresql://dashboard_user:${DASHBOARD_DB_PASSWORD}@dashboard-db:5432/dashboard
+      NEXTAUTH_URL: http://localhost:3003
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      REDIS_URL: redis://:${DASHBOARD_REDIS_PASSWORD}@dashboard-redis:6379
+      # AI Platform integration
+      N8N_BASE_URL: http://n8n:5678
+      FLOWISE_BASE_URL: http://flowise:3001
+      QDRANT_URL: http://qdrant:6333
+    depends_on:
+      dashboard-db:
+        condition: service_healthy
+      dashboard-redis:
+        condition: service_healthy
+    networks:
+      - dashboard_internal
+      - localai_default
+      - monitoring
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
