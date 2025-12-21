@@ -2,7 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // Optimización para Docker: standalone output genera una versión minimalista
-  output: 'standalone',
+  // Solo usamos standalone en Docker, no en Vercel
+  output: process.env.VERCEL ? undefined : 'standalone',
 
   // Configuración de imágenes (si se usan external images)
   images: {

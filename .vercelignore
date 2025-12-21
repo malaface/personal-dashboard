@@ -1,0 +1,28 @@
+# Directorios que no son parte del deployment
+backups/
+fases/
+projects/
+.claude/
+docs/
+
+# Docker files (no necesarios en Vercel)
+docker-compose.yml
+docker-compose.production.yml
+Dockerfile
+.dockerignore
+
+# Git
+.git/
+.gitignore
+
+# Environment files (se configuran en Vercel UI)
+.env
+.env.local
+.env*.local
+
+# Documentation
+*.md
+!code/README.md
+
+# Otros
+MIGRATION.md
