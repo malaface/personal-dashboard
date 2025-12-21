@@ -26,6 +26,24 @@ export default async function EditWorkoutPage({
     notFound()
   }
 
+  // Transform Prisma data to WorkoutForm format
+  const workoutData = {
+    id: workout.id,
+    name: workout.name,
+    date: workout.date,
+    duration: workout.duration,
+    notes: workout.notes,
+    exercises: workout.exercises.map(exercise => ({
+      exerciseTypeId: exercise.exerciseTypeId,
+      muscleGroupId: exercise.muscleGroupId,
+      equipmentId: exercise.equipmentId,
+      sets: exercise.sets,
+      reps: exercise.reps,
+      weight: exercise.weight,
+      notes: exercise.notes,
+    }))
+  }
+
   return (
     <div className="p-8">
       <div className="max-w-4xl mx-auto">
@@ -40,7 +58,7 @@ export default async function EditWorkoutPage({
           <p className="text-gray-600 mt-2">Update your workout details</p>
         </div>
 
-        <WorkoutForm workout={workout} />
+        <WorkoutForm workout={workoutData} />
       </div>
     </div>
   )
