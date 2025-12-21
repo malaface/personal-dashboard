@@ -45,6 +45,32 @@ export interface AnalyticsDateRange {
   endDate: Date
 }
 
+export interface GymMuscleDistributionData {
+  muscleGroupName: string
+  totalVolume: number
+  percentage: number
+  exerciseCount: number
+}
+
+export interface GymEquipmentUsageData {
+  equipmentName: string
+  exerciseCount: number
+  percentage: number
+}
+
+export interface FinanceCategoryUsageData {
+  categoryName: string
+  transactionCount: number
+  percentage: number
+}
+
+export interface FinanceSpendingDistributionData {
+  categoryName: string
+  totalSpent: number
+  percentage: number
+  transactionCount: number
+}
+
 // ============================================
 // 1. FINANCE ANALYTICS - Portfolio Allocation
 // ============================================
@@ -346,6 +372,289 @@ export async function getNutritionMacroTrends(
   } catch (error) {
     console.error('Error fetching nutrition macro trends:', error)
     throw new Error('Failed to fetch nutrition macro trends')
+  }
+}
+
+// ============================================
+// 5. GYM CATALOG ANALYTICS - Muscle Group Distribution
+// ============================================
+
+/**
+ * Get workout volume distribution by muscle group
+ * Groups exercises by muscle group and calculates total volume and percentage
+ */
+export async function getGymMuscleDistribution(
+  userId: string
+): Promise<GymMuscleDistributionData[]> {
+  try {
+    const dateRange = getDefaultDateRange()
+
+    // Get all exercises with muscle group catalog items
+    const exercises = await prisma.exercise.findMany({
+      where: {
+        workout: {
+          userId,
+          date: {
+            gte: dateRange.startDate,
+            lte: dateRange.endDate
+          }
+        },
+        muscleGroupId: { not: null }
+      },
+      include: {
+        muscleGroup: {
+          select: { name: true }
+        }
+      }
+    })
+
+    // Calculate total volume
+    const totalVolume = exercises.reduce(
+      (sum, ex) => sum + (ex.sets * ex.reps * (ex.weight || 0)),
+      0
+    )
+
+    // Group by muscle group
+    const grouped = exercises.reduce((acc, ex) => {
+      const groupName = ex.muscleGroup?.name || 'Sin Categoría'
+
+      if (!acc[groupName]) {
+        acc[groupName] = {
+          totalVolume: 0,
+          exerciseCount: 0
+        }
+      }
+
+      acc[groupName].totalVolume += ex.sets * ex.reps * (ex.weight || 0)
+      acc[groupName].exerciseCount += 1
+
+      return acc
+    }, {} as Record<string, { totalVolume: number; exerciseCount: number }>)
+
+    // Format results
+    const results: GymMuscleDistributionData[] = Object.entries(grouped).map(
+      ([muscleGroupName, data]) => ({
+        muscleGroupName,
+        totalVolume: Math.round(data.totalVolume * 100) / 100,
+        percentage: totalVolume > 0
+          ? Math.round((data.totalVolume / totalVolume) * 10000) / 100
+          : 0,
+        exerciseCount: data.exerciseCount
+      })
+    )
+
+    // Sort by volume descending
+    return results.sort((a, b) => b.totalVolume - a.totalVolume)
+  } catch (error) {
+    console.error('Error fetching gym muscle distribution:', error)
+    throw new Error('Failed to fetch gym muscle distribution')
+  }
+}
+
+// ============================================
+// 6. GYM CATALOG ANALYTICS - Equipment Usage
+// ============================================
+
+/**
+ * Get equipment usage frequency
+ * Groups exercises by equipment type and counts usage
+ */
+export async function getGymEquipmentUsage(
+  userId: string
+): Promise<GymEquipmentUsageData[]> {
+  try {
+    const dateRange = getDefaultDateRange()
+
+    // Get all exercises with equipment catalog items
+    const exercises = await prisma.exercise.findMany({
+      where: {
+        workout: {
+          userId,
+          date: {
+            gte: dateRange.startDate,
+            lte: dateRange.endDate
+          }
+        },
+        equipmentId: { not: null }
+      },
+      include: {
+        equipment: {
+          select: { name: true }
+        }
+      }
+    })
+
+    const totalExercises = exercises.length
+
+    // Group by equipment
+    const grouped = exercises.reduce((acc, ex) => {
+      const equipmentName = ex.equipment?.name || 'Sin Categoría'
+
+      if (!acc[equipmentName]) {
+        acc[equipmentName] = 0
+      }
+
+      acc[equipmentName] += 1
+
+      return acc
+    }, {} as Record<string, number>)
+
+    // Format results
+    const results: GymEquipmentUsageData[] = Object.entries(grouped).map(
+      ([equipmentName, count]) => ({
+        equipmentName,
+        exerciseCount: count,
+        percentage: totalExercises > 0
+          ? Math.round((count / totalExercises) * 10000) / 100
+          : 0
+      })
+    )
+
+    // Sort by count descending
+    return results.sort((a, b) => b.exerciseCount - a.exerciseCount)
+  } catch (error) {
+    console.error('Error fetching gym equipment usage:', error)
+    throw new Error('Failed to fetch gym equipment usage')
+  }
+}
+
+// ============================================
+// 7. FINANCE CATALOG ANALYTICS - Category Usage Frequency
+// ============================================
+
+/**
+ * Get transaction category usage frequency
+ * Counts how often each category is used (last 30 days)
+ */
+export async function getFinanceCategoryUsage(
+  userId: string
+): Promise<FinanceCategoryUsageData[]> {
+  try {
+    const dateRange = getDefaultDateRange()
+
+    // Get all transactions with category
+    const transactions = await prisma.transaction.findMany({
+      where: {
+        userId,
+        date: {
+          gte: dateRange.startDate,
+          lte: dateRange.endDate
+        },
+        categoryId: { not: null }
+      },
+      include: {
+        categoryItem: {
+          select: { name: true }
+        }
+      }
+    })
+
+    const totalTransactions = transactions.length
+
+    // Group by category
+    const grouped = transactions.reduce((acc, tx) => {
+      const categoryName = tx.categoryItem?.name || 'Sin Categoría'
+
+      if (!acc[categoryName]) {
+        acc[categoryName] = 0
+      }
+
+      acc[categoryName] += 1
+
+      return acc
+    }, {} as Record<string, number>)
+
+    // Format results
+    const results: FinanceCategoryUsageData[] = Object.entries(grouped).map(
+      ([categoryName, count]) => ({
+        categoryName,
+        transactionCount: count,
+        percentage: totalTransactions > 0
+          ? Math.round((count / totalTransactions) * 10000) / 100
+          : 0
+      })
+    )
+
+    // Sort by count descending, limit to top 10
+    return results.sort((a, b) => b.transactionCount - a.transactionCount).slice(0, 10)
+  } catch (error) {
+    console.error('Error fetching finance category usage:', error)
+    throw new Error('Failed to fetch finance category usage')
+  }
+}
+
+// ============================================
+// 8. FINANCE CATALOG ANALYTICS - Spending Distribution
+// ============================================
+
+/**
+ * Get spending distribution by category
+ * Shows percentage of expenses by transaction category (last 30 days)
+ */
+export async function getFinanceSpendingDistribution(
+  userId: string
+): Promise<FinanceSpendingDistributionData[]> {
+  try {
+    const dateRange = getDefaultDateRange()
+
+    // Get all expense transactions (amount < 0) with category
+    const transactions = await prisma.transaction.findMany({
+      where: {
+        userId,
+        date: {
+          gte: dateRange.startDate,
+          lte: dateRange.endDate
+        },
+        amount: { lt: 0 }, // Only expenses
+        categoryId: { not: null }
+      },
+      include: {
+        categoryItem: {
+          select: { name: true }
+        }
+      }
+    })
+
+    // Calculate total spending (absolute value)
+    const totalSpent = transactions.reduce(
+      (sum, tx) => sum + Math.abs(tx.amount),
+      0
+    )
+
+    // Group by category
+    const grouped = transactions.reduce((acc, tx) => {
+      const categoryName = tx.categoryItem?.name || 'Sin Categoría'
+
+      if (!acc[categoryName]) {
+        acc[categoryName] = {
+          totalSpent: 0,
+          transactionCount: 0
+        }
+      }
+
+      acc[categoryName].totalSpent += Math.abs(tx.amount)
+      acc[categoryName].transactionCount += 1
+
+      return acc
+    }, {} as Record<string, { totalSpent: number; transactionCount: number }>)
+
+    // Format results
+    const results: FinanceSpendingDistributionData[] = Object.entries(grouped).map(
+      ([categoryName, data]) => ({
+        categoryName,
+        totalSpent: Math.round(data.totalSpent * 100) / 100,
+        percentage: totalSpent > 0
+          ? Math.round((data.totalSpent / totalSpent) * 10000) / 100
+          : 0,
+        transactionCount: data.transactionCount
+      })
+    )
+
+    // Sort by amount descending
+    return results.sort((a, b) => b.totalSpent - a.totalSpent)
+  } catch (error) {
+    console.error('Error fetching finance spending distribution:', error)
+    throw new Error('Failed to fetch finance spending distribution')
   }
 }
 

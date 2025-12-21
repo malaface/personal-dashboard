@@ -11,15 +11,27 @@ interface CategoryManagerProps {
   transactionTree: CatalogTreeNode[]
   investmentTypes: any[]
   investmentTree: CatalogTreeNode[]
+  exerciseCategories?: any[]
+  exerciseTree?: CatalogTreeNode[]
+  equipmentTypes?: any[]
+  equipmentTree?: CatalogTreeNode[]
+  muscleGroups?: any[]
+  muscleGroupTree?: CatalogTreeNode[]
 }
 
-type TabType = "transactions" | "investments"
+type TabType = "transactions" | "investments" | "exercises" | "equipment" | "muscles"
 
 export default function CategoryManager({
   transactionCategories,
   transactionTree,
   investmentTypes,
   investmentTree,
+  exerciseCategories,
+  exerciseTree,
+  equipmentTypes,
+  equipmentTree,
+  muscleGroups,
+  muscleGroupTree,
 }: CategoryManagerProps) {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<TabType>("transactions")
@@ -38,7 +50,12 @@ export default function CategoryManager({
   })
 
   const handleEdit = (id: string) => {
-    const allItems = activeTab === "transactions" ? transactionCategories : investmentTypes
+    let allItems = transactionCategories
+    if (activeTab === "investments") allItems = investmentTypes
+    else if (activeTab === "exercises") allItems = exerciseCategories || []
+    else if (activeTab === "equipment") allItems = equipmentTypes || []
+    else if (activeTab === "muscles") allItems = muscleGroups || []
+
     const item = allItems.find((i) => i.id === id)
 
     if (item && !item.isSystem) {
@@ -87,7 +104,12 @@ export default function CategoryManager({
     setError("")
 
     try {
-      const catalogType = activeTab === "transactions" ? "transaction_category" : "investment_type"
+      let catalogType = "transaction_category"
+      if (activeTab === "investments") catalogType = "investment_type"
+      else if (activeTab === "exercises") catalogType = "exercise_category"
+      else if (activeTab === "equipment") catalogType = "equipment_type"
+      else if (activeTab === "muscles") catalogType = "muscle_group"
+
       const url = editingItem ? `/api/catalog/${editingItem.id}` : "/api/catalog"
       const method = editingItem ? "PUT" : "POST"
 
@@ -143,8 +165,21 @@ export default function CategoryManager({
     setError("")
   }
 
-  const currentTree = activeTab === "transactions" ? transactionTree : investmentTree
-  const currentItems = activeTab === "transactions" ? transactionCategories : investmentTypes
+  let currentTree = transactionTree
+  let currentItems = transactionCategories
+  if (activeTab === "investments") {
+    currentTree = investmentTree
+    currentItems = investmentTypes
+  } else if (activeTab === "exercises") {
+    currentTree = exerciseTree || []
+    currentItems = exerciseCategories || []
+  } else if (activeTab === "equipment") {
+    currentTree = equipmentTree || []
+    currentItems = equipmentTypes || []
+  } else if (activeTab === "muscles") {
+    currentTree = muscleGroupTree || []
+    currentItems = muscleGroups || []
+  }
 
   return (
     <div className="space-y-6">
@@ -171,6 +206,42 @@ export default function CategoryManager({
           >
             Investment Types
           </button>
+          {exerciseCategories && (
+            <button
+              onClick={() => setActiveTab("exercises")}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "exercises"
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              Exercise Categories
+            </button>
+          )}
+          {equipmentTypes && (
+            <button
+              onClick={() => setActiveTab("equipment")}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "equipment"
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              Equipment Types
+            </button>
+          )}
+          {muscleGroups && (
+            <button
+              onClick={() => setActiveTab("muscles")}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "muscles"
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              Muscle Groups
+            </button>
+          )}
         </nav>
       </div>
 
@@ -178,7 +249,11 @@ export default function CategoryManager({
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-xl font-semibold text-gray-900">
-            {activeTab === "transactions" ? "Transaction Categories" : "Investment Types"}
+            {activeTab === "transactions" && "Transaction Categories"}
+            {activeTab === "investments" && "Investment Types"}
+            {activeTab === "exercises" && "Exercise Categories"}
+            {activeTab === "equipment" && "Equipment Types"}
+            {activeTab === "muscles" && "Muscle Groups"}
           </h2>
           <p className="text-sm text-gray-600 mt-1">
             {currentItems.filter((i) => i.isSystem).length} system categories,{" "}

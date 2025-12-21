@@ -50,7 +50,7 @@ export default function GymVolumeChart() {
     return (
       <div className="w-full h-64 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600 font-semibold">Error loading chart</p>
+          <p className="text-red-600 font-semibold">Error al cargar gráfico</p>
           <p className="text-gray-500 text-sm mt-1">{error}</p>
         </div>
       </div>
@@ -61,8 +61,8 @@ export default function GymVolumeChart() {
     return (
       <div className="w-full h-64 flex items-center justify-center">
         <div className="text-center text-gray-500">
-          <p className="font-semibold">No workout data</p>
-          <p className="text-sm mt-1">Complete workouts to see your volume trends</p>
+          <p className="font-semibold">Sin datos de entrenamientos</p>
+          <p className="text-sm mt-1">Completa entrenamientos para ver tus tendencias</p>
         </div>
       </div>
     )
@@ -71,7 +71,7 @@ export default function GymVolumeChart() {
   // Format dates for display
   const chartData = data.map(item => ({
     ...item,
-    date: new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    date: new Date(item.date).toLocaleDateString('es-MX', { month: 'short', day: 'numeric' })
   }))
 
   // Calculate stats
@@ -81,7 +81,7 @@ export default function GymVolumeChart() {
 
   return (
     <div className="w-full">
-      <h3 className="text-lg font-semibold mb-4">Workout Volume Trends (Last 30 Days)</h3>
+      <h3 className="text-lg font-semibold mb-4">Tendencias de Volumen (Últimos 30 Días)</h3>
 
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={chartData}>
@@ -93,13 +93,13 @@ export default function GymVolumeChart() {
           />
           <YAxis
             tick={{ fontSize: 12 }}
-            label={{ value: 'Volume (kg)', angle: -90, position: 'insideLeft' }}
+            label={{ value: 'Volumen (kg)', angle: -90, position: 'insideLeft' }}
           />
           <Tooltip
             formatter={(value, name) => {
               const val = value || 0
-              if (name === 'volume') return [`${val.toLocaleString()} kg`, 'Volume']
-              if (name === 'workoutCount') return [val, 'Workouts']
+              if (name === 'volume') return [`${val.toLocaleString()} kg`, 'Volumen']
+              if (name === 'workoutCount') return [val, 'Entrenamientos']
               return [val, name]
             }}
           />
@@ -111,7 +111,7 @@ export default function GymVolumeChart() {
             strokeWidth={2}
             dot={{ r: 4 }}
             activeDot={{ r: 6 }}
-            name="Volume (kg)"
+            name="Volumen (kg)"
           />
         </LineChart>
       </ResponsiveContainer>
@@ -119,15 +119,15 @@ export default function GymVolumeChart() {
       {/* Summary stats */}
       <div className="mt-4 grid grid-cols-3 gap-3">
         <div className="bg-blue-50 rounded-lg p-3">
-          <p className="text-xs text-gray-600">Avg Volume</p>
+          <p className="text-xs text-gray-600">Volumen Promedio</p>
           <p className="text-lg font-bold text-blue-700">{avgVolume.toFixed(0)} kg</p>
         </div>
         <div className="bg-green-50 rounded-lg p-3">
-          <p className="text-xs text-gray-600">Peak Volume</p>
+          <p className="text-xs text-gray-600">Volumen Máximo</p>
           <p className="text-lg font-bold text-green-700">{maxVolume.toFixed(0)} kg</p>
         </div>
         <div className="bg-purple-50 rounded-lg p-3">
-          <p className="text-xs text-gray-600">Total Workouts</p>
+          <p className="text-xs text-gray-600">Total Entrenamientos</p>
           <p className="text-lg font-bold text-purple-700">{data.length}</p>
         </div>
       </div>

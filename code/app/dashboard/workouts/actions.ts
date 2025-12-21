@@ -3,8 +3,9 @@
 import { revalidatePath } from "next/cache"
 import { requireAuth } from "@/lib/auth/utils"
 import { prisma } from "@/lib/db/prisma"
-import { WorkoutWithExercisesSchema } from "@/lib/validations/workouts"
+import { WorkoutSchema, ExerciseSchema, WorkoutWithExercisesSchema } from "@/lib/validations/workouts"
 import { createAuditLog } from "@/lib/audit/logger"
+import { getCatalogItemById } from "@/lib/catalog/queries"
 
 export async function createWorkout(formData: FormData) {
   try {
@@ -22,6 +23,28 @@ export async function createWorkout(formData: FormData) {
     // Validate
     const validatedData = WorkoutWithExercisesSchema.parse(rawData)
 
+    // Validate catalog items exist for each exercise
+    for (const exercise of validatedData.exercises) {
+      if (exercise.exerciseTypeId) {
+        const exerciseType = await getCatalogItemById(exercise.exerciseTypeId, user.id)
+        if (!exerciseType) {
+          return { success: false, error: `Invalid exercise type ID: ${exercise.exerciseTypeId}` }
+        }
+      }
+      if (exercise.muscleGroupId) {
+        const muscleGroup = await getCatalogItemById(exercise.muscleGroupId, user.id)
+        if (!muscleGroup) {
+          return { success: false, error: `Invalid muscle group ID: ${exercise.muscleGroupId}` }
+        }
+      }
+      if (exercise.equipmentId) {
+        const equipment = await getCatalogItemById(exercise.equipmentId, user.id)
+        if (!equipment) {
+          return { success: false, error: `Invalid equipment ID: ${exercise.equipmentId}` }
+        }
+      }
+    }
+
     // Create workout with exercises
     const workout = await prisma.workout.create({
       data: {
@@ -32,7 +55,9 @@ export async function createWorkout(formData: FormData) {
         notes: validatedData.notes,
         exercises: {
           create: validatedData.exercises.map((exercise) => ({
-            name: exercise.name,
+            exerciseTypeId: exercise.exerciseTypeId,
+            muscleGroupId: exercise.muscleGroupId,
+            equipmentId: exercise.equipmentId,
             sets: exercise.sets,
             reps: exercise.reps,
             weight: exercise.weight,
@@ -40,7 +65,15 @@ export async function createWorkout(formData: FormData) {
           })),
         },
       },
-      include: { exercises: true },
+      include: {
+        exercises: {
+          include: {
+            exerciseType: true,
+            muscleGroup: true,
+            equipment: true,
+          }
+        }
+      },
     })
 
     // Log workout creation
@@ -129,6 +162,28 @@ export async function updateWorkout(workoutId: string, formData: FormData) {
 
     const validatedData = WorkoutWithExercisesSchema.parse(rawData)
 
+    // Validate catalog items exist for each exercise
+    for (const exercise of validatedData.exercises) {
+      if (exercise.exerciseTypeId) {
+        const exerciseType = await getCatalogItemById(exercise.exerciseTypeId, user.id)
+        if (!exerciseType) {
+          return { success: false, error: `Invalid exercise type ID: ${exercise.exerciseTypeId}` }
+        }
+      }
+      if (exercise.muscleGroupId) {
+        const muscleGroup = await getCatalogItemById(exercise.muscleGroupId, user.id)
+        if (!muscleGroup) {
+          return { success: false, error: `Invalid muscle group ID: ${exercise.muscleGroupId}` }
+        }
+      }
+      if (exercise.equipmentId) {
+        const equipment = await getCatalogItemById(exercise.equipmentId, user.id)
+        if (!equipment) {
+          return { success: false, error: `Invalid equipment ID: ${exercise.equipmentId}` }
+        }
+      }
+    }
+
     // Update workout and replace exercises
     const workout = await prisma.$transaction(async (tx) => {
       // Delete old exercises
@@ -146,7 +201,9 @@ export async function updateWorkout(workoutId: string, formData: FormData) {
           notes: validatedData.notes,
           exercises: {
             create: validatedData.exercises.map((exercise) => ({
-              name: exercise.name,
+              exerciseTypeId: exercise.exerciseTypeId,
+              muscleGroupId: exercise.muscleGroupId,
+              equipmentId: exercise.equipmentId,
               sets: exercise.sets,
               reps: exercise.reps,
               weight: exercise.weight,
@@ -154,7 +211,15 @@ export async function updateWorkout(workoutId: string, formData: FormData) {
             })),
           },
         },
-        include: { exercises: true },
+        include: {
+          exercises: {
+            include: {
+              exerciseType: true,
+              muscleGroup: true,
+              equipment: true,
+            }
+          }
+        },
       })
     })
 

@@ -7,15 +7,17 @@ import {
   ChartBarIcon,
   CurrencyDollarIcon,
   CalendarIcon,
-  UserGroupIcon
+  UserGroupIcon,
+  ChartPieIcon
 } from "@heroicons/react/24/outline"
 
 const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
-  { name: "Gym Training", href: "/dashboard/workouts", icon: ChartBarIcon },
-  { name: "Finance", href: "/dashboard/finance", icon: CurrencyDollarIcon },
-  { name: "Nutrition", href: "/dashboard/nutrition", icon: CalendarIcon },
-  { name: "Family CRM", href: "/dashboard/family", icon: UserGroupIcon },
+  { name: "Inicio", href: "/dashboard", icon: HomeIcon },
+  { name: "Entrenamiento", href: "/dashboard/workouts", icon: ChartBarIcon },
+  { name: "Finanzas", href: "/dashboard/finance", icon: CurrencyDollarIcon },
+  { name: "Nutrición", href: "/dashboard/nutrition", icon: CalendarIcon },
+  { name: "Familia", href: "/dashboard/family", icon: UserGroupIcon },
+  { name: "Analítica", href: "/dashboard/analytics", icon: ChartPieIcon },
 ]
 
 export default function Sidebar() {
@@ -24,7 +26,7 @@ export default function Sidebar() {
   return (
     <div className="flex flex-col w-64 bg-gray-900 min-h-screen">
       <div className="flex items-center justify-center h-16 bg-gray-800">
-        <h1 className="text-white text-xl font-bold">Personal Dashboard</h1>
+        <h1 className="text-white text-xl font-bold">Panel Personal</h1>
       </div>
       <nav className="flex-1 px-4 py-6 space-y-2">
         {navigation.map((item) => {
@@ -49,7 +51,7 @@ export default function Sidebar() {
       </nav>
       <div className="p-4 border-t border-gray-800">
         <p className="text-gray-500 text-sm text-center">
-          Personal Dashboard v1.0
+          Panel Personal v1.0
         </p>
       </div>
     </div>

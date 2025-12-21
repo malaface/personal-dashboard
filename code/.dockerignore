@@ -6,11 +6,13 @@ yarn-error.log*
 .pnpm-debug.log*
 yarn.lock
 pnpm-lock.yaml
+package-lock.json.bak
 
 # Next.js
 .next
 out
 build
+.swc
 
 # Testing
 coverage
@@ -21,6 +23,8 @@ coverage
 *.spec.tsx
 __tests__
 __mocks__
+jest.config.js
+vitest.config.js
 
 # Development
 .env.local
@@ -32,6 +36,9 @@ __mocks__
 *.swp
 *.swo
 *~
+.editorconfig
+.prettierrc*
+.eslintrc*
 
 # Git
 .git
@@ -41,6 +48,7 @@ __mocks__
 # Documentation
 README.md
 *.md
+!prisma/schema.prisma
 docs
 
 # Misc
@@ -48,16 +56,33 @@ docs
 *.pem
 .vercel
 *.tsbuildinfo
+.turbo
+.cache
 
 # CI/CD
 .github
 .gitlab-ci.yml
 .travis.yml
+.husky
 
 # Docker
-Dockerfile
+Dockerfile*
+!Dockerfile
 .dockerignore
 docker-compose*.yml
 
-# Prisma
-prisma/migrations/*.sql
+# Prisma (excluir SQLs de migraciones individuales, mantener carpeta)
+# No excluir nada de prisma/ ya que se necesita completo
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Backups
+*.bak
+*.backup
+backups/

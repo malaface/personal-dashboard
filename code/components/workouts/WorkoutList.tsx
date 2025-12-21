@@ -7,7 +7,13 @@ import { TrashIcon, PencilIcon } from "@heroicons/react/24/outline"
 
 interface Exercise {
   id: string
-  name: string
+  name?: string | null
+  exerciseTypeId?: string | null
+  muscleGroupId?: string | null
+  equipmentId?: string | null
+  exerciseType?: { id: string; name: string } | null
+  muscleGroup?: { id: string; name: string } | null
+  equipment?: { id: string; name: string } | null
   sets: number
   reps: number
   weight?: number | null
@@ -109,7 +115,9 @@ export default function WorkoutList({ workouts }: WorkoutListProps) {
                     key={exercise.id}
                     className="flex justify-between items-center bg-gray-50 px-4 py-2 rounded-md"
                   >
-                    <span className="font-medium text-gray-800">{exercise.name}</span>
+                    <span className="font-medium text-gray-800">
+                      {exercise.exerciseType?.name || exercise.name || "Unknown Exercise"}
+                    </span>
                     <span className="text-sm text-gray-600">
                       {exercise.sets} × {exercise.reps}
                       {exercise.weight && ` @ ${exercise.weight}kg`}

@@ -50,7 +50,7 @@ export default function FamilyTimeChart() {
     return (
       <div className="w-full h-64 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600 font-semibold">Error loading chart</p>
+          <p className="text-red-600 font-semibold">Error al cargar gráfico</p>
           <p className="text-gray-500 text-sm mt-1">{error}</p>
         </div>
       </div>
@@ -61,8 +61,8 @@ export default function FamilyTimeChart() {
     return (
       <div className="w-full h-64 flex items-center justify-center">
         <div className="text-center text-gray-500">
-          <p className="font-semibold">No family time data</p>
-          <p className="text-sm mt-1">Log time with family members to see analytics</p>
+          <p className="font-semibold">Sin datos de tiempo familiar</p>
+          <p className="text-sm mt-1">Registra tiempo con miembros de la familia para ver analíticas</p>
         </div>
       </div>
     )
@@ -79,7 +79,7 @@ export default function FamilyTimeChart() {
 
   return (
     <div className="w-full">
-      <h3 className="text-lg font-semibold mb-4">Family Time (Last 30 Days)</h3>
+      <h3 className="text-lg font-semibold mb-4">Tiempo Familiar (Últimos 30 Días)</h3>
 
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={chartData}>
@@ -90,13 +90,13 @@ export default function FamilyTimeChart() {
           />
           <YAxis
             tick={{ fontSize: 12 }}
-            label={{ value: 'Hours', angle: -90, position: 'insideLeft' }}
+            label={{ value: 'Horas', angle: -90, position: 'insideLeft' }}
           />
           <Tooltip
             formatter={(value, name) => {
               const val = value || 0
-              if (name === 'hours') return [`${val} hrs`, 'Time Spent']
-              if (name === 'activityCount') return [val, 'Activities']
+              if (name === 'hours') return [`${val} hrs`, 'Tiempo Dedicado']
+              if (name === 'activityCount') return [val, 'Actividades']
               return [val, name]
             }}
           />
@@ -104,7 +104,7 @@ export default function FamilyTimeChart() {
           <Bar
             dataKey="hours"
             fill="#82ca9d"
-            name="Hours"
+            name="Horas"
             radius={[8, 8, 0, 0]}
           />
         </BarChart>
@@ -113,11 +113,11 @@ export default function FamilyTimeChart() {
       {/* Summary stats */}
       <div className="mt-4 grid grid-cols-2 gap-3">
         <div className="bg-green-50 rounded-lg p-3">
-          <p className="text-xs text-gray-600">Total Time</p>
-          <p className="text-lg font-bold text-green-700">{totalHours} hours</p>
+          <p className="text-xs text-gray-600">Tiempo Total</p>
+          <p className="text-lg font-bold text-green-700">{totalHours} horas</p>
         </div>
         <div className="bg-blue-50 rounded-lg p-3">
-          <p className="text-xs text-gray-600">Family Members</p>
+          <p className="text-xs text-gray-600">Miembros de Familia</p>
           <p className="text-lg font-bold text-blue-700">{data.length}</p>
         </div>
       </div>
@@ -128,7 +128,7 @@ export default function FamilyTimeChart() {
           <div key={index} className="flex justify-between items-center bg-gray-50 rounded-lg p-3">
             <div>
               <p className="font-medium">{item.memberName}</p>
-              <p className="text-xs text-gray-500">{item.activityCount} activity(ies)</p>
+              <p className="text-xs text-gray-500">{item.activityCount} actividad{item.activityCount !== 1 ? 'es' : ''}</p>
             </div>
             <div className="text-right">
               <p className="font-bold text-lg">{Math.round((item.totalMinutes / 60) * 10) / 10}h</p>

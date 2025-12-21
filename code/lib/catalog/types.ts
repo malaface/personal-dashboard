@@ -3,9 +3,28 @@
  */
 
 export type CatalogType =
+  // Finance
   | 'transaction_category'
   | 'investment_type'
   | 'budget_category'
+
+  // Gym Training
+  | 'exercise_category'
+  | 'equipment_type'
+  | 'muscle_group'
+
+  // Nutrition Tracker
+  | 'meal_type'
+  | 'food_category'
+  | 'unit_type'
+  | 'nutrition_goal_type'
+
+  // Family CRM
+  | 'relationship_type'
+  | 'event_category'
+  | 'reminder_category'
+  | 'activity_type'
+  | 'social_circle'
 
 export interface CatalogItem {
   id: string
@@ -39,4 +58,10 @@ export interface CatalogTreeNode extends CatalogItem {
 export interface CatalogItemFlat extends CatalogItem {
   depth: number
   fullPath: string[]
+}
+
+export interface ComboboxSearchResult extends CatalogItem {
+  breadcrumbs: string[]
+  relevanceScore: number
+  match?: 'exact' | 'starts' | 'contains'
 }

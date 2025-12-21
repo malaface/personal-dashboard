@@ -8,7 +8,15 @@ export default async function WorkoutsPage() {
 
   const workouts = await prisma.workout.findMany({
     where: { userId: user.id },
-    include: { exercises: true },
+    include: {
+      exercises: {
+        include: {
+          exerciseType: true,
+          muscleGroup: true,
+          equipment: true,
+        }
+      }
+    },
     orderBy: { date: 'desc' },
   })
 

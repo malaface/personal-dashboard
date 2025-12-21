@@ -9,8 +9,13 @@ echo "🚀 Starting Personal Dashboard entrypoint..."
 echo "⏳ Waiting for PostgreSQL to be ready..."
 
 # Extraer host y puerto de DATABASE_URL
-DB_HOST="dashboard-db"
-DB_PORT="5432"
+# Formato: postgresql://user:pass@host:port/dbname
+DB_HOST=$(echo $DATABASE_URL | sed -n 's/.*@\([^:]*\):.*/\1/p')
+DB_PORT=$(echo $DATABASE_URL | sed -n 's/.*:\([0-9]*\)\/.*/\1/p')
+
+# Fallback a valores por defecto si no se pudo extraer
+DB_HOST=${DB_HOST:-"supabase-db"}
+DB_PORT=${DB_PORT:-"5432"}
 
 MAX_RETRIES=30
 RETRY_COUNT=0
@@ -43,12 +48,15 @@ else
 fi
 
 # ===================================
-# 4. Check if seeds are needed
+# 4. Run Seeds (if database is empty)
 # ===================================
-echo "🌱 Checking if seeds are needed..."
+echo "🌱 Running database seeds (if needed)..."
 
-# Simple check: if migrations ran successfully, we can assume database is ready
-echo "   ℹ️  Database is ready - seeds will run automatically if needed"
+if node /app/prisma/seeds/run-seeds.js; then
+  echo "✅ Seeds check completed"
+else
+  echo "⚠️  Seeds failed (non-critical, continuing...)"
+fi
 
 # ===================================
 # 5. Start Application

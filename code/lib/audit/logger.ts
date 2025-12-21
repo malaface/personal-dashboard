@@ -11,9 +11,14 @@ export type AuditAction =
   | "REGISTER"
   | "PASSWORD_CHANGE"
   | "EMAIL_VERIFIED"
+  // Gym Module
   | "WORKOUT_CREATED"
   | "WORKOUT_UPDATED"
   | "WORKOUT_DELETED"
+  | "EXERCISE_CREATED"
+  | "EXERCISE_UPDATED"
+  | "EXERCISE_DELETED"
+  // Finance Module
   | "TRANSACTION_CREATED"
   | "TRANSACTION_UPDATED"
   | "TRANSACTION_DELETED"
@@ -23,9 +28,11 @@ export type AuditAction =
   | "BUDGET_CREATED"
   | "BUDGET_UPDATED"
   | "BUDGET_DELETED"
+  // Nutrition Module
   | "MEAL_CREATED"
   | "MEAL_UPDATED"
   | "MEAL_DELETED"
+  // Family Module
   | "FAMILY_MEMBER_CREATED"
   | "FAMILY_MEMBER_UPDATED"
   | "FAMILY_MEMBER_DELETED"

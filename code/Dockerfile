@@ -1,21 +1,22 @@
 # ===================================
-# Stage 1: Dependencies
+# Stage 1: Dependencies (Production Only)
 # ===================================
 FROM node:20-alpine AS deps
 
-# Instalar dependencias del sistema necesarias para Prisma
+# Instalar dependencias mínimas del sistema
 RUN apk add --no-cache libc6-compat openssl
 
 WORKDIR /app
 
-# Copiar archivos de configuración de dependencias
+# Copiar archivos de configuración
 COPY package.json package-lock.json* ./
 COPY prisma ./prisma/
 
-# Instalar dependencias de producción y desarrollo
-RUN npm ci
+# Instalar SOLO dependencias de producción
+RUN npm ci --omit=dev && \
+    npm cache clean --force
 
-# Generar Prisma Client
+# Generar Prisma Client (binaries específicos: linux-musl-openssl-3.0.x)
 RUN npx prisma generate
 
 # ===================================
@@ -27,67 +28,79 @@ RUN apk add --no-cache libc6-compat openssl
 
 WORKDIR /app
 
-# Copiar node_modules desde la etapa de dependencias
-COPY --from=deps /app/node_modules ./node_modules
+# Copiar archivos necesarios para build
+COPY package.json package-lock.json* ./
+COPY prisma ./prisma/
+
+# Instalar TODAS las dependencias (dev + prod) para el build
+RUN npm ci && \
+    npm cache clean --force
+
+# Generar Prisma Client
+RUN npx prisma generate
+
+# Copiar código fuente
 COPY . .
 
-# Variables de entorno necesarias para el build
+# Variables de entorno de build
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Build de Next.js (prisma generate ya se ejecutó en deps)
+# Build Next.js (genera .next/standalone con solo deps necesarias)
 RUN npm run build
 
 # ===================================
-# Stage 3: Runner (Production)
+# Stage 3: Runner (Production - OPTIMIZED)
 # ===================================
 FROM node:20-alpine AS runner
 
-RUN apk add --no-cache curl wget openssl netcat-openbsd
+# Instalar SOLO herramientas runtime necesarias
+RUN apk add --no-cache openssl curl && \
+    rm -rf /var/cache/apk/*
 
 WORKDIR /app
 
-# Crear usuario no-root para seguridad
+# Crear usuario no-root
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# Variables de entorno de producción
+# Variables de entorno
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 
-# Copiar archivos públicos
+# Copiar SOLO archivos públicos necesarios
 COPY --from=builder /app/public ./public
 
-# Copiar el output standalone de Next.js
+# Copiar output standalone (Next.js ya incluye deps mínimas)
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Copiar Prisma schema y migraciones
+# Copiar Prisma schema, migraciones y seeds
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 
-# Copiar node_modules para tener acceso a Prisma Client
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
+# Copiar SOLO Prisma Client desde deps (binaries optimizados)
+COPY --from=deps --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=deps --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
 
-# Instalar Prisma CLI globalmente como root
-RUN npm install -g prisma@5.22.0
+# Instalar SOLO Prisma CLI (sin dependencias pesadas)
+RUN npm install --global --no-save prisma@5.22.0 && \
+    npm cache clean --force
 
-# Copiar el script de entrypoint
+# Copiar script de entrypoint
 COPY --chown=nextjs:nodejs docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# Cambiar al usuario no-root
+# Cambiar a usuario no-root
 USER nextjs
 
 # Exponer puerto
 EXPOSE 3000
 
-# Health check
+# Health check optimizado
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1
+  CMD curl -f http://localhost:3000/api/health || exit 1
 
-# Usar el entrypoint script
+# Entrypoint y comando
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
-
-# Comando por defecto
 CMD ["node", "server.js"]
