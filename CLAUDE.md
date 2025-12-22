@@ -9,7 +9,7 @@ This file provides guidance to Claude Code when working with the Personal Dashbo
 **Technology Stack:**
 - **Frontend:** Next.js 15.0.3 (App Router) + React 18.3.1 + TypeScript 5.3.3
 - **UI:** TailwindCSS 3.4.1 + shadcn/ui (Radix UI 1.0.0)
-- **Backend:** Supabase JS 2.39.0 (Auth, PostgreSQL 15.1, Realtime, Storage)
+- **Backend:** Prisma 5.22.0 (ORM) + PostgreSQL 15 + NextAuth.js 5.x
 - **AI Services:** n8n 1.19.4 + Flowise 1.4.12 + Qdrant 1.7.4 + Redis 7.2.3
 - **Deployment:** Docker Compose (port 3003)
 
@@ -27,8 +27,8 @@ See `fases/fase0-completado.md` for completed work.
 
 **Skills Location:** `.claude/skills/` (local to this project)
 
-**Total Skills:** 13 (3,781 lines of documentation)
-**Context Saved:** ~32,000 tokens loaded only when needed
+**Total Skills:** 14 (4,588 lines of documentation)
+**Context Saved:** ~35,000 tokens loaded only when needed
 
 ### Quick Skill Reference
 
@@ -36,9 +36,9 @@ See `fases/fase0-completado.md` for completed work.
 |---------------------|--------------|------------------|
 | Work with Next.js | `nextjs-app-router-patterns` | Server Component, Client Component, route handler, middleware |
 | Build UI components | `react-ui-component-library` | shadcn, form, Tailwind, dark mode, accessibility |
-| Implement auth | `supabase-integration-patterns` | auth, SSR, RLS policy, real-time |
+| PostgreSQL operations | `dashboard-postgres-operations` | backup, restore, migration, prisma, seed, index, optimize, vacuum, pg_dump, slow query |
 | Optimize queries | `postgresql-advanced-patterns` | optimization, index, CTE, full-text search |
-| Database operations | `database-management` | backup, restore, migration, health check |
+| Database operations | `database-management` | generic backup, restore, health check (AI Platform only) |
 | Phase workflows | `dashboard-dev-workflow` | Phase 1, Phase 2, testing, deployment |
 | Schema reference | `dashboard-schema-reference` | workouts, transactions, meals, family_members |
 | Git operations | `git-workflow-manager` | commit, branch, PR, rollback |
@@ -50,7 +50,7 @@ See `fases/fase0-completado.md` for completed work.
 **Manual Invocation:** Mention skill name explicitly:
 ```
 "Use nextjs-app-router-patterns skill to help me create this component"
-"Invoke database-management skill for backup procedures"
+"Invoke dashboard-postgres-operations skill for database operations"
 ```
 
 ---
@@ -92,17 +92,27 @@ cd /home/badfaceserverlap/docker/contenedores
 bash shared/scripts/health-check.sh
 ```
 
-**Database operations:**
+**Database operations (Prisma + PostgreSQL):**
 ```bash
-# Connect to PostgreSQL
-docker exec -it supabase-db psql -U postgres
+# Navigate to code directory
+cd /home/badfaceserverlap/personal-dashboard/code
 
-# Run migration
-docker exec -i supabase-db psql -U postgres < supabase/migrations/XXX_migration.sql
+# Prisma operations
+npx prisma migrate dev --name migration_name  # Create & apply migration (dev)
+npx prisma migrate deploy                     # Apply migrations (production)
+npx prisma migrate status                     # Check migration status
+npx prisma generate                           # Regenerate Prisma Client
+npm run prisma:seed                           # Run seed scripts
 
-# Check tables and RLS
-docker exec -i supabase-db psql -U postgres -c "\dt public.*"
-docker exec -i supabase-db psql -U postgres -c "SELECT tablename, rowsecurity FROM pg_tables WHERE schemaname = 'public';"
+# Direct PostgreSQL access
+docker exec -it dashboard-postgres psql -U dashboard_user -d dashboard
+
+# Check tables
+docker exec dashboard-postgres psql -U dashboard_user -d dashboard -c "\dt"
+
+# Database health
+docker exec dashboard-postgres psql -U dashboard_user -d dashboard -c \
+  "SELECT count(*) FROM pg_stat_activity WHERE datname='dashboard';"
 ```
 
 ---
@@ -114,63 +124,81 @@ docker exec -i supabase-db psql -U postgres -c "SELECT tablename, rowsecurity FR
 | Service | Port | Access URL |
 |---------|------|------------|
 | **Dashboard** | 3003 → 3000 | http://localhost:3003 (Docker) or :3000 (dev) |
-| **Supabase Kong** | 8000 | http://localhost:8000 (Auth, DB, Realtime, Storage) |
+| **PostgreSQL** | 5434 → 5432 | localhost:5434 (Dashboard DB) |
 | **n8n** | 5678 | http://localhost:5678 (Automation) |
 | **Flowise** | 3001 | http://localhost:3001 (AI Chatflows) |
 | **Qdrant** | 6333 | http://localhost:6333 (Vector DB API) |
 | **Redis** | 6379 | localhost:6379 (Cache) |
-| **PostgreSQL** | 5432 | localhost:5432 (Direct DB) |
-
-### Test Credentials
-
-**Created in Phase 0:**
-- **Email:** malacaram807@gmail.com
-- **Password:** My_badface27
 
 ### Environment Variables
 
 **Dashboard-specific:** `code/.env.local`
 ```bash
-NEXT_PUBLIC_SUPABASE_URL=http://localhost:8000
-NEXT_PUBLIC_SUPABASE_ANON_KEY=[from AI Platform .env]
-SUPABASE_SERVICE_ROLE_KEY=[from AI Platform .env]
+DATABASE_URL="postgresql://dashboard_user:${PASSWORD}@localhost:5434/dashboard"
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="[generated secret]"
+RESEND_API_KEY="[for email verification]"
+REDIS_URL="redis://:${PASSWORD}@localhost:6379"
+
+# AI Integration (localhost for dev)
+N8N_BASE_URL="http://localhost:5678"
+FLOWISE_BASE_URL="http://localhost:3001"
+QDRANT_URL="http://localhost:6333"
+QDRANT_API_KEY="[from AI Platform .env]"
 ```
 
-**Master config:** `../ai-platform/.env` (all service credentials)
+**Production config:** `code/.env.production`
+```bash
+DATABASE_URL="postgresql://dashboard_user:${PASSWORD}@dashboard-postgres:5432/dashboard"
+NEXTAUTH_URL="https://dashboard.malacaran8n.uk"
+NEXTAUTH_SECRET="[generated secret]"
+```
 
 ---
 
 ## 📊 Database Schema
 
-**16 Tables across 4 modules + shared:**
+**23 Tables across 4 modules + shared:**
 
-### 1. Gym Training Module
+**Authentication:** 4 tables (NextAuth.js)
+- `users` - User accounts
+- `accounts` - OAuth accounts
+- `sessions` - User sessions
+- `verification_tokens` - Email verification
+
+**Gym Training:** 5 tables
 - `workouts` - Workout sessions
 - `exercises` - Individual exercises
 - `workout_progress` - Progress tracking
+- `workout_templates` - Reusable workout templates
+- `workout_template_exercises` - Template exercises
 
-### 2. Finance Module
+**Finance:** 4 tables
 - `transactions` - Income/expense tracking
 - `investments` - Portfolio management
 - `budgets` - Monthly limits
 - `transaction_audit` - Audit trail
 
-### 3. Nutrition Module
+**Nutrition:** 5 tables
 - `meals` - Meal entries (breakfast/lunch/dinner/snack)
 - `food_items` - Individual foods
 - `nutrition_goals` - Daily targets
+- `meal_templates` - Reusable meal templates
+- `meal_template_items` - Template food items
 
-### 4. Family CRM Module
+**Family CRM:** 4 tables
 - `family_members` - Member profiles
 - `time_logs` - Time tracking
 - `events` - Important dates
 - `reminders` - Task reminders
 
-### 5. Shared Tables
+**Shared:** 3 tables
 - `profiles` - Extended user profiles
 - `notifications` - In-app notifications
+- `catalog_items` - Hierarchical categorization system
+- `audit_logs` - Security audit trail
 
-**All tables have RLS (Row Level Security) enabled** - users only access their own data.
+**All tables use Prisma-managed relations** - user isolation via userId foreign keys with CASCADE delete.
 
 **For detailed schema:** Invoke `dashboard-schema-reference` skill
 
@@ -186,11 +214,15 @@ SUPABASE_SERVICE_ROLE_KEY=[from AI Platform .env]
 - ❌ Never expose secrets in Client Components (use Server Components/API Routes)
 - ✅ Always use Suspense boundaries for async Server Components
 
-**Supabase:**
-- ❌ Never use `createClient` without SSR helpers (`lib/supabase/server.ts` or `client.ts`)
-- ❌ Never expose `service_role_key` in client code
-- ❌ Never create tables without RLS enabled
-- ✅ Always verify `auth.uid()` is NOT NULL in RLS policies
+**Prisma:**
+- ❌ Never use `prisma db push` in production (use migrations)
+- ❌ Never expose `DATABASE_URL` in Client Components
+- ❌ Never create multiple Prisma Client instances (use singleton)
+- ❌ Never modify schema.prisma without creating migration
+- ❌ Never ignore Prisma error codes (P2002, P2025, etc.)
+- ✅ Always use `lib/db/prisma.ts` singleton for Prisma Client
+- ✅ Always run `npx prisma generate` after schema changes
+- ✅ Always use transactions for multi-step data operations
 
 **PostgreSQL:**
 - ❌ Never create tables without primary key
@@ -290,17 +322,15 @@ git tag -a v0.1 [commit-hash] -m "Message"
    npm run build  # Must complete without errors
    ```
 
-3. **Authentication test:**
+3. **Database connectivity:**
    ```bash
-   curl -X POST http://localhost:8000/auth/v1/token?grant_type=password \
-     -H "Content-Type: application/json" \
-     -H "apikey: ${ANON_KEY}" \
-     -d '{"email":"malacaram807@gmail.com","password":"My_badface27"}'
+   docker exec dashboard-postgres psql -U dashboard_user -d dashboard -c "SELECT COUNT(*) FROM users;"
    ```
 
-4. **Database connectivity:**
+4. **Migration status:**
    ```bash
-   docker exec -i supabase-db psql -U postgres -c "SELECT COUNT(*) FROM auth.users;"
+   cd /home/badfaceserverlap/personal-dashboard/code
+   npx prisma migrate status
    ```
 
 ---
@@ -310,10 +340,10 @@ git tag -a v0.1 [commit-hash] -m "Message"
 ```
 personal-dashboard-project/
 ├── .claude/
-│   └── skills/              # 13 skills (3,781 lines)
+│   └── skills/              # 14 skills (4,588 lines)
 │       ├── nextjs-app-router-patterns/
 │       ├── react-ui-component-library/
-│       ├── supabase-integration-patterns/
+│       ├── dashboard-postgres-operations/  # Dashboard DB skill
 │       ├── postgresql-advanced-patterns/
 │       ├── database-management/
 │       ├── git-workflow-manager/
@@ -332,9 +362,12 @@ personal-dashboard-project/
 │   └── ...
 ├── code/                    # Next.js app (Phase 1+)
 │   ├── app/                 # App Router
-│   ├── lib/                 # Utils & Supabase clients
+│   ├── lib/                 # Utils & Prisma client
 │   ├── components/          # React components
-│   └── supabase/migrations/ # DB migrations
+│   └── prisma/              # Prisma schema & migrations
+│       ├── schema.prisma    # Database schema
+│       ├── migrations/      # Migration history
+│       └── seeds/           # Seed scripts
 ├── docs/                    # Documentation
 └── backups/                 # Dashboard backups
 ```
@@ -351,9 +384,9 @@ lsof -ti:3003 | xargs kill -9
 
 **Database connection issues:**
 ```bash
-docker ps | grep supabase-db
-docker logs supabase-db --tail 50
-docker-compose restart supabase-db kong
+docker ps | grep dashboard-postgres
+docker logs dashboard-postgres --tail 50
+docker-compose restart dashboard-postgres
 ```
 
 **Next.js module errors:**
@@ -372,12 +405,12 @@ npm install
 **Dashboard is considered "working" when:**
 
 - ✅ Next.js runs without errors (port 3000 dev, 3003 Docker)
-- ✅ User can login with test credentials
+- ✅ User can register and login via NextAuth.js
 - ✅ All 4 modules (Gym, Finance, Nutrition, Family) functional
 - ✅ CRUD operations work for all entities
-- ✅ RLS policies prevent unauthorized access
+- ✅ Prisma migrations applied successfully
+- ✅ User isolation working (userId foreign keys)
 - ✅ AI features provide suggestions
-- ✅ Prometheus metrics exposed
 - ✅ All health checks pass
 
 ---
@@ -426,7 +459,8 @@ This project uses **on-demand skills loading** to:
 
 ---
 
-**Last Updated:** 2025-12-14
-**Skills Version:** 1.0.0
+**Last Updated:** 2025-12-21
+**Skills Version:** 1.1.0 (Added dashboard-postgres-operations skill)
 **Context Optimization:** Active (-78% initial context)
 **Git Versioning:** Implemented (Semantic Tags v0.x → v1.0+)
+**Database:** Prisma ORM 5.22.0 + PostgreSQL 15 (NOT Supabase)
