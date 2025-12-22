@@ -5,6 +5,9 @@ import { prisma } from "@/lib/db/prisma"
 import { createAuditLog } from "@/lib/audit/logger"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  // Trust proxy headers (required for Cloudflare Tunnel)
+  trustHost: true,
+
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -100,6 +103,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
+
+  // Cookie configuration for HTTPS (production)
+  cookies: {
+    sessionToken: {
+      name: process.env.NODE_ENV === 'production'
+        ? '__Secure-next-auth.session-token'
+        : 'next-auth.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+      },
+    },
+  },
+
   pages: {
     signIn: "/login",
     error: "/login",
