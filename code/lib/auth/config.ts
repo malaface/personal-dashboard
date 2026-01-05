@@ -4,8 +4,11 @@ import { compare } from "bcryptjs"
 import { prisma } from "@/lib/db/prisma"
 import { createAuditLog } from "@/lib/audit/logger"
 
+const isProduction = process.env.NODE_ENV === 'production'
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   // Trust proxy headers (required for Cloudflare Tunnel)
+  // This allows NextAuth to work correctly behind HTTPS proxies
   trustHost: true,
 
   providers: [
@@ -99,30 +102,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
     })
   ],
+
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
-  },
-
-  // Cookie configuration for HTTPS (production)
-  cookies: {
-    sessionToken: {
-      name: process.env.NODE_ENV === 'production'
-        ? '__Secure-next-auth.session-token'
-        : 'next-auth.session-token',
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
-      },
-    },
   },
 
   pages: {
     signIn: "/login",
     error: "/login",
   },
+
   callbacks: {
     async jwt({ token, user }) {
       if (user && user.id) {
@@ -139,5 +129,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return session
     }
   },
+
+  cookies: {
+    sessionToken: {
+      name: isProduction
+        ? `__Secure-next-auth.session-token`
+        : `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: isProduction,
+      },
+    },
+  },
+
   secret: process.env.NEXTAUTH_SECRET,
 })
