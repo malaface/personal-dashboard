@@ -11,13 +11,13 @@ export default async function NewFamilyMemberPage() {
         <div className="mb-6">
           <Link
             href="/dashboard/family"
-            className="text-purple-600 hover:text-purple-700 text-sm"
+            className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 text-sm"
           >
-            ← Back to Family
+            ← Volver a Familia
           </Link>
         </div>
 
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">Add Family Member</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Agregar Miembro de Familia</h1>
 
         <FamilyMemberForm />
       </div>

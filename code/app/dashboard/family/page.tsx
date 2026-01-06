@@ -20,16 +20,16 @@ export default async function FamilyPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Family CRM</h1>
-            <p className="text-gray-600 mt-2">
-              Manage family members, events, and time logs
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">CRM Familiar</h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-2">
+              Administra miembros de familia, eventos y registros de tiempo
             </p>
           </div>
           <Link
             href="/dashboard/family/new"
             className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
           >
-            Add Family Member
+            Agregar Miembro
           </Link>
         </div>
 

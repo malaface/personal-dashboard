@@ -31,13 +31,13 @@ export default async function EditTransactionPage({ params }: EditTransactionPag
         <div className="mb-6">
           <Link
             href="/dashboard/finance"
-            className="text-green-600 hover:text-green-700 text-sm"
+            className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 text-sm"
           >
-            ← Back to Finance
+            ← Volver a Finanzas
           </Link>
         </div>
 
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">Edit Transaction</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Editar Transacción</h1>
 
         <TransactionForm transaction={transaction} />
       </div>

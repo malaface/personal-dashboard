@@ -23,14 +23,14 @@ export default async function NutritionPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Nutrition</h1>
-            <p className="text-gray-600 mt-2">Track your meals and nutrition goals</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Nutrición</h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-2">Rastrea tus comidas y objetivos nutricionales</p>
           </div>
           <Link
             href="/dashboard/nutrition/new"
             className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition"
           >
-            Log Meal
+            Registrar Comida
           </Link>
         </div>
 

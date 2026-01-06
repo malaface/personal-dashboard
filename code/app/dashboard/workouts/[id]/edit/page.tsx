@@ -50,12 +50,12 @@ export default async function EditWorkoutPage({
         <div className="mb-8">
           <Link
             href="/dashboard/workouts"
-            className="text-blue-600 hover:text-blue-700 text-sm"
+            className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm"
           >
-            ← Back to Workouts
+            ← Volver a Entrenamientos
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900 mt-4">Edit Workout</h1>
-          <p className="text-gray-600 mt-2">Update your workout details</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mt-4">Editar Entrenamiento</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">Actualiza los detalles de tu entrenamiento</p>
         </div>
 
         <WorkoutForm workout={workoutData} />

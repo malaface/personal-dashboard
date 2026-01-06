@@ -20,14 +20,14 @@ export default async function FinancePage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Finance</h1>
-            <p className="text-gray-600 mt-2">Manage your transactions and investments</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Finanzas</h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-2">Administra tus transacciones e inversiones</p>
           </div>
           <Link
             href="/dashboard/finance/new"
             className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
           >
-            New Transaction
+            Nueva Transacción
           </Link>
         </div>
 

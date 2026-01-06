@@ -11,12 +11,12 @@ export default async function NewWorkoutPage() {
         <div className="mb-8">
           <Link
             href="/dashboard/workouts"
-            className="text-blue-600 hover:text-blue-700 text-sm"
+            className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm"
           >
-            ← Back to Workouts
+            ← Volver a Entrenamientos
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900 mt-4">New Workout</h1>
-          <p className="text-gray-600 mt-2">Log your workout session</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mt-4">Nuevo Entrenamiento</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">Registra tu sesión de entrenamiento</p>
         </div>
 
         <WorkoutForm />
