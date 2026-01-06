@@ -57,10 +57,10 @@ export default function ProfileForm({ user, profile }: ProfileFormProps) {
         setSuccess(true)
         router.refresh()
       } else {
-        setError(result.error || "Something went wrong")
+        setError(result.error || "Algo salió mal")
       }
     } catch (err: any) {
-      setError(err.message || "Failed to update profile")
+      setError(err.message || "Error al actualizar el perfil")
     } finally {
       setLoading(false)
     }
@@ -69,24 +69,24 @@ export default function ProfileForm({ user, profile }: ProfileFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md">
+        <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-600 dark:text-red-300 px-4 py-3 rounded-md">
           {error}
         </div>
       )}
 
       {success && (
-        <div className="bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-md">
-          Profile updated successfully!
+        <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700 text-green-600 dark:text-green-300 px-4 py-3 rounded-md">
+          ¡Perfil actualizado exitosamente!
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow p-6 space-y-4">
-        <h3 className="text-lg font-semibold">Personal Information</h3>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-4">
+        <h3 className="text-lg font-semibold dark:text-white">Información Personal</h3>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Full Name *
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Nombre Completo *
             </label>
             <input
               type="text"
@@ -95,105 +95,105 @@ export default function ProfileForm({ user, profile }: ProfileFormProps) {
               required
               minLength={2}
               maxLength={100}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email (read-only)
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Email (solo lectura)
             </label>
             <input
               type="email"
               value={user.email || ""}
               disabled
-              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Bio
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Biografía
           </label>
           <textarea
             value={bio}
             onChange={(e) => setBio(e.target.value)}
             rows={3}
             maxLength={300}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Tell us about yourself..."
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            placeholder="Cuéntanos sobre ti..."
           />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Phone
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Teléfono
             </label>
             <input
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               maxLength={20}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="+1 234 567 8900"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              placeholder="+52 55 1234 5678"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Birthday
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Fecha de Nacimiento
             </label>
             <input
               type="date"
               value={birthday}
               onChange={(e) => setBirthday(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
             />
           </div>
         </div>
 
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Country
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              País
             </label>
             <input
               type="text"
               value={country}
               onChange={(e) => setCountry(e.target.value)}
               maxLength={100}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="USA"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              placeholder="México"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              City
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Ciudad
             </label>
             <input
               type="text"
               value={city}
               onChange={(e) => setCity(e.target.value)}
               maxLength={100}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="New York"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              placeholder="Ciudad de México"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Timezone
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Zona Horaria
             </label>
             <input
               type="text"
               value={timezone}
               onChange={(e) => setTimezone(e.target.value)}
               maxLength={50}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="America/New_York"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              placeholder="America/Mexico_City"
             />
           </div>
         </div>
@@ -205,7 +205,7 @@ export default function ProfileForm({ user, profile }: ProfileFormProps) {
           disabled={loading}
           className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? "Saving..." : "Save Changes"}
+          {loading ? "Guardando..." : "Guardar Cambios"}
         </button>
       </div>
     </form>

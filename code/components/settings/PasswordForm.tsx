@@ -32,10 +32,10 @@ export default function PasswordForm() {
         setNewPassword("")
         setConfirmPassword("")
       } else {
-        setError(result.error || "Something went wrong")
+        setError(result.error || "Algo salió mal")
       }
     } catch (err: any) {
-      setError(err.message || "Failed to change password")
+      setError(err.message || "Error al cambiar la contraseña")
     } finally {
       setLoading(false)
     }
@@ -44,36 +44,36 @@ export default function PasswordForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md">
+        <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-600 dark:text-red-300 px-4 py-3 rounded-md">
           {error}
         </div>
       )}
 
       {success && (
-        <div className="bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-md">
-          Password changed successfully!
+        <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700 text-green-600 dark:text-green-300 px-4 py-3 rounded-md">
+          ¡Contraseña cambiada exitosamente!
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow p-6 space-y-4">
-        <h3 className="text-lg font-semibold">Change Password</h3>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-4">
+        <h3 className="text-lg font-semibold dark:text-white">Cambiar Contraseña</h3>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Current Password *
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Contraseña Actual *
           </label>
           <input
             type="password"
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            New Password *
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Nueva Contraseña *
           </label>
           <input
             type="password"
@@ -81,14 +81,14 @@ export default function PasswordForm() {
             onChange={(e) => setNewPassword(e.target.value)}
             required
             minLength={8}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="At least 8 characters"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            placeholder="Mínimo 8 caracteres"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Confirm New Password *
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Confirmar Nueva Contraseña *
           </label>
           <input
             type="password"
@@ -96,8 +96,8 @@ export default function PasswordForm() {
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
             minLength={8}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Re-enter new password"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            placeholder="Repite tu nueva contraseña"
           />
         </div>
       </div>
@@ -108,7 +108,7 @@ export default function PasswordForm() {
           disabled={loading}
           className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? "Changing..." : "Change Password"}
+          {loading ? "Cambiando..." : "Cambiar Contraseña"}
         </button>
       </div>
     </form>

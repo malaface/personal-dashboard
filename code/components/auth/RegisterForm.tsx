@@ -30,12 +30,12 @@ export default function RegisterForm() {
 
     // Validation
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match")
+      setError("Las contraseñas no coinciden")
       return
     }
 
     if (formData.password.length < 8) {
-      setError("Password must be at least 8 characters")
+      setError("La contraseña debe tener al menos 8 caracteres")
       return
     }
 
@@ -57,13 +57,13 @@ export default function RegisterForm() {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || "Registration failed")
+        throw new Error(data.error || "Falló el registro")
       }
 
       // Show success message instead of auto-login
       setSuccess(true)
     } catch (error: any) {
-      setError(error.message || "An error occurred during registration")
+      setError(error.message || "Ocurrió un error durante el registro")
     } finally {
       setLoading(false)
     }
@@ -114,8 +114,8 @@ export default function RegisterForm() {
     <form onSubmit={handleSubmit} className="mt-8 space-y-6">
       <div className="space-y-4">
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-            Full Name
+          <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            Nombre completo
           </label>
           <input
             id="name"
@@ -124,13 +124,14 @@ export default function RegisterForm() {
             required
             value={formData.name}
             onChange={handleChange}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            placeholder="Juan Pérez"
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
           />
         </div>
 
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-            Email address
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            Correo electrónico
           </label>
           <input
             id="email"
@@ -140,13 +141,14 @@ export default function RegisterForm() {
             required
             value={formData.email}
             onChange={handleChange}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            placeholder="tu@email.com"
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
           />
         </div>
 
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-            Password
+          <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            Contraseña
           </label>
           <input
             id="password"
@@ -156,13 +158,14 @@ export default function RegisterForm() {
             required
             value={formData.password}
             onChange={handleChange}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            placeholder="Mínimo 8 caracteres"
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
           />
         </div>
 
         <div>
-          <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-            Confirm Password
+          <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            Confirmar contraseña
           </label>
           <input
             id="confirmPassword"
@@ -172,7 +175,8 @@ export default function RegisterForm() {
             required
             value={formData.confirmPassword}
             onChange={handleChange}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            placeholder="Repite tu contraseña"
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
           />
         </div>
       </div>
@@ -188,13 +192,13 @@ export default function RegisterForm() {
         disabled={loading}
         className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {loading ? "Creating account..." : "Create account"}
+        {loading ? "Creando cuenta..." : "Crear cuenta"}
       </button>
 
       <div className="text-center text-sm">
-        <span className="text-gray-600">Already have an account? </span>
-        <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500">
-          Sign in
+        <span className="text-gray-600 dark:text-gray-400">¿Ya tienes una cuenta? </span>
+        <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">
+          Inicia sesión
         </Link>
       </div>
     </form>
