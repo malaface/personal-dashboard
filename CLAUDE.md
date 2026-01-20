@@ -236,6 +236,58 @@ NEXTAUTH_SECRET="[generated secret]"
 - ❌ Never push directly to main branch
 - ✅ Always work from submodule directory: `/home/badfaceserverlap/docker/contenedores`
 
+### Mandatory Feature Branch Workflow
+
+**CRITICAL: Todos los cambios DEBEN pasar por feature branches. Commits directos a `develop` o `main` están PROHIBIDOS.**
+
+#### Branch Naming Convention
+
+| Prefijo | Propósito | Ejemplo |
+|---------|-----------|---------|
+| `feature/` | Nuevas funcionalidades | `feature/add-dark-mode` |
+| `fix/` | Corrección de bugs | `fix/auth-redirect-loop` |
+| `refactor/` | Refactorización | `refactor/optimize-queries` |
+| `docs/` | Solo documentación | `docs/update-readme` |
+| `chore/` | Mantenimiento | `chore/update-dependencies` |
+| `hotfix/` | Fixes críticos en producción | `hotfix/security-patch` |
+
+#### Workflow Completo
+
+```bash
+# 1. Partir de develop actualizado
+git checkout develop && git pull origin develop
+
+# 2. Crear feature branch
+git checkout -b "feature/nombre-descriptivo"
+
+# 3. Hacer cambios y probar localmente
+npm run build && npm run lint && npx tsc --noEmit
+
+# 4. Stage archivos específicos (NUNCA git add .)
+git add archivo1.tsx archivo2.tsx
+
+# 5. Commit con formato convencional
+git commit -m "feat: descripción breve
+
+Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
+
+# 6. Push y crear PR
+git push -u origin "feature/nombre-descriptivo"
+gh pr create --base develop --title "feat: Descripción" --body "## Summary..."
+
+# 7. Después del merge, limpiar
+git checkout develop && git pull origin develop
+git branch -d "feature/nombre-descriptivo"
+```
+
+#### Pre-Merge Checklist
+
+- [ ] `npm run build` sin errores
+- [ ] `npm run lint` pasa
+- [ ] `npx tsc --noEmit` sin errores TypeScript
+- [ ] Testing manual completado
+- [ ] Sin conflictos con develop
+
 **Git Versioning with Tags:**
 
 Cuando el proyecto alcance versiones estables, utilizar Git tags para marcar esos puntos específicos:
