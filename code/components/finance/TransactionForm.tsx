@@ -79,10 +79,10 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
         router.push("/dashboard/finance")
         router.refresh()
       } else {
-        setError(result.error || "Something went wrong")
+        setError(result.error || "Algo salió mal")
       }
     } catch (err: any) {
-      setError(err.message || "Failed to save transaction")
+      setError(err.message || "Error al guardar la transacción")
     } finally {
       setLoading(false)
     }
@@ -96,29 +96,29 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow p-6 space-y-4">
-        <h3 className="text-lg font-semibold">Transaction Details</h3>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-4">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Detalles de la Transacción</h3>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Type *
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Tipo *
             </label>
             <CategorySelector
               catalogType="transaction_category"
               value={typeId}
               onChange={(id) => setTypeId(id)}
-              placeholder="Select type (Income/Expense)"
+              placeholder="Seleccionar tipo (Ingreso/Gasto)"
               required
             />
-            <p className="text-xs text-gray-500 mt-1">
-              Select Income or Expense
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Seleccionar Ingreso o Gasto
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Amount *
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Monto *
             </label>
             <input
               type="number"
@@ -127,7 +127,7 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
               required
               min="0"
               step="0.01"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="0.00"
             />
           </div>
@@ -135,48 +135,48 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Category *
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Categoría *
             </label>
             <CategorySelector
               catalogType="transaction_category"
               value={categoryId}
               onChange={(id) => setCategoryId(id)}
               parentId={typeId}
-              placeholder={typeId ? "Select category" : "Select type first"}
+              placeholder={typeId ? "Seleccionar categoría" : "Seleccionar tipo primero"}
               required
               disabled={!typeId}
             />
-            <p className="text-xs text-gray-500 mt-1">
-              {typeId ? "Select a specific category" : "Choose a type first to see categories"}
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              {typeId ? "Seleccionar una categoría específica" : "Elige un tipo primero para ver las categorías"}
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Date *
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Fecha *
             </label>
             <input
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Description
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Descripción
           </label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={2}
             maxLength={200}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Optional notes..."
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Notas opcionales..."
           />
         </div>
       </div>
@@ -186,9 +186,9 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+            className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
           >
-            Cancel
+            Cancelar
           </button>
         )}
         <button
@@ -196,7 +196,7 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
           disabled={loading}
           className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? "Saving..." : transaction ? "Update Transaction" : "Create Transaction"}
+          {loading ? "Guardando..." : transaction ? "Actualizar Transacción" : "Crear Transacción"}
         </button>
       </div>
     </form>

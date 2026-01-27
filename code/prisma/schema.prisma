@@ -42,6 +42,7 @@ model User {
   catalogItems  CatalogItem[]
   workoutTemplates WorkoutTemplate[]
   mealTemplates    MealTemplate[]
+  aiCredentials AICredential[]
 
   @@map("users")
 }
@@ -679,4 +680,46 @@ model AuditLog {
   @@index([action, createdAt])
   @@index([ipAddress, createdAt])
   @@map("audit_logs")
+}
+
+// ============================================
+// AI CREDENTIALS (Encrypted API Keys)
+// ============================================
+
+model AICredential {
+  id        String   @id @default(cuid())
+  userId    String
+
+  // Credential Info
+  provider  AIProvider // GEMINI, OPENAI, CLAUDE, etc.
+  apiKey    String     @db.Text // Encrypted API key
+  label     String?    // Optional friendly name (e.g., "My Gemini Key")
+
+  // Status & Validation
+  isActive  Boolean    @default(true)
+  isValid   Boolean    @default(false) // Set to true after successful validation
+  lastValidated DateTime?
+
+  // Usage Tracking (optional, for future analytics)
+  usageCount Int      @default(0)
+  lastUsedAt DateTime?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Indexes
+  @@index([userId, provider])
+  @@index([userId, isActive])
+  @@map("ai_credentials")
+}
+
+enum AIProvider {
+  GEMINI
+  OPENAI
+  CLAUDE
+  HUGGINGFACE
 }

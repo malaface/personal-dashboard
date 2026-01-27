@@ -11,7 +11,7 @@ const APP_URL = process.env.NEXTAUTH_URL || 'http://localhost:3000'
  * Send email verification email with hashed token
  */
 export async function sendVerificationEmail(email: string, token: string) {
-  const verifyUrl = `${APP_URL}/verify-email?token=${token}`
+  const verifyUrl = `${APP_URL}/api/auth/verify-email?token=${token}`
 
   // If Resend is not configured, log to console (development mode)
   if (!resend) {
@@ -120,7 +120,7 @@ export async function sendVerificationEmail(email: string, token: string) {
  * Send password reset email
  */
 export async function sendPasswordResetEmail(email: string, token: string) {
-  const resetUrl = `${APP_URL}/reset-password?token=${token}`
+  const resetUrl = `${APP_URL}/api/auth/reset-password?token=${token}`
 
   // If Resend is not configured, log to console (development mode)
   if (!resend) {

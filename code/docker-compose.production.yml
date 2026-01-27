@@ -17,7 +17,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - ai-platform_default
+      - localai_default
 
   dashboard:
     image: personal-dashboard:production
@@ -30,8 +30,9 @@ services:
       DATABASE_URL: "postgresql://dashboard_user:CU04bbYde+lhCOJcPaD8vYfjb9nXVJClur8xjDo6I88=@dashboard-db:5432/dashboard"
 
       # NextAuth
-      NEXTAUTH_URL: "http://localhost:3003"
+      NEXTAUTH_URL: "https://dashboard.malacaran8n.uk"
       NEXTAUTH_SECRET: "QLyBcsLeH0WURxp9/uhBlipxG8ipVutArstCXY1dL3g="
+      AUTH_TRUST_HOST: "true"
 
       # Redis (using internal Docker network)
       REDIS_URL: "redis://:0Mb1vEXSc9xzRV5oE7PGnG80IhktTEeBtVsthKDite0=@redis:6379"
@@ -50,6 +51,9 @@ services:
       # Node environment
       NODE_ENV: "production"
 
+      # Server configuration - Listen on all network interfaces
+      HOSTNAME: "0.0.0.0"
+
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
       interval: 30s
@@ -58,7 +62,7 @@ services:
       start_period: 40s
 
     networks:
-      - ai-platform_default
+      - localai_default
 
     depends_on:
       postgres:
@@ -76,5 +80,5 @@ volumes:
     driver: local
 
 networks:
-  ai-platform_default:
+  localai_default:
     external: true

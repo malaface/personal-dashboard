@@ -77,10 +77,10 @@ export default function MealForm({ meal }: MealFormProps) {
         router.push("/dashboard/nutrition")
         router.refresh()
       } else {
-        setError(result.error || "Something went wrong")
+        setError(result.error || "Algo salió mal")
       }
     } catch (err: any) {
-      setError(err.message || "Failed to save meal")
+      setError(err.message || "Error al guardar la comida")
     } finally {
       setLoading(false)
     }
@@ -94,13 +94,13 @@ export default function MealForm({ meal }: MealFormProps) {
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow p-6 space-y-4">
-        <h3 className="text-lg font-semibold">Meal Details</h3>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-4">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Detalles de la Comida</h3>
 
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Meal Name *
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Nombre de la Comida *
             </label>
             <input
               type="text"
@@ -109,75 +109,75 @@ export default function MealForm({ meal }: MealFormProps) {
               required
               minLength={2}
               maxLength={100}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder="E.g., Breakfast smoothie"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+              placeholder="Ej., Batido de desayuno"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Meal Type *
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Tipo de Comida *
             </label>
             <select
               value={mealType}
               onChange={(e) => setMealType(e.target.value)}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
             >
-              <option value="BREAKFAST">Breakfast</option>
-              <option value="LUNCH">Lunch</option>
-              <option value="DINNER">Dinner</option>
-              <option value="SNACK">Snack</option>
+              <option value="BREAKFAST">Desayuno</option>
+              <option value="LUNCH">Almuerzo</option>
+              <option value="DINNER">Cena</option>
+              <option value="SNACK">Merienda</option>
             </select>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Date *
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Fecha *
             </label>
             <input
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Notes
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Notas
           </label>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={2}
             maxLength={300}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-            placeholder="Optional notes..."
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+            placeholder="Notas opcionales..."
           />
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow p-6 space-y-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-4">
         <div className="flex justify-between items-center">
-          <h3 className="text-lg font-semibold">Food Items</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Alimentos</h3>
           <button
             type="button"
             onClick={addFoodItem}
-            className="flex items-center space-x-1 text-orange-600 hover:text-orange-700"
+            className="flex items-center space-x-1 text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300"
           >
             <PlusIcon className="h-5 w-5" />
-            <span>Add Food</span>
+            <span>Agregar Alimento</span>
           </button>
         </div>
 
         <div className="space-y-4">
           {foodItems.map((item, index) => (
-            <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
+            <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-3">
               <div className="flex justify-between items-start">
-                <span className="text-sm font-medium text-gray-500">Food #{index + 1}</span>
+                <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Alimento #{index + 1}</span>
                 {foodItems.length > 1 && (
                   <button
                     type="button"
@@ -195,8 +195,8 @@ export default function MealForm({ meal }: MealFormProps) {
                   value={item.name}
                   onChange={(e) => updateFoodItem(index, "name", e.target.value)}
                   required
-                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  placeholder="Food name *"
+                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  placeholder="Nombre del alimento *"
                 />
                 <input
                   type="number"
@@ -205,16 +205,16 @@ export default function MealForm({ meal }: MealFormProps) {
                   required
                   min="0"
                   step="0.1"
-                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  placeholder="Quantity *"
+                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  placeholder="Cantidad *"
                 />
                 <input
                   type="text"
                   value={item.unit}
                   onChange={(e) => updateFoodItem(index, "unit", e.target.value)}
                   required
-                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  placeholder="Unit (g, ml) *"
+                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  placeholder="Unidad (g, ml) *"
                 />
               </div>
 
@@ -224,7 +224,7 @@ export default function MealForm({ meal }: MealFormProps) {
                   value={item.calories || ""}
                   onChange={(e) => updateFoodItem(index, "calories", parseInt(e.target.value) || 0)}
                   min="0"
-                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                   placeholder="Cal"
                 />
                 <input
@@ -233,8 +233,8 @@ export default function MealForm({ meal }: MealFormProps) {
                   onChange={(e) => updateFoodItem(index, "protein", parseFloat(e.target.value) || 0)}
                   min="0"
                   step="0.1"
-                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  placeholder="Protein (g)"
+                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  placeholder="Proteína (g)"
                 />
                 <input
                   type="number"
@@ -242,8 +242,8 @@ export default function MealForm({ meal }: MealFormProps) {
                   onChange={(e) => updateFoodItem(index, "carbs", parseFloat(e.target.value) || 0)}
                   min="0"
                   step="0.1"
-                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  placeholder="Carbs (g)"
+                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  placeholder="Carbohidratos (g)"
                 />
                 <input
                   type="number"
@@ -251,8 +251,8 @@ export default function MealForm({ meal }: MealFormProps) {
                   onChange={(e) => updateFoodItem(index, "fats", parseFloat(e.target.value) || 0)}
                   min="0"
                   step="0.1"
-                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  placeholder="Fats (g)"
+                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  placeholder="Grasas (g)"
                 />
               </div>
             </div>
@@ -266,7 +266,7 @@ export default function MealForm({ meal }: MealFormProps) {
           disabled={loading}
           className="px-6 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? "Saving..." : meal ? "Update Meal" : "Create Meal"}
+          {loading ? "Guardando..." : meal ? "Actualizar Comida" : "Crear Comida"}
         </button>
       </div>
     </form>

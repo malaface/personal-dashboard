@@ -20,7 +20,7 @@ services:
       - ./cloudflared-credentials.json:/etc/cloudflared/credentials.json:ro
 
     networks:
-      - ai-platform_default
+      - localai_default
 
     depends_on:
       - dashboard
@@ -38,5 +38,5 @@ services:
       start_period: 10s
 
 networks:
-  ai-platform_default:
+  localai_default:
     external: true
