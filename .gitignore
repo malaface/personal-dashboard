@@ -75,6 +75,7 @@ temp/
 # Secrets & credentials
 secrets/
 credentials/
+!code/app/api/*/credentials/
 *.pem
 *.key
 *.cert
