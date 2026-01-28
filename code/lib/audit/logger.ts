@@ -36,6 +36,9 @@ export type AuditAction =
   | "FAMILY_MEMBER_CREATED"
   | "FAMILY_MEMBER_UPDATED"
   | "FAMILY_MEMBER_DELETED"
+  // Backup Operations
+  | "DATA_EXPORTED"
+  | "DATA_IMPORTED"
 
 interface AuditLogData {
   userId?: string

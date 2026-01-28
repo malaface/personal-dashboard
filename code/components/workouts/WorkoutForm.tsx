@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation"
 import { createWorkout, updateWorkout } from "@/app/dashboard/workouts/actions"
 import { PlusIcon, TrashIcon } from "@heroicons/react/24/outline"
 import SmartCombobox from "@/components/catalog/SmartCombobox"
+import ExerciseHistory from "@/components/workouts/ExerciseHistory"
 
 // Zod Schemas
 const exerciseSchema = z.object({
@@ -259,6 +260,18 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
                     error={form.formState.errors.exercises?.[index]?.exerciseTypeId?.message}
                   />
                 )}
+              />
+              {/* Exercise History - Auto-fill from last workout */}
+              <ExerciseHistory
+                exerciseTypeId={form.watch(`exercises.${index}.exerciseTypeId`) || null}
+                currentSets={form.watch(`exercises.${index}.sets`) || 0}
+                currentReps={form.watch(`exercises.${index}.reps`) || 0}
+                currentWeight={form.watch(`exercises.${index}.weight`) ?? null}
+                onUseLastValues={(sets, reps, weight) => {
+                  form.setValue(`exercises.${index}.sets`, sets)
+                  form.setValue(`exercises.${index}.reps`, reps)
+                  form.setValue(`exercises.${index}.weight`, weight)
+                }}
               />
             </div>
 

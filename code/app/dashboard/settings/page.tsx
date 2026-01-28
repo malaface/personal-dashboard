@@ -2,16 +2,21 @@ import { requireAuth } from "@/lib/auth/utils"
 import { prisma } from "@/lib/db/prisma"
 import ProfileForm from "@/components/settings/ProfileForm"
 import PasswordForm from "@/components/settings/PasswordForm"
+import BackupManager from "@/components/settings/BackupManager"
 import { ThemeToggle } from "@/components/theme/ThemeToggle"
+import { getExportCounts } from "@/lib/backup/export"
 import Link from "next/link"
-import { SparklesIcon, FolderIcon, ChevronRightIcon } from "@heroicons/react/24/outline"
+import { SparklesIcon, FolderIcon, ChevronRightIcon, CloudArrowDownIcon } from "@heroicons/react/24/outline"
 
 export default async function SettingsPage() {
   const user = await requireAuth()
 
-  const profile = await prisma.profile.findUnique({
-    where: { userId: user.id },
-  })
+  const [profile, exportCounts] = await Promise.all([
+    prisma.profile.findUnique({
+      where: { userId: user.id },
+    }),
+    getExportCounts(user.id),
+  ])
 
   return (
     <div className="p-8">
@@ -28,7 +33,7 @@ export default async function SettingsPage() {
               Configuración Avanzada
             </h2>
 
-            <div className="grid gap-3 md:grid-cols-2">
+            <div className="grid gap-3 md:grid-cols-3">
               <Link
                 href="/dashboard/settings/ai-credentials"
                 className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg transition group"
@@ -68,12 +73,37 @@ export default async function SettingsPage() {
                 </div>
                 <ChevronRightIcon className="h-5 w-5 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition" />
               </Link>
+
+              <a
+                href="#backup"
+                className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg transition group"
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                    <CloudArrowDownIcon className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-white">
+                      Backup
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Exportar/Importar datos
+                    </p>
+                  </div>
+                </div>
+                <ChevronRightIcon className="h-5 w-5 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition" />
+              </a>
             </div>
           </div>
 
           <ThemeToggle />
           <ProfileForm user={user} profile={profile} />
           <PasswordForm />
+
+          {/* Backup Section */}
+          <div id="backup">
+            <BackupManager exportCounts={exportCounts} />
+          </div>
         </div>
       </div>
     </div>
