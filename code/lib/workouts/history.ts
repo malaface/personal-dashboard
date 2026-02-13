@@ -17,6 +17,8 @@ export interface LastPerformance {
     workoutName: string
     workoutId: string
     exerciseId: string
+    muscleGroupId: string | null
+    equipmentId: string | null
   }
 }
 
@@ -76,6 +78,8 @@ export async function getLastExercisePerformance(
       workoutName: lastExercise.workout.name,
       workoutId: lastExercise.workout.id,
       exerciseId: lastExercise.id,
+      muscleGroupId: lastExercise.muscleGroupId,
+      equipmentId: lastExercise.equipmentId,
     },
   }
 }

@@ -2256,7 +2256,7 @@ object Config {
 ### 14.4 Checklist Pre-Release
 
 - [ ] Todos los módulos funcionales
-- [ ] Offline mode funcionando
+- [ ] Offline mode funcionandocd
 - [ ] Sincronización verificada
 - [ ] AI integration con rate limiting
 - [ ] Dark mode completo

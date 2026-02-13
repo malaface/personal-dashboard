@@ -44,6 +44,8 @@ export async function GET(request: NextRequest, context: RouteParams) {
             weight: lastPerformance.lastWorkout.weight,
             volume: lastPerformance.lastWorkout.volume,
             workoutName: lastPerformance.lastWorkout.workoutName,
+            muscleGroupId: lastPerformance.lastWorkout.muscleGroupId,
+            equipmentId: lastPerformance.lastWorkout.equipmentId,
           }
         : null,
       personalRecord: {
