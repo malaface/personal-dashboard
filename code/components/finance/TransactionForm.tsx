@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { createTransaction, updateTransaction } from "@/app/dashboard/finance/actions"
 import CategorySelector from "@/components/catalog/CategorySelector"
+import QuickCategoryBar from "@/components/finance/QuickCategoryBar"
 
 interface TransactionFormProps {
   transaction?: {
@@ -35,8 +36,18 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
     transaction?.date ? new Date(transaction.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
   )
 
+  const isEditing = !!transaction
+
   // Get parent type for cascading category selection
   const [selectedTypeItem, setSelectedTypeItem] = useState<any>(null)
+
+  const handleQuickSelect = (quickTypeId: string, quickCategoryId: string, lastAmount: number | null) => {
+    setTypeId(quickTypeId)
+    setCategoryId(quickCategoryId)
+    if (!amount && lastAmount !== null) {
+      setAmount(lastAmount.toString())
+    }
+  }
 
   useEffect(() => {
     async function fetchTypeItem() {
@@ -91,9 +102,13 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 text-red-600 dark:text-red-400 px-4 py-3 rounded-md">
           {error}
         </div>
+      )}
+
+      {!isEditing && (
+        <QuickCategoryBar onQuickSelect={handleQuickSelect} />
       )}
 
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-4">

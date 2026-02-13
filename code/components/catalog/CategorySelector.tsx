@@ -74,16 +74,16 @@ export default function CategorySelector({
     return (
       <select
         disabled
-        className={`w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 ${className}`}
+        className={`w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-800 dark:text-gray-400 ${className}`}
       >
-        <option>Loading...</option>
+        <option>Cargando...</option>
       </select>
     )
   }
 
   if (error) {
     return (
-      <div className="w-full px-3 py-2 border border-red-300 rounded-md bg-red-50 text-red-600 text-sm">
+      <div className="w-full px-3 py-2 border border-red-300 dark:border-red-700 rounded-md bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm">
         {error}
       </div>
     )
@@ -95,7 +95,7 @@ export default function CategorySelector({
       onChange={(e) => onChange(e.target.value)}
       required={required}
       disabled={disabled}
-      className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed ${className}`}
+      className={`w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 disabled:cursor-not-allowed ${className}`}
     >
       <option value="">{placeholder}</option>
       {items.map((item) => (

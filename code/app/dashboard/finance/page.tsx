@@ -10,6 +10,10 @@ export default async function FinancePage() {
     where: {
       userId: user.id,
     },
+    include: {
+      typeItem: true,
+      categoryItem: true,
+    },
     orderBy: {
       date: "desc",
     },
