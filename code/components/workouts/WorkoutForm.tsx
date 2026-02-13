@@ -1,14 +1,15 @@
 "use client"
 
-import { useForm, Controller, useFieldArray } from "react-hook-form"
+import { useForm, useFieldArray } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { createWorkout, updateWorkout } from "@/app/dashboard/workouts/actions"
-import { PlusIcon, TrashIcon } from "@heroicons/react/24/outline"
-import SmartCombobox from "@/components/catalog/SmartCombobox"
-import ExerciseHistory from "@/components/workouts/ExerciseHistory"
+import { PlusIcon } from "@heroicons/react/24/outline"
+import CollapsibleExerciseCard from "@/components/workouts/CollapsibleExerciseCard"
+import QuickAddBar from "@/components/workouts/QuickAddBar"
+import WorkoutTemplateSelector from "@/components/templates/WorkoutTemplateSelector"
 
 // Zod Schemas
 const exerciseSchema = z.object({
@@ -51,12 +52,22 @@ interface WorkoutFormProps {
   onCancel?: () => void
 }
 
+const emptyExercise = {
+  exerciseTypeId: "",
+  muscleGroupId: null,
+  equipmentId: null,
+  sets: 3,
+  reps: 10,
+  weight: null,
+  notes: null,
+}
+
 export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const isEditing = !!workout
 
-  // React Hook Form
   const form = useForm<WorkoutFormData>({
     resolver: zodResolver(workoutFormSchema),
     defaultValues: {
@@ -74,37 +85,96 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
         reps: ex.reps,
         weight: ex.weight,
         notes: ex.notes,
-      })) || [{
-        exerciseTypeId: "",
-        muscleGroupId: null,
-        equipmentId: null,
-        sets: 3,
-        reps: 10,
-        weight: null,
-        notes: null
-      }]
+      })) || [{ ...emptyExercise }]
     }
   })
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, swap, insert } = useFieldArray({
     control: form.control,
     name: "exercises"
   })
 
+  // Watch exercise type IDs for QuickAddBar
+  const exerciseTypeIds = form.watch("exercises")?.map(e => e.exerciseTypeId).filter(Boolean) || []
+
   const addExercise = () => {
+    append({ ...emptyExercise })
+  }
+
+  const moveExerciseUp = (index: number) => {
+    if (index > 0) swap(index, index - 1)
+  }
+
+  const moveExerciseDown = (index: number) => {
+    if (index < fields.length - 1) swap(index, index + 1)
+  }
+
+  const duplicateExercise = (index: number) => {
+    const current = form.getValues(`exercises.${index}`)
+    insert(index + 1, { ...current })
+  }
+
+  const handleQuickAdd = async (exerciseTypeId: string, exerciseName: string) => {
+    try {
+      const response = await fetch(`/api/exercises/${exerciseTypeId}/last`)
+      if (response.ok) {
+        const data = await response.json()
+        if (data.found && data.lastWorkout) {
+          append({
+            exerciseTypeId,
+            muscleGroupId: data.lastWorkout.muscleGroupId || null,
+            equipmentId: data.lastWorkout.equipmentId || null,
+            sets: data.lastWorkout.sets,
+            reps: data.lastWorkout.reps,
+            weight: data.lastWorkout.weight ?? null,
+            notes: null,
+          })
+          return
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching last performance for quick-add:", error)
+    }
+    // Fallback: add with defaults
     append({
-      exerciseTypeId: "",
+      exerciseTypeId,
       muscleGroupId: null,
       equipmentId: null,
       sets: 3,
       reps: 10,
       weight: null,
-      notes: null
+      notes: null,
     })
   }
 
-  const removeExercise = (index: number) => {
-    remove(index)
+  const handleTemplateLoad = (data: {
+    name: string
+    exercises: Array<{
+      exerciseTypeId: string | null
+      muscleGroupId: string | null
+      equipmentId: string | null
+      sets: number
+      reps: number
+      weight: number | null
+      notes: string | null
+    }>
+  }) => {
+    form.setValue("name", data.name)
+    // Remove all current exercises and replace with template
+    while (fields.length > 0) {
+      remove(0)
+    }
+    for (const ex of data.exercises) {
+      append({
+        exerciseTypeId: ex.exerciseTypeId || "",
+        muscleGroupId: ex.muscleGroupId || null,
+        equipmentId: ex.equipmentId || null,
+        sets: ex.sets,
+        reps: ex.reps,
+        weight: ex.weight,
+        notes: ex.notes,
+      })
+    }
   }
 
   const onSubmit = async (data: WorkoutFormData) => {
@@ -139,11 +209,12 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-md">
           {error}
         </div>
       )}
 
+      {/* Workout Details */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-4">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Detalles del Entrenamiento</h3>
 
@@ -211,6 +282,17 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
         </div>
       </div>
 
+      {/* Template Selector - only when creating */}
+      {!isEditing && (
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Cargar desde template
+          </h3>
+          <WorkoutTemplateSelector onTemplateLoad={handleTemplateLoad} />
+        </div>
+      )}
+
+      {/* Exercises */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-4">
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Ejercicios *</h3>
@@ -224,148 +306,34 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
           </button>
         </div>
 
+        {/* Quick Add Bar */}
+        <QuickAddBar
+          onQuickAdd={handleQuickAdd}
+          existingExerciseTypeIds={exerciseTypeIds}
+        />
+
         {form.formState.errors.exercises && typeof form.formState.errors.exercises === 'object' && 'message' in form.formState.errors.exercises && (
           <p className="text-sm text-red-600">{form.formState.errors.exercises.message as string}</p>
         )}
 
         {fields.map((field, index) => (
-          <div key={field.id} className="border border-gray-200 dark:border-gray-700 rounded-md p-4 space-y-3">
-            <div className="flex justify-between items-start mb-3">
-              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Ejercicio #{index + 1}</h4>
-              {fields.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => removeExercise(index)}
-                  className="p-1 text-red-600 hover:bg-red-50 rounded-md"
-                >
-                  <TrashIcon className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
-                Tipo de Ejercicio *
-              </label>
-              <Controller
-                name={`exercises.${index}.exerciseTypeId`}
-                control={form.control}
-                render={({ field }) => (
-                  <SmartCombobox
-                    catalogType="exercise_category"
-                    value={field.value}
-                    onChange={field.onChange}
-                    placeholder="Seleccionar ejercicio (Press de banca, Sentadilla, etc.)"
-                    required
-                    error={form.formState.errors.exercises?.[index]?.exerciseTypeId?.message}
-                  />
-                )}
-              />
-              {/* Exercise History - Auto-fill from last workout */}
-              <ExerciseHistory
-                exerciseTypeId={form.watch(`exercises.${index}.exerciseTypeId`) || null}
-                currentSets={form.watch(`exercises.${index}.sets`) || 0}
-                currentReps={form.watch(`exercises.${index}.reps`) || 0}
-                currentWeight={form.watch(`exercises.${index}.weight`) ?? null}
-                onUseLastValues={(sets, reps, weight) => {
-                  form.setValue(`exercises.${index}.sets`, sets)
-                  form.setValue(`exercises.${index}.reps`, reps)
-                  form.setValue(`exercises.${index}.weight`, weight)
-                }}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
-                  Grupo Muscular (Opcional)
-                </label>
-                <Controller
-                  name={`exercises.${index}.muscleGroupId`}
-                  control={form.control}
-                  render={({ field }) => (
-                    <SmartCombobox
-                      catalogType="muscle_group"
-                      value={field.value || ""}
-                      onChange={(value) => field.onChange(value || null)}
-                      placeholder="Seleccionar grupo muscular"
-                      error={form.formState.errors.exercises?.[index]?.muscleGroupId?.message}
-                    />
-                  )}
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
-                  Equipo (Opcional)
-                </label>
-                <Controller
-                  name={`exercises.${index}.equipmentId`}
-                  control={form.control}
-                  render={({ field }) => (
-                    <SmartCombobox
-                      catalogType="equipment_type"
-                      value={field.value || ""}
-                      onChange={(value) => field.onChange(value || null)}
-                      placeholder="Seleccionar equipo"
-                      error={form.formState.errors.exercises?.[index]?.equipmentId?.message}
-                    />
-                  )}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-3">
-              <div>
-                <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Series *</label>
-                <input
-                  type="number"
-                  {...form.register(`exercises.${index}.sets`, { valueAsNumber: true })}
-                  min="1"
-                  className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md text-sm"
-                />
-                {form.formState.errors.exercises?.[index]?.sets && (
-                  <p className="mt-1 text-xs text-red-600">
-                    {form.formState.errors.exercises[index]?.sets?.message}
-                  </p>
-                )}
-              </div>
-              <div>
-                <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Repeticiones *</label>
-                <input
-                  type="number"
-                  {...form.register(`exercises.${index}.reps`, { valueAsNumber: true })}
-                  min="1"
-                  className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md text-sm"
-                />
-                {form.formState.errors.exercises?.[index]?.reps && (
-                  <p className="mt-1 text-xs text-red-600">
-                    {form.formState.errors.exercises[index]?.reps?.message}
-                  </p>
-                )}
-              </div>
-              <div>
-                <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Peso (kg)</label>
-                <input
-                  type="number"
-                  {...form.register(`exercises.${index}.weight`, {
-                    valueAsNumber: true,
-                    setValueAs: (v) => v === '' ? null : Number(v)
-                  })}
-                  min="0"
-                  step="0.5"
-                  className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md text-sm"
-                />
-                {form.formState.errors.exercises?.[index]?.weight && (
-                  <p className="mt-1 text-xs text-red-600">
-                    {form.formState.errors.exercises[index]?.weight?.message}
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
+          <CollapsibleExerciseCard
+            key={field.id}
+            index={index}
+            totalCount={fields.length}
+            form={form}
+            field={field}
+            onRemove={() => remove(index)}
+            onMoveUp={() => moveExerciseUp(index)}
+            onMoveDown={() => moveExerciseDown(index)}
+            onDuplicate={() => duplicateExercise(index)}
+            isFirst={index === 0}
+            isLast={index === fields.length - 1}
+          />
         ))}
       </div>
 
+      {/* Submit */}
       <div className="flex justify-end space-x-3">
         {onCancel && (
           <button

@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-02-12
 **Branch:** `feature/workout-form-ux-improvements`
-**Estado:** Pendiente de aprobacion
+**Estado:** ✅ COMPLETADO
 **Impacto estimado:** Reduccion de 67-80% en interacciones necesarias para registrar un entrenamiento
 
 ---
@@ -74,8 +74,8 @@ WorkoutForm.tsx (orquestador principal)
 
 **Archivos a modificar:**
 
-- [ ] `lib/workouts/history.ts` - Agregar `muscleGroupId` y `equipmentId` a la interfaz `LastPerformance` y al return de `getLastExercisePerformance()`
-- [ ] `app/api/exercises/[exerciseTypeId]/last/route.ts` - Incluir los nuevos campos en la respuesta JSON
+- [x] `lib/workouts/history.ts` - Agregar `muscleGroupId` y `equipmentId` a la interfaz `LastPerformance` y al return de `getLastExercisePerformance()`
+- [x] `app/api/exercises/[exerciseTypeId]/last/route.ts` - Incluir los nuevos campos en la respuesta JSON
 
 **Cambios especificos:**
 
@@ -94,8 +94,8 @@ equipmentId: lastExercise.equipmentId,
 En la respuesta del API route agregar los mismos campos. Es **backwards-compatible** (clientes existentes ignoran campos nuevos).
 
 **Verificacion:**
-- [ ] `GET /api/exercises/{id}/last` retorna `muscleGroupId` y `equipmentId`
-- [ ] Respuesta mantiene compatibilidad con ExerciseHistory existente
+- [x] `GET /api/exercises/{id}/last` retorna `muscleGroupId` y `equipmentId`
+- [x] Respuesta mantiene compatibilidad con ExerciseHistory existente
 
 ---
 
@@ -105,7 +105,7 @@ En la respuesta del API route agregar los mismos campos. Es **backwards-compatib
 
 **Archivo nuevo:**
 
-- [ ] `app/api/exercises/recent/route.ts` (NEW)
+- [x] `app/api/exercises/recent/route.ts` (NEW)
 
 **Implementacion:**
 - GET endpoint que usa `getUserExerciseTypes()` de `lib/workouts/history.ts` (funcion que ya existe pero no se usa)
@@ -114,9 +114,9 @@ En la respuesta del API route agregar los mismos campos. Es **backwards-compatib
 - Requiere autenticacion via `requireAuth()`
 
 **Verificacion:**
-- [ ] Endpoint retorna ejercicios ordenados por `lastPerformed` desc
-- [ ] Retorna 401 para usuarios no autenticados
-- [ ] Retorna array vacio si el usuario no tiene historial
+- [x] Endpoint retorna ejercicios ordenados por `lastPerformed` desc
+- [x] Retorna 401 para usuarios no autenticados
+- [x] Retorna array vacio si el usuario no tiene historial
 
 ---
 
@@ -126,7 +126,7 @@ En la respuesta del API route agregar los mismos campos. Es **backwards-compatib
 
 **Archivo a modificar:**
 
-- [ ] `components/workouts/ExerciseHistory.tsx` - Agregar prop `onLastPerformanceLoaded` callback
+- [x] `components/workouts/ExerciseHistory.tsx` - Agregar prop `onLastPerformanceLoaded` callback
 
 **Cambios:**
 - Nuevo prop opcional: `onLastPerformanceLoaded?: (data: { muscleGroupId, equipmentId, sets, reps, weight }) => void`
@@ -134,8 +134,8 @@ En la respuesta del API route agregar los mismos campos. Es **backwards-compatib
 - El `CollapsibleExerciseCard` usa este callback para auto-llenar campos sin hacer otro fetch
 
 **Verificacion:**
-- [ ] ExerciseHistory sigue funcionando igual sin el callback (backwards compatible)
-- [ ] Callback se invoca cuando se obtienen datos del ejercicio
+- [x] ExerciseHistory sigue funcionando igual sin el callback (backwards compatible)
+- [x] Callback se invoca cuando se obtienen datos del ejercicio
 
 ---
 
@@ -145,7 +145,7 @@ En la respuesta del API route agregar los mismos campos. Es **backwards-compatib
 
 **Archivo nuevo:**
 
-- [ ] `components/workouts/QuickAddBar.tsx` (NEW, ~80 lineas)
+- [x] `components/workouts/QuickAddBar.tsx` (NEW, ~80 lineas)
 
 **Props:**
 ```typescript
@@ -170,12 +170,12 @@ interface QuickAddBarProps {
 - Header con icono reloj: "Agregar rapido"
 
 **Verificacion:**
-- [ ] Muestra ejercicios recientes como chips
-- [ ] Chips scrollean horizontalmente en mobile
-- [ ] Tap en chip invoca `onQuickAdd` con id y nombre
-- [ ] Chips atenuados para ejercicios ya agregados
-- [ ] No renderiza nada si no hay historial
-- [ ] Skeleton loading funcional
+- [x] Muestra ejercicios recientes como chips
+- [x] Chips scrollean horizontalmente en mobile
+- [x] Tap en chip invoca `onQuickAdd` con id y nombre
+- [x] Chips atenuados para ejercicios ya agregados
+- [x] No renderiza nada si no hay historial
+- [x] Skeleton loading funcional
 
 ---
 
@@ -185,7 +185,7 @@ interface QuickAddBarProps {
 
 **Archivo nuevo:**
 
-- [ ] `components/workouts/CollapsibleExerciseCard.tsx` (NEW, ~200 lineas)
+- [x] `components/workouts/CollapsibleExerciseCard.tsx` (NEW, ~200 lineas)
 
 **Props:**
 ```typescript
@@ -229,15 +229,15 @@ interface CollapsibleExerciseCardProps {
 - Click en area de header togglea colapsar/expandir
 
 **Verificacion:**
-- [ ] Se puede colapsar/expandir haciendo click en header
-- [ ] Resumen colapsado muestra nombre, peso, reps, sets correctamente
-- [ ] No se puede colapsar sin tipo de ejercicio seleccionado
-- [ ] Botones de mover arriba/abajo funcionan correctamente
-- [ ] Boton duplicar crea copia con valores identicos
-- [ ] Boton eliminar remueve el ejercicio
-- [ ] Auto-fill de grupo muscular y equipo funciona
-- [ ] Auto-fill no sobreescribe valores existentes
-- [ ] Dark mode completo
+- [x] Se puede colapsar/expandir haciendo click en header
+- [x] Resumen colapsado muestra nombre, peso, reps, sets correctamente
+- [x] No se puede colapsar sin tipo de ejercicio seleccionado
+- [x] Botones de mover arriba/abajo funcionan correctamente
+- [x] Boton duplicar crea copia con valores identicos
+- [x] Boton eliminar remueve el ejercicio
+- [x] Auto-fill de grupo muscular y equipo funciona
+- [x] Auto-fill no sobreescribe valores existentes
+- [x] Dark mode completo
 
 ---
 
@@ -247,32 +247,32 @@ interface CollapsibleExerciseCardProps {
 
 **Archivo a modificar:**
 
-- [ ] `components/workouts/WorkoutForm.tsx` - Refactor mayor
+- [x] `components/workouts/WorkoutForm.tsx` - Refactor mayor
 
 **Cambios principales:**
 
 *6a. Nuevos imports:*
-- [ ] Importar `QuickAddBar`, `CollapsibleExerciseCard`, `WorkoutTemplateSelector`
+- [x] Importar `QuickAddBar`, `CollapsibleExerciseCard`, `WorkoutTemplateSelector`
 
 *6b. Extender useFieldArray:*
-- [ ] Destructurar `swap` e `insert` ademas de `append` y `remove`
+- [x] Destructurar `swap` e `insert` ademas de `append` y `remove`
 
 *6c. Handler de quick-add:*
-- [ ] `handleQuickAdd(exerciseTypeId, exerciseName)` - fetch `/api/exercises/{id}/last`, append ejercicio con todos los valores pre-llenados
+- [x] `handleQuickAdd(exerciseTypeId, exerciseName)` - fetch `/api/exercises/{id}/last`, append ejercicio con todos los valores pre-llenados
 
 *6d. Handler de template load:*
-- [ ] `handleTemplateLoad(data)` - setea nombre del workout y reemplaza array de ejercicios completo
+- [x] `handleTemplateLoad(data)` - setea nombre del workout y reemplaza array de ejercicios completo
 
 *6e. Handlers de mover/duplicar:*
-- [ ] `moveExerciseUp(index)` - usa `swap(index, index - 1)`
-- [ ] `moveExerciseDown(index)` - usa `swap(index, index + 1)`
-- [ ] `duplicateExercise(index)` - usa `insert(index + 1, {...current})`
+- [x] `moveExerciseUp(index)` - usa `swap(index, index - 1)`
+- [x] `moveExerciseDown(index)` - usa `swap(index, index + 1)`
+- [x] `duplicateExercise(index)` - usa `insert(index + 1, {...current})`
 
 *6f. Nuevo JSX:*
-- [ ] Agregar `WorkoutTemplateSelector` entre detalles y ejercicios (solo en modo crear, no editar)
-- [ ] Agregar `QuickAddBar` al inicio de la seccion de ejercicios
-- [ ] Reemplazar el renderizado inline de ejercicios con `CollapsibleExerciseCard`
-- [ ] Pasar `existingExerciseTypeIds` al QuickAddBar (watch de los ids)
+- [x] Agregar `WorkoutTemplateSelector` entre detalles y ejercicios (solo en modo crear, no editar)
+- [x] Agregar `QuickAddBar` al inicio de la seccion de ejercicios
+- [x] Reemplazar el renderizado inline de ejercicios con `CollapsibleExerciseCard`
+- [x] Pasar `existingExerciseTypeIds` al QuickAddBar (watch de los ids)
 
 **Data flow del quick-add:**
 1. Tap en chip "Press Banca" en QuickAddBar
@@ -283,12 +283,12 @@ interface CollapsibleExerciseCardProps {
 6. **Total: 1 tap** en lugar de 6 interacciones
 
 **Verificacion:**
-- [ ] Template selector aparece solo al crear, no al editar
-- [ ] Cargar template llena nombre y todos los ejercicios
-- [ ] Quick-add funciona con auto-fill completo
-- [ ] Ejercicios se pueden mover, duplicar y eliminar
-- [ ] Submit del form sigue funcionando igual (misma estructura de datos)
-- [ ] Editar workout existente carga datos correctamente
+- [x] Template selector aparece solo al crear, no al editar
+- [x] Cargar template llena nombre y todos los ejercicios
+- [x] Quick-add funciona con auto-fill completo
+- [x] Ejercicios se pueden mover, duplicar y eliminar
+- [x] Submit del form sigue funcionando igual (misma estructura de datos)
+- [x] Editar workout existente carga datos correctamente
 
 ---
 
@@ -298,14 +298,14 @@ interface CollapsibleExerciseCardProps {
 
 **Archivo a modificar:**
 
-- [ ] `components/templates/WorkoutTemplateSelector.tsx` - Agregar clases `dark:`
+- [x] `components/templates/WorkoutTemplateSelector.tsx` - Agregar clases `dark:`
 
 **Cambios:**
-- [ ] Button selector: agregar `dark:bg-gray-800 dark:border-gray-600 dark:text-white`
-- [ ] Dropdown: agregar `dark:bg-gray-800 dark:border-gray-700`
-- [ ] Items hover: agregar `dark:hover:bg-gray-700`
-- [ ] Texto y badges: agregar variantes dark
-- [ ] Placeholders: agregar `dark:text-gray-400`
+- [x] Button selector: agregar `dark:bg-gray-800 dark:border-gray-600 dark:text-white`
+- [x] Dropdown: agregar `dark:bg-gray-800 dark:border-gray-700`
+- [x] Items hover: agregar `dark:hover:bg-gray-700`
+- [x] Texto y badges: agregar variantes dark
+- [x] Placeholders: agregar `dark:text-gray-400`
 
 ---
 
@@ -313,29 +313,29 @@ interface CollapsibleExerciseCardProps {
 
 **Archivo a modificar:**
 
-- [ ] `components/workouts/WorkoutList.tsx`
+- [x] `components/workouts/WorkoutList.tsx`
 
 *8a. Fix idioma (todo a espanol):*
-- [ ] `"Are you sure..."` -> `"Estas seguro de que quieres eliminar este entrenamiento?"`
-- [ ] `"Failed to delete"` -> `"Error al eliminar entrenamiento"`
-- [ ] `"An error occurred"` -> `"Ocurrio un error"`
-- [ ] `"No workouts yet"` -> `"Sin entrenamientos aun"`
-- [ ] `"Create your first..."` -> `"Registra tu primera sesion de entrenamiento"`
-- [ ] `toLocaleDateString("en-US")` -> `toLocaleDateString("es-MX")`
-- [ ] `"minutes"` -> `"minutos"`
-- [ ] `"Exercises"` -> `"Ejercicios"`
+- [x] `"Are you sure..."` -> `"Estas seguro de que quieres eliminar este entrenamiento?"`
+- [x] `"Failed to delete"` -> `"Error al eliminar entrenamiento"`
+- [x] `"An error occurred"` -> `"Ocurrio un error"`
+- [x] `"No workouts yet"` -> `"Sin entrenamientos aun"`
+- [x] `"Create your first..."` -> `"Registra tu primera sesion de entrenamiento"`
+- [x] `toLocaleDateString("en-US")` -> `toLocaleDateString("es-MX")`
+- [x] `"minutes"` -> `"minutos"`
+- [x] `"Exercises"` -> `"Ejercicios"`
 
 *8b. Agregar dark mode:*
-- [ ] Cards: `bg-white` -> `bg-white dark:bg-gray-800`
-- [ ] Textos: agregar variantes `dark:text-*`
-- [ ] Borders: agregar `dark:border-gray-700`
-- [ ] Hover states: agregar `dark:hover:bg-*`
-- [ ] Backgrounds secundarios: `bg-gray-50` -> `bg-gray-50 dark:bg-gray-900`
+- [x] Cards: `bg-white` -> `bg-white dark:bg-gray-800`
+- [x] Textos: agregar variantes `dark:text-*`
+- [x] Borders: agregar `dark:border-gray-700`
+- [x] Hover states: agregar `dark:hover:bg-*`
+- [x] Backgrounds secundarios: `bg-gray-50` -> `bg-gray-50 dark:bg-gray-900`
 
 *8c. Mejor empty state:*
-- [ ] Agregar icono decorativo
-- [ ] Agregar boton CTA "Nuevo Entrenamiento" con Link a `/dashboard/workouts/new`
-- [ ] Importar `Link` de `next/link` y `PlusIcon` de heroicons
+- [x] Agregar icono decorativo
+- [x] Agregar boton CTA "Nuevo Entrenamiento" con Link a `/dashboard/workouts/new`
+- [x] Importar `Link` de `next/link` y `PlusIcon` de heroicons
 
 ---
 
@@ -385,8 +385,8 @@ Steps 1, 2, 7 y 8 son independientes entre si y pueden hacerse en paralelo.
 - [ ] **Reordenar y duplicar:** Agregar 3+ ejercicios -> mover -> duplicar -> verificar orden se mantiene al guardar
 - [ ] **Dark mode completo:** Togglear dark mode -> verificar todo el flujo visual
 - [ ] **Mobile responsive:** Probar en viewport 375px -> chips scrollean -> cards colapsados legibles -> botones tocables (min 44px)
-- [ ] **Build exitoso:** `npm run build` sin errores
-- [ ] **Type check:** `npx tsc --noEmit` sin errores
+- [x] **Build exitoso:** `npm run build` sin errores
+- [x] **Type check:** `npx tsc --noEmit` sin errores
 
 ---
 

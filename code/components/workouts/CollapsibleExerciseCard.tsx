@@ -1,0 +1,295 @@
+"use client"
+
+import { useState } from "react"
+import { Controller, UseFormReturn, FieldArrayWithId } from "react-hook-form"
+import {
+  ChevronUpIcon,
+  ChevronDownIcon,
+  DocumentDuplicateIcon,
+  TrashIcon,
+  ChevronRightIcon,
+} from "@heroicons/react/24/outline"
+import SmartCombobox from "@/components/catalog/SmartCombobox"
+import ExerciseHistory from "@/components/workouts/ExerciseHistory"
+
+interface WorkoutFormData {
+  name: string
+  date: string
+  duration?: number
+  notes?: string
+  exercises: Array<{
+    exerciseTypeId: string
+    muscleGroupId?: string | null
+    equipmentId?: string | null
+    sets: number
+    reps: number
+    weight?: number | null
+    notes?: string | null
+  }>
+}
+
+interface CollapsibleExerciseCardProps {
+  index: number
+  totalCount: number
+  form: UseFormReturn<WorkoutFormData>
+  field: FieldArrayWithId<WorkoutFormData, "exercises", "id">
+  onRemove: () => void
+  onMoveUp: () => void
+  onMoveDown: () => void
+  onDuplicate: () => void
+  isFirst: boolean
+  isLast: boolean
+  defaultCollapsed?: boolean
+}
+
+export default function CollapsibleExerciseCard({
+  index,
+  totalCount,
+  form,
+  field,
+  onRemove,
+  onMoveUp,
+  onMoveDown,
+  onDuplicate,
+  isFirst,
+  isLast,
+  defaultCollapsed = false,
+}: CollapsibleExerciseCardProps) {
+  const [collapsed, setCollapsed] = useState(defaultCollapsed)
+
+  const exerciseTypeId = form.watch(`exercises.${index}.exerciseTypeId`)
+  const sets = form.watch(`exercises.${index}.sets`)
+  const reps = form.watch(`exercises.${index}.reps`)
+  const weight = form.watch(`exercises.${index}.weight`)
+
+  // Only allow collapse if exercise has required data
+  const canCollapse = exerciseTypeId && sets > 0 && reps > 0
+
+  const handleToggleCollapse = () => {
+    if (collapsed || canCollapse) {
+      setCollapsed(!collapsed)
+    }
+  }
+
+  const handleAutoFill = (data: {
+    muscleGroupId: string | null
+    equipmentId: string | null
+    sets: number
+    reps: number
+    weight: number | null
+  }) => {
+    // Only auto-fill if fields are empty
+    const currentMuscleGroupId = form.getValues(`exercises.${index}.muscleGroupId`)
+    const currentEquipmentId = form.getValues(`exercises.${index}.equipmentId`)
+
+    if (!currentMuscleGroupId && data.muscleGroupId) {
+      form.setValue(`exercises.${index}.muscleGroupId`, data.muscleGroupId)
+    }
+    if (!currentEquipmentId && data.equipmentId) {
+      form.setValue(`exercises.${index}.equipmentId`, data.equipmentId)
+    }
+  }
+
+  // Build summary text for collapsed state
+  const getSummaryText = () => {
+    const weightText = weight ? `${weight}kg` : "Sin peso"
+    return `${weightText} × ${reps} × ${sets} sets`
+  }
+
+  // Try to get exercise name from the SmartCombobox displayed value
+  // We use the exerciseTypeId as a fallback identifier
+  const exerciseLabel = exerciseTypeId ? `Ejercicio #${index + 1}` : `Ejercicio #${index + 1}`
+
+  return (
+    <div className="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
+      {/* Header - always visible */}
+      <div
+        className="flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-900 cursor-pointer select-none"
+        onClick={handleToggleCollapse}
+      >
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          <ChevronRightIcon
+            className={`h-4 w-4 text-gray-400 transition-transform flex-shrink-0 ${
+              !collapsed ? "rotate-90" : ""
+            }`}
+          />
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">
+            #{index + 1}
+            {collapsed && canCollapse && (
+              <span className="ml-2 text-gray-500 dark:text-gray-400 font-normal">
+                {getSummaryText()}
+              </span>
+            )}
+          </span>
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex items-center gap-1 ml-2" onClick={(e) => e.stopPropagation()}>
+          {!isFirst && (
+            <button
+              type="button"
+              onClick={onMoveUp}
+              className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+              title="Mover arriba"
+            >
+              <ChevronUpIcon className="h-4 w-4" />
+            </button>
+          )}
+          {!isLast && (
+            <button
+              type="button"
+              onClick={onMoveDown}
+              className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+              title="Mover abajo"
+            >
+              <ChevronDownIcon className="h-4 w-4" />
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={onDuplicate}
+            className="p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded"
+            title="Duplicar"
+          >
+            <DocumentDuplicateIcon className="h-4 w-4" />
+          </button>
+          {totalCount > 1 && (
+            <button
+              type="button"
+              onClick={onRemove}
+              className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded"
+              title="Eliminar"
+            >
+              <TrashIcon className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Body - expandable */}
+      {!collapsed && (
+        <div className="p-4 space-y-3">
+          <div>
+            <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+              Tipo de Ejercicio *
+            </label>
+            <Controller
+              name={`exercises.${index}.exerciseTypeId`}
+              control={form.control}
+              render={({ field: controllerField }) => (
+                <SmartCombobox
+                  catalogType="exercise_category"
+                  value={controllerField.value}
+                  onChange={controllerField.onChange}
+                  placeholder="Seleccionar ejercicio (Press de banca, Sentadilla, etc.)"
+                  required
+                  error={form.formState.errors.exercises?.[index]?.exerciseTypeId?.message}
+                />
+              )}
+            />
+            <ExerciseHistory
+              exerciseTypeId={exerciseTypeId || null}
+              currentSets={sets || 0}
+              currentReps={reps || 0}
+              currentWeight={weight ?? null}
+              onUseLastValues={(s, r, w) => {
+                form.setValue(`exercises.${index}.sets`, s)
+                form.setValue(`exercises.${index}.reps`, r)
+                form.setValue(`exercises.${index}.weight`, w)
+              }}
+              onLastPerformanceLoaded={handleAutoFill}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+                Grupo Muscular (Opcional)
+              </label>
+              <Controller
+                name={`exercises.${index}.muscleGroupId`}
+                control={form.control}
+                render={({ field: controllerField }) => (
+                  <SmartCombobox
+                    catalogType="muscle_group"
+                    value={controllerField.value || ""}
+                    onChange={(value) => controllerField.onChange(value || null)}
+                    placeholder="Seleccionar grupo muscular"
+                    error={form.formState.errors.exercises?.[index]?.muscleGroupId?.message}
+                  />
+                )}
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+                Equipo (Opcional)
+              </label>
+              <Controller
+                name={`exercises.${index}.equipmentId`}
+                control={form.control}
+                render={({ field: controllerField }) => (
+                  <SmartCombobox
+                    catalogType="equipment_type"
+                    value={controllerField.value || ""}
+                    onChange={(value) => controllerField.onChange(value || null)}
+                    placeholder="Seleccionar equipo"
+                    error={form.formState.errors.exercises?.[index]?.equipmentId?.message}
+                  />
+                )}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Series *</label>
+              <input
+                type="number"
+                {...form.register(`exercises.${index}.sets`, { valueAsNumber: true })}
+                min="1"
+                className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md text-sm"
+              />
+              {form.formState.errors.exercises?.[index]?.sets && (
+                <p className="mt-1 text-xs text-red-600">
+                  {form.formState.errors.exercises[index]?.sets?.message}
+                </p>
+              )}
+            </div>
+            <div>
+              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Repeticiones *</label>
+              <input
+                type="number"
+                {...form.register(`exercises.${index}.reps`, { valueAsNumber: true })}
+                min="1"
+                className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md text-sm"
+              />
+              {form.formState.errors.exercises?.[index]?.reps && (
+                <p className="mt-1 text-xs text-red-600">
+                  {form.formState.errors.exercises[index]?.reps?.message}
+                </p>
+              )}
+            </div>
+            <div>
+              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Peso (kg)</label>
+              <input
+                type="number"
+                {...form.register(`exercises.${index}.weight`, {
+                  valueAsNumber: true,
+                  setValueAs: (v) => v === '' ? null : Number(v)
+                })}
+                min="0"
+                step="0.5"
+                className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md text-sm"
+              />
+              {form.formState.errors.exercises?.[index]?.weight && (
+                <p className="mt-1 text-xs text-red-600">
+                  {form.formState.errors.exercises[index]?.weight?.message}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

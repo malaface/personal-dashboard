@@ -18,6 +18,8 @@ interface LastPerformanceData {
     weight: number | null
     volume: number
     workoutName: string
+    muscleGroupId: string | null
+    equipmentId: string | null
   }
   personalRecord?: {
     maxWeight: number | null
@@ -35,6 +37,13 @@ interface ExerciseHistoryProps {
   currentReps: number
   currentWeight: number | null
   onUseLastValues: (sets: number, reps: number, weight: number | null) => void
+  onLastPerformanceLoaded?: (data: {
+    muscleGroupId: string | null
+    equipmentId: string | null
+    sets: number
+    reps: number
+    weight: number | null
+  }) => void
 }
 
 export default function ExerciseHistory({
@@ -43,6 +52,7 @@ export default function ExerciseHistory({
   currentReps,
   currentWeight,
   onUseLastValues,
+  onLastPerformanceLoaded,
 }: ExerciseHistoryProps) {
   const [data, setData] = useState<LastPerformanceData | null>(null)
   const [loading, setLoading] = useState(false)
@@ -60,6 +70,15 @@ export default function ExerciseHistory({
         if (response.ok) {
           const result = await response.json()
           setData(result)
+          if (result.found && result.lastWorkout && onLastPerformanceLoaded) {
+            onLastPerformanceLoaded({
+              muscleGroupId: result.lastWorkout.muscleGroupId ?? null,
+              equipmentId: result.lastWorkout.equipmentId ?? null,
+              sets: result.lastWorkout.sets,
+              reps: result.lastWorkout.reps,
+              weight: result.lastWorkout.weight ?? null,
+            })
+          }
         }
       } catch (error) {
         console.error("Error fetching exercise history:", error)
