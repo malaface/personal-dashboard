@@ -148,6 +148,7 @@ model Exercise {
   sets        Int
   reps        Int
   weight      Float?   // kg
+  weightUnit  String   @default("kg") @map("weight_unit") // "kg" | "lbs"
   notes       String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -253,6 +254,7 @@ model Transaction {
   categoryId  String?       // Reference to CatalogItem (transaction category)
 
   amount      Float
+  currency    String        @default("MXN") // "MXN" | "USD"
   description String?
   date        DateTime      @default(now())
   createdAt   DateTime      @default(now())

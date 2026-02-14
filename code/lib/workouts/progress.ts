@@ -4,6 +4,14 @@
 
 import { prisma } from "@/lib/db/prisma"
 
+const LBS_TO_KG = 0.453592
+
+/** Convert weight to kg based on unit */
+function toKg(weight: number | null, weightUnit: string): number | null {
+  if (weight === null) return null
+  return weightUnit === "lbs" ? weight * LBS_TO_KG : weight
+}
+
 export interface PersonalRecord {
   // Weight PR (heaviest weight used)
   maxWeight: {
@@ -89,7 +97,7 @@ export async function getPersonalRecords(
   }
 
   for (const exercise of exercises) {
-    const weight = exercise.weight
+    const weight = toKg(exercise.weight, exercise.weightUnit)
     const volume = exercise.sets * exercise.reps * (weight || 0)
     const reps = exercise.reps
 
@@ -205,13 +213,89 @@ export async function getProgressTrend(
     },
   })
 
-  return exercises.map((e) => ({
-    date: e.workout.date,
-    weight: e.weight,
-    volume: e.sets * e.reps * (e.weight || 0),
-    sets: e.sets,
-    reps: e.reps,
-  }))
+  return exercises.map((e) => {
+    const weightKg = toKg(e.weight, e.weightUnit)
+    return {
+      date: e.workout.date,
+      weight: weightKg,
+      volume: e.sets * e.reps * (weightKg || 0),
+      sets: e.sets,
+      reps: e.reps,
+    }
+  })
+}
+
+/**
+ * Get filtered progress trend for charts (supports multi-exercise)
+ */
+export async function getProgressTrendFiltered(
+  userId: string,
+  filters: {
+    exerciseTypeId?: string
+    muscleGroupId?: string
+    startDate?: Date
+    endDate?: Date
+  }
+): Promise<
+  Array<{
+    date: Date
+    weight: number | null
+    volume: number
+    sets: number
+    reps: number
+    exerciseTypeId: string | null
+    exerciseTypeName: string | null
+  }>
+> {
+  const where: Record<string, unknown> = {
+    workout: {
+      userId,
+      ...(filters.startDate || filters.endDate
+        ? {
+            date: {
+              ...(filters.startDate ? { gte: filters.startDate } : {}),
+              ...(filters.endDate ? { lte: filters.endDate } : {}),
+            },
+          }
+        : {}),
+    },
+  }
+
+  if (filters.exerciseTypeId) {
+    where.exerciseTypeId = filters.exerciseTypeId
+  }
+
+  if (filters.muscleGroupId) {
+    where.muscleGroupId = filters.muscleGroupId
+  }
+
+  const exercises = await prisma.exercise.findMany({
+    where,
+    orderBy: {
+      workout: { date: "asc" },
+    },
+    include: {
+      workout: {
+        select: { date: true },
+      },
+      exerciseType: {
+        select: { id: true, name: true },
+      },
+    },
+  })
+
+  return exercises.map((e) => {
+    const weightKg = toKg(e.weight, e.weightUnit)
+    return {
+      date: e.workout.date,
+      weight: weightKg,
+      volume: e.sets * e.reps * (weightKg || 0),
+      sets: e.sets,
+      reps: e.reps,
+      exerciseTypeId: e.exerciseType?.id ?? null,
+      exerciseTypeName: e.exerciseType?.name ?? null,
+    }
+  })
 }
 
 /**

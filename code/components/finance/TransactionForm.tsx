@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react"
 import { createTransaction, updateTransaction } from "@/app/dashboard/finance/actions"
 import CategorySelector from "@/components/catalog/CategorySelector"
 import QuickCategoryBar from "@/components/finance/QuickCategoryBar"
+import { CheckIcon } from "@heroicons/react/24/outline"
 
 interface TransactionFormProps {
   transaction?: {
@@ -16,6 +17,7 @@ interface TransactionFormProps {
     type?: string | null
     category?: string | null
     amount: number
+    currency?: string
     description?: string | null
     date: Date
   }
@@ -31,6 +33,7 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
   const [typeId, setTypeId] = useState(transaction?.typeId || transaction?.type || "")
   const [categoryId, setCategoryId] = useState(transaction?.categoryId || transaction?.category || "")
   const [amount, setAmount] = useState(transaction?.amount?.toString() || "")
+  const [currency, setCurrency] = useState(transaction?.currency || "MXN")
   const [description, setDescription] = useState(transaction?.description || "")
   const [date, setDate] = useState(
     transaction?.date ? new Date(transaction.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
@@ -78,6 +81,7 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
       const formData = new FormData()
       formData.append("typeId", typeId)
       formData.append("amount", amount)
+      formData.append("currency", currency)
       formData.append("categoryId", categoryId)
       if (description) formData.append("description", description)
       formData.append("date", date)
@@ -90,10 +94,10 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
         router.push("/dashboard/finance")
         router.refresh()
       } else {
-        setError(result.error || "Algo salió mal")
+        setError(result.error || "Algo salio mal")
       }
     } catch (err: any) {
-      setError(err.message || "Error al guardar la transacción")
+      setError(err.message || "Error al guardar la transaccion")
     } finally {
       setLoading(false)
     }
@@ -112,7 +116,7 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
       )}
 
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Detalles de la Transacción</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Detalles de la Transaccion</h3>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
@@ -135,35 +139,45 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Monto *
             </label>
-            <input
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              required
-              min="0"
-              step="0.01"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="0.00"
-            />
+            <div className="flex gap-2">
+              <input
+                type="number"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                required
+                min="0"
+                step="0.01"
+                className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="0.00"
+              />
+              <select
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value)}
+                className="px-2 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-20"
+              >
+                <option value="MXN">MXN</option>
+                <option value="USD">USD</option>
+              </select>
+            </div>
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Categoría *
+              Categoria *
             </label>
             <CategorySelector
               catalogType="transaction_category"
               value={categoryId}
               onChange={(id) => setCategoryId(id)}
               parentId={typeId}
-              placeholder={typeId ? "Seleccionar categoría" : "Seleccionar tipo primero"}
+              placeholder={typeId ? "Seleccionar categoria" : "Seleccionar tipo primero"}
               required
               disabled={!typeId}
             />
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              {typeId ? "Seleccionar una categoría específica" : "Elige un tipo primero para ver las categorías"}
+              {typeId ? "Seleccionar una categoria especifica" : "Elige un tipo primero para ver las categorias"}
             </p>
           </div>
 
@@ -183,7 +197,7 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
 
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Descripción
+            Descripcion
           </label>
           <textarea
             value={description}
@@ -211,9 +225,30 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
           disabled={loading}
           className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? "Guardando..." : transaction ? "Actualizar Transacción" : "Crear Transacción"}
+          {loading ? "Guardando..." : transaction ? "Actualizar Transaccion" : "Crear Transaccion"}
         </button>
       </div>
+
+      {/* Floating Action Button - Submit */}
+      <button
+        type="submit"
+        disabled={loading}
+        className="
+          fixed bottom-20 right-6 sm:bottom-10 sm:right-10
+          z-50 flex h-14 w-14 sm:h-16 sm:w-16
+          items-center justify-center
+          rounded-full bg-green-600 text-white
+          shadow-[0_8px_30px_rgb(0,0,0,0.12)]
+          transition-all
+          hover:bg-green-700 hover:scale-110
+          active:scale-95
+          focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2
+          disabled:opacity-50 disabled:cursor-not-allowed
+        "
+        title={transaction ? "Actualizar transaccion" : "Guardar transaccion"}
+      >
+        <CheckIcon className="h-8 w-8 sm:h-9 sm:w-9 stroke-[2.5]" />
+      </button>
     </form>
   )
 }

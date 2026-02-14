@@ -13,6 +13,7 @@ export const TransactionSchemaLegacy = z.object({
 export const TransactionSchema = z.object({
   typeId: z.string().cuid("Invalid transaction type ID"),
   amount: z.number().positive("Amount must be positive"),
+  currency: z.enum(["MXN", "USD"]).default("MXN"),
   categoryId: z.string().cuid("Invalid category ID"),
   description: z.string().max(200).optional(),
   date: z.string().or(z.date()),

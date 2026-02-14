@@ -24,6 +24,7 @@ export const ExerciseSchema = z.object({
   sets: z.number().int().min(1, "At least 1 set required").max(20),
   reps: z.number().int().min(1, "At least 1 rep required").max(100),
   weight: z.number().min(0).optional().nullable(),
+  weightUnit: z.enum(["kg", "lbs"]).default("kg"),
   notes: z.string().max(200).optional().nullable(),
 })
 

@@ -14,6 +14,7 @@ export async function createTransaction(formData: FormData) {
     const rawData = {
       typeId: formData.get("typeId"),
       amount: parseFloat(formData.get("amount") as string),
+      currency: formData.get("currency") || "MXN",
       categoryId: formData.get("categoryId"),
       description: formData.get("description") || undefined,
       date: formData.get("date"),
@@ -40,6 +41,7 @@ export async function createTransaction(formData: FormData) {
         userId: user.id,
         typeId: validatedData.typeId,
         amount: validatedData.amount,
+        currency: validatedData.currency,
         categoryId: validatedData.categoryId,
         description: validatedData.description,
         date: new Date(validatedData.date),
@@ -128,6 +130,7 @@ export async function updateTransaction(transactionId: string, formData: FormDat
     const rawData = {
       typeId: formData.get("typeId"),
       amount: parseFloat(formData.get("amount") as string),
+      currency: formData.get("currency") || "MXN",
       categoryId: formData.get("categoryId"),
       description: formData.get("description") || undefined,
       date: formData.get("date"),
@@ -154,6 +157,7 @@ export async function updateTransaction(transactionId: string, formData: FormDat
       data: {
         typeId: validatedData.typeId,
         amount: validatedData.amount,
+        currency: validatedData.currency,
         categoryId: validatedData.categoryId,
         description: validatedData.description,
         date: new Date(validatedData.date),

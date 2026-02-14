@@ -19,6 +19,7 @@ const exerciseSchema = z.object({
   sets: z.number().int().min(1, "Sets must be at least 1"),
   reps: z.number().int().min(1, "Reps must be at least 1"),
   weight: z.number().min(0).nullable().optional(),
+  weightUnit: z.enum(["kg", "lbs"]),
   notes: z.string().max(200).nullable().optional()
 })
 
@@ -46,6 +47,7 @@ interface WorkoutFormProps {
       sets: number
       reps: number
       weight?: number | null
+      weightUnit?: string
       notes?: string | null
     }>
   }
@@ -59,6 +61,7 @@ const emptyExercise = {
   sets: 3,
   reps: 10,
   weight: null,
+  weightUnit: "kg" as const,
   notes: null,
 }
 
@@ -67,6 +70,9 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const isEditing = !!workout
+
+  // Track which exercise card is open (-1 = all collapsed)
+  const [openExerciseIndex, setOpenExerciseIndex] = useState<number>(isEditing ? -1 : 0)
 
   const form = useForm<WorkoutFormData>({
     resolver: zodResolver(workoutFormSchema),
@@ -84,6 +90,7 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
         sets: ex.sets,
         reps: ex.reps,
         weight: ex.weight,
+        weightUnit: (ex.weightUnit as "kg" | "lbs") || "kg",
         notes: ex.notes,
       })) || [{ ...emptyExercise }]
     }
@@ -99,19 +106,47 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
 
   const addExercise = () => {
     append({ ...emptyExercise })
+    // Auto-open the new exercise and collapse others
+    setOpenExerciseIndex(fields.length)
+  }
+
+  const handleToggleExercise = (index: number) => {
+    setOpenExerciseIndex(prev => prev === index ? -1 : index)
   }
 
   const moveExerciseUp = (index: number) => {
-    if (index > 0) swap(index, index - 1)
+    if (index > 0) {
+      swap(index, index - 1)
+      // Follow the moved card
+      if (openExerciseIndex === index) setOpenExerciseIndex(index - 1)
+      else if (openExerciseIndex === index - 1) setOpenExerciseIndex(index)
+    }
   }
 
   const moveExerciseDown = (index: number) => {
-    if (index < fields.length - 1) swap(index, index + 1)
+    if (index < fields.length - 1) {
+      swap(index, index + 1)
+      // Follow the moved card
+      if (openExerciseIndex === index) setOpenExerciseIndex(index + 1)
+      else if (openExerciseIndex === index + 1) setOpenExerciseIndex(index)
+    }
   }
 
   const duplicateExercise = (index: number) => {
     const current = form.getValues(`exercises.${index}`)
     insert(index + 1, { ...current })
+    // Open the duplicate
+    setOpenExerciseIndex(index + 1)
+  }
+
+  const handleRemoveExercise = (index: number) => {
+    remove(index)
+    // Adjust open index after removal
+    if (openExerciseIndex === index) {
+      setOpenExerciseIndex(-1)
+    } else if (openExerciseIndex > index) {
+      setOpenExerciseIndex(openExerciseIndex - 1)
+    }
   }
 
   const handleQuickAdd = async (exerciseTypeId: string, exerciseName: string) => {
@@ -127,8 +162,10 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
             sets: data.lastWorkout.sets,
             reps: data.lastWorkout.reps,
             weight: data.lastWorkout.weight ?? null,
+            weightUnit: data.lastWorkout.weightUnit || "kg",
             notes: null,
           })
+          setOpenExerciseIndex(fields.length)
           return
         }
       }
@@ -143,8 +180,10 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
       sets: 3,
       reps: 10,
       weight: null,
+      weightUnit: "kg",
       notes: null,
     })
+    setOpenExerciseIndex(fields.length)
   }
 
   const handleTemplateLoad = (data: {
@@ -172,9 +211,12 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
         sets: ex.sets,
         reps: ex.reps,
         weight: ex.weight,
+        weightUnit: "kg",
         notes: ex.notes,
       })
     }
+    // Collapse all after template load for overview
+    setOpenExerciseIndex(-1)
   }
 
   const onSubmit = async (data: WorkoutFormData) => {
@@ -197,7 +239,7 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
         router.push("/dashboard/workouts")
         router.refresh()
       } else {
-        setError(result.error || "Algo salió mal")
+        setError(result.error || "Algo salio mal")
       }
     } catch (err: any) {
       setError(err.message || "Error al guardar el entrenamiento")
@@ -226,7 +268,7 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
             type="text"
             {...form.register("name")}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="ej., Día de pecho, Día de pierna"
+            placeholder="ej., Dia de pecho, Dia de pierna"
           />
           {form.formState.errors.name && (
             <p className="mt-1 text-sm text-red-600">{form.formState.errors.name.message}</p>
@@ -250,7 +292,7 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Duración (minutos)
+              Duracion (minutos)
             </label>
             <input
               type="number"
@@ -274,7 +316,7 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
             rows={2}
             maxLength={500}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="¿Cómo te fue?"
+            placeholder="Como te fue?"
           />
           {form.formState.errors.notes && (
             <p className="mt-1 text-sm text-red-600">{form.formState.errors.notes.message}</p>
@@ -299,10 +341,10 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
           <button
             type="button"
             onClick={addExercise}
-            className="flex items-center px-3 py-1 text-sm bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-md hover:bg-blue-100 dark:hover:bg-blue-800"
+            className="w-8 h-8 flex items-center justify-center bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full hover:bg-blue-100 dark:hover:bg-blue-800"
+            title="Agregar ejercicio"
           >
-            <PlusIcon className="h-4 w-4 mr-1" />
-            Agregar Ejercicio
+            <PlusIcon className="h-5 w-5" />
           </button>
         </div>
 
@@ -323,12 +365,14 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
             totalCount={fields.length}
             form={form}
             field={field}
-            onRemove={() => remove(index)}
+            onRemove={() => handleRemoveExercise(index)}
             onMoveUp={() => moveExerciseUp(index)}
             onMoveDown={() => moveExerciseDown(index)}
             onDuplicate={() => duplicateExercise(index)}
             isFirst={index === 0}
             isLast={index === fields.length - 1}
+            isOpen={openExerciseIndex === index}
+            onToggle={() => handleToggleExercise(index)}
           />
         ))}
       </div>
@@ -352,6 +396,26 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
           {loading ? "Guardando..." : workout ? "Actualizar Entrenamiento" : "Crear Entrenamiento"}
         </button>
       </div>
+
+      {/* Floating Action Button */}
+      <button
+        type="button"
+        onClick={addExercise}
+        className="
+          fixed bottom-20 right-6 sm:bottom-10 sm:right-10
+          z-50 flex h-14 w-14 sm:h-16 sm:w-16
+          items-center justify-center
+          rounded-full bg-blue-600 text-white
+          shadow-[0_8px_30px_rgb(0,0,0,0.12)]
+          transition-all
+          hover:bg-blue-700 hover:scale-110
+          active:scale-95
+          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+        "
+        title="Agregar nuevo ejercicio"
+      >
+        <PlusIcon className="h-8 w-8 sm:h-9 sm:w-9 stroke-[2.5]" />
+      </button>
     </form>
   )
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef } from "react"
 import { Controller, UseFormReturn, FieldArrayWithId } from "react-hook-form"
 import {
   ChevronUpIcon,
@@ -8,6 +8,7 @@ import {
   DocumentDuplicateIcon,
   TrashIcon,
   ChevronRightIcon,
+  ExclamationCircleIcon,
 } from "@heroicons/react/24/outline"
 import SmartCombobox from "@/components/catalog/SmartCombobox"
 import ExerciseHistory from "@/components/workouts/ExerciseHistory"
@@ -24,6 +25,7 @@ interface WorkoutFormData {
     sets: number
     reps: number
     weight?: number | null
+    weightUnit: "kg" | "lbs"
     notes?: string | null
   }>
 }
@@ -39,7 +41,8 @@ interface CollapsibleExerciseCardProps {
   onDuplicate: () => void
   isFirst: boolean
   isLast: boolean
-  defaultCollapsed?: boolean
+  isOpen: boolean
+  onToggle: () => void
 }
 
 export default function CollapsibleExerciseCard({
@@ -53,23 +56,27 @@ export default function CollapsibleExerciseCard({
   onDuplicate,
   isFirst,
   isLast,
-  defaultCollapsed = false,
+  isOpen,
+  onToggle,
 }: CollapsibleExerciseCardProps) {
-  const [collapsed, setCollapsed] = useState(defaultCollapsed)
+  const bodyRef = useRef<HTMLDivElement>(null)
 
   const exerciseTypeId = form.watch(`exercises.${index}.exerciseTypeId`)
   const sets = form.watch(`exercises.${index}.sets`)
   const reps = form.watch(`exercises.${index}.reps`)
   const weight = form.watch(`exercises.${index}.weight`)
+  const weightUnit = form.watch(`exercises.${index}.weightUnit`) || "kg"
 
-  // Only allow collapse if exercise has required data
-  const canCollapse = exerciseTypeId && sets > 0 && reps > 0
+  // Check if this exercise has validation errors
+  const exerciseErrors = form.formState.errors.exercises?.[index]
+  const hasErrors = !!exerciseErrors
 
-  const handleToggleCollapse = () => {
-    if (collapsed || canCollapse) {
-      setCollapsed(!collapsed)
+  // Auto-expand if there are errors and card is closed
+  useEffect(() => {
+    if (hasErrors && !isOpen) {
+      onToggle()
     }
-  }
+  }, [hasErrors]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleAutoFill = (data: {
     muscleGroupId: string | null
@@ -78,7 +85,6 @@ export default function CollapsibleExerciseCard({
     reps: number
     weight: number | null
   }) => {
-    // Only auto-fill if fields are empty
     const currentMuscleGroupId = form.getValues(`exercises.${index}.muscleGroupId`)
     const currentEquipmentId = form.getValues(`exercises.${index}.equipmentId`)
 
@@ -90,37 +96,45 @@ export default function CollapsibleExerciseCard({
     }
   }
 
-  // Build summary text for collapsed state
   const getSummaryText = () => {
-    const weightText = weight ? `${weight}kg` : "Sin peso"
-    return `${weightText} × ${reps} × ${sets} sets`
+    const weightText = weight ? `${weight}${weightUnit}` : "Sin peso"
+    return `${sets || 0}x${reps || 0} @ ${weightText}`
   }
 
-  // Try to get exercise name from the SmartCombobox displayed value
-  // We use the exerciseTypeId as a fallback identifier
-  const exerciseLabel = exerciseTypeId ? `Ejercicio #${index + 1}` : `Ejercicio #${index + 1}`
-
   return (
-    <div className="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
+    <div
+      className={`border rounded-md overflow-hidden transition-colors ${
+        hasErrors && !isOpen
+          ? "border-red-400 dark:border-red-600"
+          : "border-gray-200 dark:border-gray-700"
+      }`}
+    >
       {/* Header - always visible */}
       <div
-        className="flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-900 cursor-pointer select-none"
-        onClick={handleToggleCollapse}
+        className={`flex items-center justify-between px-4 py-3 cursor-pointer select-none transition-colors ${
+          hasErrors && !isOpen
+            ? "bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30"
+            : "bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800"
+        }`}
+        onClick={onToggle}
       >
         <div className="flex items-center gap-2 flex-1 min-w-0">
           <ChevronRightIcon
-            className={`h-4 w-4 text-gray-400 transition-transform flex-shrink-0 ${
-              !collapsed ? "rotate-90" : ""
+            className={`h-4 w-4 text-gray-400 transition-transform duration-200 flex-shrink-0 ${
+              isOpen ? "rotate-90" : ""
             }`}
           />
           <span className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">
-            #{index + 1}
-            {collapsed && canCollapse && (
+            <span className="font-bold text-blue-600 dark:text-blue-400">#{index + 1}</span>
+            {!isOpen && (
               <span className="ml-2 text-gray-500 dark:text-gray-400 font-normal">
                 {getSummaryText()}
               </span>
             )}
           </span>
+          {hasErrors && !isOpen && (
+            <ExclamationCircleIcon className="h-4 w-4 text-red-500 flex-shrink-0" />
+          )}
         </div>
 
         {/* Action buttons */}
@@ -166,9 +180,14 @@ export default function CollapsibleExerciseCard({
         </div>
       </div>
 
-      {/* Body - expandable */}
-      {!collapsed && (
-        <div className="p-4 space-y-3">
+      {/* Body - animated expandable */}
+      <div
+        ref={bodyRef}
+        className={`transition-all duration-300 ease-in-out overflow-hidden ${
+          isOpen ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"
+        }`}
+      >
+        <div className="p-4 space-y-3 bg-white dark:bg-gray-800">
           <div>
             <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
               Tipo de Ejercicio *
@@ -270,17 +289,26 @@ export default function CollapsibleExerciseCard({
               )}
             </div>
             <div>
-              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Peso (kg)</label>
-              <input
-                type="number"
-                {...form.register(`exercises.${index}.weight`, {
-                  valueAsNumber: true,
-                  setValueAs: (v) => v === '' ? null : Number(v)
-                })}
-                min="0"
-                step="0.5"
-                className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md text-sm"
-              />
+              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Peso</label>
+              <div className="flex gap-1">
+                <input
+                  type="number"
+                  {...form.register(`exercises.${index}.weight`, {
+                    valueAsNumber: true,
+                    setValueAs: (v) => v === '' ? null : Number(v)
+                  })}
+                  min="0"
+                  step="0.5"
+                  className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md text-sm"
+                />
+                <select
+                  {...form.register(`exercises.${index}.weightUnit`)}
+                  className="px-1 py-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md text-sm w-16"
+                >
+                  <option value="kg">kg</option>
+                  <option value="lbs">lbs</option>
+                </select>
+              </div>
               {form.formState.errors.exercises?.[index]?.weight && (
                 <p className="mt-1 text-xs text-red-600">
                   {form.formState.errors.exercises[index]?.weight?.message}
@@ -289,7 +317,7 @@ export default function CollapsibleExerciseCard({
             </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
   )
 }

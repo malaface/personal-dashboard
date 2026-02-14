@@ -27,14 +27,25 @@ export default async function NutritionPage() {
             <p className="text-gray-600 dark:text-gray-400 mt-2">Rastrea tus comidas y objetivos nutricionales</p>
           </div>
           <Link
-            href="/dashboard/nutrition/new"
-            className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition"
+            href="/dashboard/nutrition/progress"
+            className="px-4 py-2 border border-orange-600 text-orange-600 dark:text-orange-400 dark:border-orange-400 rounded-lg hover:bg-orange-50 dark:hover:bg-orange-900/20 transition"
           >
-            Registrar Comida
+            Ver Progreso
           </Link>
         </div>
 
         <MealList meals={meals} />
+
+        {/* FAB */}
+        <Link
+          href="/dashboard/nutrition/new"
+          className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-orange-600 hover:bg-orange-700 text-white rounded-full shadow-lg flex items-center justify-center transition-colors"
+          title="Registrar Comida"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-7 h-7">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+        </Link>
       </div>
     </div>
   )
