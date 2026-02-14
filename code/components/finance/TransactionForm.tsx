@@ -6,6 +6,8 @@ import { useSession } from "next-auth/react"
 import { createTransaction, updateTransaction } from "@/app/dashboard/finance/actions"
 import CategorySelector from "@/components/catalog/CategorySelector"
 import QuickCategoryBar from "@/components/finance/QuickCategoryBar"
+import AccountSelector from "@/components/finance/accounts/AccountSelector"
+import CreditCardSelector from "@/components/finance/cards/CreditCardSelector"
 import { CheckIcon } from "@heroicons/react/24/outline"
 
 interface TransactionFormProps {
@@ -13,15 +15,36 @@ interface TransactionFormProps {
     id: string
     typeId?: string | null
     categoryId?: string | null
-    // Legacy fields (for backward compatibility during migration)
     type?: string | null
     category?: string | null
     amount: number
     currency?: string
     description?: string | null
     date: Date
+    fromAccountId?: string | null
+    creditCardId?: string | null
+    toAccountId?: string | null
   }
   onCancel?: () => void
+}
+
+interface AccountData {
+  id: string
+  accountType: string
+  name: string
+  balance: number
+  currency: string
+  icon?: string | null
+}
+
+interface CreditCardData {
+  id: string
+  name: string
+  creditLimit: number
+  currentBalance: number
+  cutoffDay: number
+  paymentDay: number
+  color?: string | null
 }
 
 export default function TransactionForm({ transaction, onCancel }: TransactionFormProps) {
@@ -39,10 +62,26 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
     transaction?.date ? new Date(transaction.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
   )
 
+  // Funding source state
+  const [fundingSource, setFundingSource] = useState<"account" | "card">(
+    transaction?.creditCardId ? "card" : "account"
+  )
+  const [fromAccountId, setFromAccountId] = useState(transaction?.fromAccountId || "")
+  const [creditCardId, setCreditCardId] = useState(transaction?.creditCardId || "")
+  const [toAccountId, setToAccountId] = useState(transaction?.toAccountId || "")
+
+  // Available accounts and cards
+  const [accounts, setAccounts] = useState<AccountData[]>([])
+  const [cards, setCards] = useState<CreditCardData[]>([])
+  const [loadingFunding, setLoadingFunding] = useState(true)
+
   const isEditing = !!transaction
 
   // Get parent type for cascading category selection
   const [selectedTypeItem, setSelectedTypeItem] = useState<any>(null)
+
+  // Check if current type is "Transferencia"
+  const isTransfer = selectedTypeItem?.slug === "transferencia" || selectedTypeItem?.name?.toLowerCase().includes("transferencia")
 
   const handleQuickSelect = (quickTypeId: string, quickCategoryId: string, lastAmount: number | null) => {
     setTypeId(quickTypeId)
@@ -51,6 +90,27 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
       setAmount(lastAmount.toString())
     }
   }
+
+  // Fetch accounts and cards
+  useEffect(() => {
+    async function fetchFundingSources() {
+      try {
+        const [accRes, cardRes] = await Promise.all([
+          fetch("/api/finance/accounts/list"),
+          fetch("/api/finance/cards/list"),
+        ])
+        const accData = await accRes.json()
+        const cardData = await cardRes.json()
+        setAccounts(accData.accounts || [])
+        setCards(cardData.cards || [])
+      } catch {
+        // Silently fail
+      } finally {
+        setLoadingFunding(false)
+      }
+    }
+    fetchFundingSources()
+  }, [])
 
   useEffect(() => {
     async function fetchTypeItem() {
@@ -66,7 +126,7 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
         }
       } else {
         setSelectedTypeItem(null)
-        setCategoryId("") // Reset category when type changes
+        setCategoryId("")
       }
     }
     fetchTypeItem()
@@ -86,6 +146,17 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
       if (description) formData.append("description", description)
       formData.append("date", date)
 
+      // Funding source
+      if (fundingSource === "account" && fromAccountId) {
+        formData.append("fromAccountId", fromAccountId)
+      }
+      if (fundingSource === "card" && creditCardId) {
+        formData.append("creditCardId", creditCardId)
+      }
+      if (isTransfer && toAccountId) {
+        formData.append("toAccountId", toAccountId)
+      }
+
       const result = transaction
         ? await updateTransaction(transaction.id, formData)
         : await createTransaction(formData)
@@ -102,6 +173,8 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
       setLoading(false)
     }
   }
+
+  const hasFundingSources = accounts.length > 0 || cards.length > 0
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -127,11 +200,11 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
               catalogType="transaction_category"
               value={typeId}
               onChange={(id) => setTypeId(id)}
-              placeholder="Seleccionar tipo (Ingreso/Gasto)"
+              placeholder="Seleccionar tipo"
               required
             />
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Seleccionar Ingreso o Gasto
+              Seleccionar tipo de transaccion
             </p>
           </div>
 
@@ -208,6 +281,96 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
             placeholder="Notas opcionales..."
           />
         </div>
+      </div>
+
+      {/* Funding Source Section */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-4">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Origen de Fondos</h3>
+
+        {!loadingFunding && !hasFundingSources && (
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 text-amber-700 dark:text-amber-400 px-4 py-3 rounded-md text-sm">
+            No tienes cuentas ni tarjetas registradas. Puedes{" "}
+            <a href="/dashboard/finance/accounts/new" className="underline font-medium">crear una cuenta</a>{" "}
+            o{" "}
+            <a href="/dashboard/finance/cards/new" className="underline font-medium">agregar una tarjeta</a>{" "}
+            para asociar tus transacciones.
+          </div>
+        )}
+
+        {hasFundingSources && (
+          <>
+            <div className="flex gap-2">
+              {accounts.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => { setFundingSource("account"); setCreditCardId("") }}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    fundingSource === "account"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                  }`}
+                >
+                  Cuenta
+                </button>
+              )}
+              {cards.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => { setFundingSource("card"); setFromAccountId("") }}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    fundingSource === "card"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                  }`}
+                >
+                  Tarjeta de Credito
+                </button>
+              )}
+            </div>
+
+            {fundingSource === "account" && accounts.length > 0 && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Cuenta de Origen
+                </label>
+                <AccountSelector
+                  accounts={accounts}
+                  value={fromAccountId}
+                  onChange={(id) => setFromAccountId(id)}
+                  placeholder="Seleccionar cuenta"
+                />
+              </div>
+            )}
+
+            {fundingSource === "card" && cards.length > 0 && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Tarjeta de Credito
+                </label>
+                <CreditCardSelector
+                  cards={cards}
+                  value={creditCardId}
+                  onChange={(id) => setCreditCardId(id)}
+                  placeholder="Seleccionar tarjeta"
+                />
+              </div>
+            )}
+
+            {isTransfer && accounts.length > 1 && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Cuenta Destino
+                </label>
+                <AccountSelector
+                  accounts={accounts.filter(a => a.id !== fromAccountId)}
+                  value={toAccountId}
+                  onChange={(id) => setToAccountId(id)}
+                  placeholder="Seleccionar cuenta destino"
+                />
+              </div>
+            )}
+          </>
+        )}
       </div>
 
       <div className="flex justify-end space-x-3">

@@ -23,6 +23,7 @@ export interface FinancialRecords {
 
 /**
  * Determine if a transaction is income based on typeItem name or legacy type field
+ * Positive types: Ingreso, Reembolso, Devolucion en Efectivo
  */
 function isIncomeTransaction(tx: {
   typeItem?: { name: string } | null
@@ -30,7 +31,12 @@ function isIncomeTransaction(tx: {
 }): boolean {
   if (tx.typeItem?.name) {
     const name = tx.typeItem.name.toLowerCase()
-    return name.includes("ingreso") || name.includes("income")
+    return (
+      name.includes("ingreso") ||
+      name.includes("income") ||
+      name.includes("reembolso") ||
+      name.includes("devolucion")
+    )
   }
   return tx.type === "income"
 }

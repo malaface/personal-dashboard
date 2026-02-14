@@ -43,6 +43,8 @@ model User {
   workoutTemplates WorkoutTemplate[]
   mealTemplates    MealTemplate[]
   aiCredentials AICredential[]
+  financialAccounts FinancialAccount[]
+  creditCards       CreditCard[]
 
   @@map("users")
 }
@@ -241,6 +243,57 @@ enum TemplateDifficulty {
 // FINANCE MODULE
 // ============================================
 
+enum AccountType {
+  DEBIT_CARD
+  CASH
+  SAVINGS
+}
+
+model FinancialAccount {
+  id          String      @id @default(cuid())
+  userId      String
+  accountType AccountType
+  name        String
+  balance     Float       @default(0)
+  currency    String      @default("MXN")
+  icon        String?
+  color       String?
+  sortOrder   Int         @default(0)
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[] @relation("TransactionFromAccount")
+
+  @@index([userId, isActive])
+  @@map("financial_accounts")
+}
+
+model CreditCard {
+  id                 String  @id @default(cuid())
+  userId             String
+  name               String
+  creditLimit        Float
+  currentBalance     Float   @default(0)
+  annualInterestRate Float
+  cutoffDay          Int     // 1-31
+  paymentDay         Int     // 1-31
+  icon               String?
+  color              String?
+  sortOrder          Int     @default(0)
+  isActive           Boolean @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[] @relation("TransactionCreditCard")
+
+  @@index([userId, isActive])
+  @@index([userId, cutoffDay])
+  @@map("credit_cards")
+}
+
 model Transaction {
   id          String        @id @default(cuid())
   userId      String
@@ -257,18 +310,28 @@ model Transaction {
   currency    String        @default("MXN") // "MXN" | "USD"
   description String?
   date        DateTime      @default(now())
+
+  // Financial account / credit card references
+  fromAccountId String?
+  creditCardId  String?
+  toAccountId   String?     // For transfers - logical reference only
+
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
   user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   typeItem        CatalogItem?       @relation("TransactionType", fields: [typeId], references: [id], onDelete: Restrict)
   categoryItem    CatalogItem?       @relation("TransactionCategory", fields: [categoryId], references: [id], onDelete: Restrict)
+  fromAccount     FinancialAccount?  @relation("TransactionFromAccount", fields: [fromAccountId], references: [id], onDelete: SetNull)
+  creditCard      CreditCard?        @relation("TransactionCreditCard", fields: [creditCardId], references: [id], onDelete: SetNull)
   audits          TransactionAudit[]
 
   @@index([userId, date])
   @@index([userId, category])
   @@index([userId, categoryId])
   @@index([typeId])
+  @@index([fromAccountId])
+  @@index([creditCardId])
   @@map("transactions")
 }
 

@@ -47,11 +47,16 @@ export default function TransactionList({ transactions }: TransactionListProps) 
     }
   }
 
-  // Helper to determine if a transaction is income
+  // Helper to determine if a transaction is income (positive)
   const isIncome = (t: Transaction) => {
     if (t.typeItem?.name) {
       const name = t.typeItem.name.toLowerCase()
-      return name.includes("ingreso") || name.includes("income")
+      return (
+        name.includes("ingreso") ||
+        name.includes("income") ||
+        name.includes("reembolso") ||
+        name.includes("devolucion")
+      )
     }
     return t.type === "income"
   }

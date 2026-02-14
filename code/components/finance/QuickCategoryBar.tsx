@@ -57,7 +57,8 @@ export default function QuickCategoryBar({ onQuickSelect }: QuickCategoryBarProp
       </p>
       <div className="flex gap-2 overflow-x-auto pb-2">
         {categories.map((cat) => {
-          const isIncome = cat.typeName.toLowerCase().includes("ingreso") || cat.typeName.toLowerCase().includes("income")
+          const typeLower = cat.typeName.toLowerCase()
+          const isIncome = typeLower.includes("ingreso") || typeLower.includes("income") || typeLower.includes("reembolso") || typeLower.includes("devolucion")
           return (
             <button
               key={`${cat.typeId}-${cat.categoryId}`}

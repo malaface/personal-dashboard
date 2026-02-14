@@ -5,41 +5,16 @@ const prisma = new PrismaClient()
 /**
  * Seed system catalog items for Finance module
  *
- * Structure:
- * - Transaction Categories (3 levels):
- *   - Income (level 1)
- *     - Salary (level 2)
- *     - Freelance (level 2)
- *     - Investment Returns (level 2)
- *       - Dividends (level 3)
- *       - Interest (level 3)
- *     - Gift (level 2)
- *     - Other Income (level 2)
- *   - Expense (level 1)
- *     - Food (level 2)
- *       - Groceries (level 3)
- *       - Restaurants (level 3)
- *       - Delivery (level 3)
- *     - Transport (level 2)
- *       - Gas (level 3)
- *       - Public Transit (level 3)
- *       - Ride Share (level 3)
- *     - Housing (level 2)
- *       - Rent/Mortgage (level 3)
- *       - Utilities (level 3)
- *       - Maintenance (level 3)
- *     - Entertainment (level 2)
- *     - Shopping (level 2)
- *     - Healthcare (level 2)
- *     - Other Expense (level 2)
+ * Transaction Types (8 types at level 1):
+ *   - Ingreso, Gasto, Pago, Transferencia, Reembolso,
+ *     Compra a Meses, Pago de Tarjeta, Devolucion en Efectivo
  *
- * - Investment Types (1 level):
- *   - Stocks (level 1)
- *   - Cryptocurrency (level 1)
- *   - Bonds (level 1)
- *   - Real Estate (level 1)
- *   - Commodities (level 1)
- *   - Other Investment (level 1)
+ * Shared Subcategories (level 2):
+ *   - Comida, Transporte, Vivienda, Entretenimiento, Compras,
+ *     Salud, Servicios, Salario, Freelance, Rendimientos, etc.
+ *
+ * Investment Types (1 level):
+ *   - Acciones, Criptomonedas, Bonos, Bienes Raices, Materias Primas, Otra Inversion
  */
 
 interface CatalogSeed {
@@ -52,246 +27,234 @@ interface CatalogSeed {
   children?: CatalogSeed[]
 }
 
-const transactionCategoriesStructure: CatalogSeed[] = [
+// Shared subcategories for expense-like types
+const sharedExpenseSubcategories: CatalogSeed[] = [
   {
-    name: "Income",
-    slug: "income",
-    icon: "💰",
-    color: "#10B981", // green
+    name: "Comida",
+    slug: "comida",
+    icon: "🍔",
     sortOrder: 1,
-    description: "Money received",
+    description: "Gastos en alimentos y comidas",
     children: [
-      {
-        name: "Salary",
-        slug: "salary",
-        icon: "💼",
-        sortOrder: 1,
-        description: "Regular employment income"
-      },
-      {
-        name: "Freelance",
-        slug: "freelance",
-        icon: "🎨",
-        sortOrder: 2,
-        description: "Self-employment income"
-      },
-      {
-        name: "Investment Returns",
-        slug: "investment-returns",
-        icon: "📈",
-        sortOrder: 3,
-        description: "Income from investments",
-        children: [
-          {
-            name: "Dividends",
-            slug: "dividends",
-            icon: "💵",
-            sortOrder: 1,
-            description: "Stock dividends"
-          },
-          {
-            name: "Interest",
-            slug: "interest",
-            icon: "💰",
-            sortOrder: 2,
-            description: "Interest from savings/bonds"
-          }
-        ]
-      },
-      {
-        name: "Gift",
-        slug: "gift",
-        icon: "🎁",
-        sortOrder: 4,
-        description: "Gifts received"
-      },
-      {
-        name: "Other Income",
-        slug: "other-income",
-        icon: "💸",
-        sortOrder: 5,
-        description: "Other sources of income"
-      }
+      { name: "Supermercado", slug: "supermercado", icon: "🛒", sortOrder: 1, description: "Compras de supermercado" },
+      { name: "Restaurantes", slug: "restaurantes", icon: "🍽️", sortOrder: 2, description: "Comer fuera" },
+      { name: "Delivery", slug: "delivery", icon: "🚚", sortOrder: 3, description: "Entrega a domicilio" }
     ]
   },
   {
-    name: "Expense",
-    slug: "expense",
-    icon: "💸",
-    color: "#EF4444", // red
+    name: "Transporte",
+    slug: "transporte",
+    icon: "🚗",
     sortOrder: 2,
-    description: "Money spent",
+    description: "Gastos de transporte",
     children: [
-      {
-        name: "Food",
-        slug: "food",
-        icon: "🍔",
-        sortOrder: 1,
-        description: "Food and dining expenses",
-        children: [
-          {
-            name: "Groceries",
-            slug: "groceries",
-            icon: "🛒",
-            sortOrder: 1,
-            description: "Supermarket purchases"
-          },
-          {
-            name: "Restaurants",
-            slug: "restaurants",
-            icon: "🍽️",
-            sortOrder: 2,
-            description: "Dining out"
-          },
-          {
-            name: "Delivery",
-            slug: "delivery",
-            icon: "🚚",
-            sortOrder: 3,
-            description: "Food delivery services"
-          }
-        ]
-      },
-      {
-        name: "Transport",
-        slug: "transport",
-        icon: "🚗",
-        sortOrder: 2,
-        description: "Transportation expenses",
-        children: [
-          {
-            name: "Gas",
-            slug: "gas",
-            icon: "⛽",
-            sortOrder: 1,
-            description: "Fuel for vehicles"
-          },
-          {
-            name: "Public Transit",
-            slug: "public-transit",
-            icon: "🚌",
-            sortOrder: 2,
-            description: "Bus, metro, train tickets"
-          },
-          {
-            name: "Ride Share",
-            slug: "ride-share",
-            icon: "🚕",
-            sortOrder: 3,
-            description: "Uber, Lyft, taxi"
-          }
-        ]
-      },
-      {
-        name: "Housing",
-        slug: "housing",
-        icon: "🏠",
-        sortOrder: 3,
-        description: "Housing-related expenses",
-        children: [
-          {
-            name: "Rent/Mortgage",
-            slug: "rent-mortgage",
-            icon: "🏡",
-            sortOrder: 1,
-            description: "Monthly rent or mortgage payment"
-          },
-          {
-            name: "Utilities",
-            slug: "utilities",
-            icon: "💡",
-            sortOrder: 2,
-            description: "Electricity, water, gas, internet"
-          },
-          {
-            name: "Maintenance",
-            slug: "maintenance",
-            icon: "🔧",
-            sortOrder: 3,
-            description: "Repairs and home maintenance"
-          }
-        ]
-      },
-      {
-        name: "Entertainment",
-        slug: "entertainment",
-        icon: "🎬",
-        sortOrder: 4,
-        description: "Entertainment and leisure"
-      },
-      {
-        name: "Shopping",
-        slug: "shopping",
-        icon: "🛍️",
-        sortOrder: 5,
-        description: "Retail purchases"
-      },
-      {
-        name: "Healthcare",
-        slug: "healthcare",
-        icon: "🏥",
-        sortOrder: 6,
-        description: "Medical and health expenses"
-      },
-      {
-        name: "Other Expense",
-        slug: "other-expense",
-        icon: "📦",
-        sortOrder: 7,
-        description: "Other expenses"
-      }
+      { name: "Gasolina", slug: "gasolina", icon: "⛽", sortOrder: 1, description: "Combustible" },
+      { name: "Transporte Publico", slug: "transporte-publico", icon: "🚌", sortOrder: 2, description: "Metro, autobus, tren" },
+      { name: "Taxi/App", slug: "taxi-app", icon: "🚕", sortOrder: 3, description: "Uber, Didi, taxi" }
     ]
+  },
+  {
+    name: "Vivienda",
+    slug: "vivienda",
+    icon: "🏠",
+    sortOrder: 3,
+    description: "Gastos de vivienda",
+    children: [
+      { name: "Renta/Hipoteca", slug: "renta-hipoteca", icon: "🏡", sortOrder: 1, description: "Pago mensual de renta o hipoteca" },
+      { name: "Servicios", slug: "servicios-vivienda", icon: "💡", sortOrder: 2, description: "Luz, agua, gas, internet" },
+      { name: "Mantenimiento", slug: "mantenimiento", icon: "🔧", sortOrder: 3, description: "Reparaciones y mantenimiento del hogar" }
+    ]
+  },
+  {
+    name: "Entretenimiento",
+    slug: "entretenimiento",
+    icon: "🎬",
+    sortOrder: 4,
+    description: "Entretenimiento y ocio"
+  },
+  {
+    name: "Compras",
+    slug: "compras",
+    icon: "🛍️",
+    sortOrder: 5,
+    description: "Compras generales"
+  },
+  {
+    name: "Salud",
+    slug: "salud",
+    icon: "🏥",
+    sortOrder: 6,
+    description: "Gastos medicos y de salud"
+  },
+  {
+    name: "Otro Gasto",
+    slug: "otro-gasto",
+    icon: "📦",
+    sortOrder: 7,
+    description: "Otros gastos"
+  }
+]
+
+// Income subcategories
+const incomeSubcategories: CatalogSeed[] = [
+  { name: "Salario", slug: "salario", icon: "💼", sortOrder: 1, description: "Ingreso por empleo" },
+  { name: "Freelance", slug: "freelance", icon: "🎨", sortOrder: 2, description: "Ingreso independiente" },
+  {
+    name: "Rendimientos",
+    slug: "rendimientos",
+    icon: "📈",
+    sortOrder: 3,
+    description: "Ingresos por inversiones",
+    children: [
+      { name: "Dividendos", slug: "dividendos", icon: "💵", sortOrder: 1, description: "Dividendos de acciones" },
+      { name: "Intereses", slug: "intereses", icon: "💰", sortOrder: 2, description: "Intereses de ahorro/bonos" }
+    ]
+  },
+  { name: "Regalo", slug: "regalo", icon: "🎁", sortOrder: 4, description: "Regalos recibidos" },
+  { name: "Otro Ingreso", slug: "otro-ingreso", icon: "💸", sortOrder: 5, description: "Otras fuentes de ingreso" }
+]
+
+// Payment subcategories
+const paymentSubcategories: CatalogSeed[] = [
+  { name: "Pago de Servicios", slug: "pago-servicios", icon: "📄", sortOrder: 1, description: "Pagos de servicios (luz, agua, internet)" },
+  { name: "Pago de Deuda", slug: "pago-deuda", icon: "🏦", sortOrder: 2, description: "Pagos de deudas y prestamos" }
+]
+
+// Transfer subcategories
+const transferSubcategories: CatalogSeed[] = [
+  { name: "Entre Cuentas", slug: "entre-cuentas", icon: "🔄", sortOrder: 1, description: "Transferencia entre cuentas propias" },
+  { name: "A Terceros", slug: "a-terceros", icon: "👤", sortOrder: 2, description: "Transferencia a otras personas" }
+]
+
+// Refund subcategories
+const refundSubcategories: CatalogSeed[] = [
+  { name: "Reembolso de Compra", slug: "reembolso-compra", icon: "🛍️", sortOrder: 1, description: "Devolucion por compra" },
+  { name: "Reembolso de Servicio", slug: "reembolso-servicio", icon: "📋", sortOrder: 2, description: "Devolucion por servicio" }
+]
+
+const transactionCategoriesStructure: CatalogSeed[] = [
+  {
+    name: "Ingreso",
+    slug: "ingreso",
+    icon: "💰",
+    color: "#10B981",
+    sortOrder: 1,
+    description: "Dinero recibido",
+    children: incomeSubcategories
+  },
+  {
+    name: "Gasto",
+    slug: "gasto",
+    icon: "💸",
+    color: "#EF4444",
+    sortOrder: 2,
+    description: "Dinero gastado",
+    children: sharedExpenseSubcategories
+  },
+  {
+    name: "Pago",
+    slug: "pago",
+    icon: "📄",
+    color: "#F59E0B",
+    sortOrder: 3,
+    description: "Pagos de servicios y deudas",
+    children: paymentSubcategories
+  },
+  {
+    name: "Transferencia",
+    slug: "transferencia",
+    icon: "🔄",
+    color: "#3B82F6",
+    sortOrder: 4,
+    description: "Movimientos entre cuentas",
+    children: transferSubcategories
+  },
+  {
+    name: "Reembolso",
+    slug: "reembolso",
+    icon: "↩️",
+    color: "#8B5CF6",
+    sortOrder: 5,
+    description: "Dinero devuelto",
+    children: refundSubcategories
+  },
+  {
+    name: "Compra a Meses",
+    slug: "compra-a-meses",
+    icon: "📅",
+    color: "#EC4899",
+    sortOrder: 6,
+    description: "Compras a meses sin intereses o con intereses",
+    children: sharedExpenseSubcategories
+  },
+  {
+    name: "Pago de Tarjeta",
+    slug: "pago-de-tarjeta",
+    icon: "💳",
+    color: "#14B8A6",
+    sortOrder: 7,
+    description: "Pagos a tarjetas de credito",
+    children: sharedExpenseSubcategories
+  },
+  {
+    name: "Devolucion en Efectivo",
+    slug: "devolucion-en-efectivo",
+    icon: "💵",
+    color: "#6366F1",
+    sortOrder: 8,
+    description: "Devoluciones recibidas en efectivo",
+    children: sharedExpenseSubcategories
   }
 ]
 
 const investmentTypesStructure: CatalogSeed[] = [
   {
-    name: "Stocks",
-    slug: "stocks",
+    name: "Acciones",
+    slug: "acciones",
     icon: "📊",
     color: "#3B82F6",
     sortOrder: 1,
-    description: "Stock market investments"
+    description: "Inversiones en bolsa de valores"
   },
   {
-    name: "Cryptocurrency",
-    slug: "cryptocurrency",
+    name: "Criptomonedas",
+    slug: "criptomonedas",
     icon: "₿",
     color: "#F59E0B",
     sortOrder: 2,
-    description: "Digital currencies"
+    description: "Monedas digitales"
   },
   {
-    name: "Bonds",
-    slug: "bonds",
+    name: "Bonos",
+    slug: "bonos",
     icon: "📜",
     color: "#6366F1",
     sortOrder: 3,
-    description: "Government and corporate bonds"
+    description: "Bonos gubernamentales y corporativos"
   },
   {
-    name: "Real Estate",
-    slug: "real-estate",
+    name: "Bienes Raices",
+    slug: "bienes-raices",
     icon: "🏢",
     color: "#14B8A6",
     sortOrder: 4,
-    description: "Property investments"
+    description: "Inversiones en propiedades"
   },
   {
-    name: "Commodities",
-    slug: "commodities",
+    name: "Materias Primas",
+    slug: "materias-primas",
     icon: "⚡",
     color: "#8B5CF6",
     sortOrder: 5,
-    description: "Gold, silver, oil, etc."
+    description: "Oro, plata, petroleo, etc."
   },
   {
-    name: "Other Investment",
-    slug: "other-investment",
+    name: "Otra Inversion",
+    slug: "otra-inversion",
     icon: "💼",
     color: "#6B7280",
     sortOrder: 6,
-    description: "Other investment types"
+    description: "Otros tipos de inversion"
   }
 ]
 
@@ -340,9 +303,12 @@ export async function seedFinanceCatalogItems() {
       console.log(`⚠️  Found ${existingCount} existing system catalog items`)
       console.log("   Clearing existing system catalog items...")
 
-      await prisma.catalogItem.deleteMany({
-        where: { isSystem: true }
-      })
+      // Delete children first (level 3, then 2, then 1, then 0)
+      for (let level = 3; level >= 0; level--) {
+        await prisma.catalogItem.deleteMany({
+          where: { isSystem: true, level }
+        })
+      }
 
       console.log("   ✓ Cleared existing system catalog items")
     }

@@ -18,6 +18,9 @@ export async function createTransaction(formData: FormData) {
       categoryId: formData.get("categoryId"),
       description: formData.get("description") || undefined,
       date: formData.get("date"),
+      fromAccountId: formData.get("fromAccountId") || null,
+      creditCardId: formData.get("creditCardId") || null,
+      toAccountId: formData.get("toAccountId") || null,
     }
 
     const validatedData = TransactionSchema.parse(rawData)
@@ -45,6 +48,9 @@ export async function createTransaction(formData: FormData) {
         categoryId: validatedData.categoryId,
         description: validatedData.description,
         date: new Date(validatedData.date),
+        fromAccountId: validatedData.fromAccountId || null,
+        creditCardId: validatedData.creditCardId || null,
+        toAccountId: validatedData.toAccountId || null,
       },
       include: {
         typeItem: true,
@@ -61,6 +67,8 @@ export async function createTransaction(formData: FormData) {
         typeId: transaction.typeId,
         amount: transaction.amount,
         categoryId: transaction.categoryId,
+        fromAccountId: transaction.fromAccountId,
+        creditCardId: transaction.creditCardId,
       },
     })
 
@@ -134,6 +142,9 @@ export async function updateTransaction(transactionId: string, formData: FormDat
       categoryId: formData.get("categoryId"),
       description: formData.get("description") || undefined,
       date: formData.get("date"),
+      fromAccountId: formData.get("fromAccountId") || null,
+      creditCardId: formData.get("creditCardId") || null,
+      toAccountId: formData.get("toAccountId") || null,
     }
 
     const validatedData = TransactionSchema.parse(rawData)
@@ -161,6 +172,9 @@ export async function updateTransaction(transactionId: string, formData: FormDat
         categoryId: validatedData.categoryId,
         description: validatedData.description,
         date: new Date(validatedData.date),
+        fromAccountId: validatedData.fromAccountId || null,
+        creditCardId: validatedData.creditCardId || null,
+        toAccountId: validatedData.toAccountId || null,
       },
       include: {
         typeItem: true,
