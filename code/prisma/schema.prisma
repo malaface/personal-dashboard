@@ -119,20 +119,45 @@ model Profile {
 // ============================================
 
 model Workout {
-  id        String     @id @default(cuid())
-  userId    String
-  name      String
-  date      DateTime   @default(now())
-  duration  Int?       // minutes
-  notes     String?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  id             String      @id @default(cuid())
+  userId         String
+  name           String
+  type           WorkoutType @default(GYM)
+  date           DateTime    @default(now())
+  duration       Int?        // minutes
+  caloriesBurned Float?      // kcal
+  notes          String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
 
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  exercises Exercise[]
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercises      Exercise[]
+  cardioSession  CardioSession?
 
-  @@index([userId, date])
+  @@index([userId, type, date])
   @@map("workouts")
+}
+
+model CardioSession {
+  id            String      @id @default(cuid())
+  workoutId     String      @unique
+  distance      Float?      // meters for swimming, km for running/cycling
+  distanceUnit  String      @default("km") // "m" | "km"
+  pace          Float?      // min/km (running)
+  avgSpeed      Float?      // km/h (cycling)
+  maxSpeed      Float?      // km/h (cycling)
+  elevationGain Float?      // meters (running/cycling)
+  avgHeartRate  Int?        // bpm
+  laps          Int?        // swimming
+  poolSize      Int?        // 25 or 50 meters (swimming)
+  strokeType    StrokeType? // swimming
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  workout Workout @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+
+  @@index([workoutId])
+  @@map("cardio_sessions")
 }
 
 model Exercise {
@@ -237,6 +262,25 @@ enum TemplateDifficulty {
   BEGINNER
   INTERMEDIATE
   ADVANCED
+}
+
+// ============================================
+// MULTI-MODE TRAINING ENUMS
+// ============================================
+
+enum WorkoutType {
+  GYM
+  SWIMMING
+  RUNNING
+  CYCLING
+}
+
+enum StrokeType {
+  FREESTYLE
+  BACKSTROKE
+  BREASTSTROKE
+  BUTTERFLY
+  MIXED
 }
 
 // ============================================
