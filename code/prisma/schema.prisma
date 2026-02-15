@@ -590,6 +590,8 @@ model Event {
 
   date           DateTime
   location       String?
+  isRecurring    Boolean        @default(false)
+  recurrenceType RecurrenceType?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -600,6 +602,12 @@ model Event {
   @@index([userId, date])
   @@index([categoryId])
   @@map("events")
+}
+
+enum RecurrenceType {
+  YEARLY
+  MONTHLY
+  WEEKLY
 }
 
 model Reminder {

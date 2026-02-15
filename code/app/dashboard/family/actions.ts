@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache"
 import { requireAuth } from "@/lib/auth/utils"
 import { prisma } from "@/lib/db/prisma"
 import { FamilyMemberSchema } from "@/lib/validations/family"
+import { EventSchema } from "@/lib/validations/event"
 import { createAuditLog } from "@/lib/audit/logger"
 
 export async function createFamilyMember(formData: FormData) {
@@ -39,6 +40,9 @@ export async function createFamilyMember(formData: FormData) {
       action: "FAMILY_MEMBER_CREATED",
       metadata: { familyMemberId: familyMember.id, name: familyMember.name },
     })
+
+    // Auto-create birthday event if birthday is provided
+    await syncBirthdayEvent(user.id, familyMember.id, validatedData.name, validatedData.birthday ? new Date(validatedData.birthday) : null)
 
     revalidatePath("/dashboard/family")
 
@@ -134,9 +138,182 @@ export async function updateFamilyMember(familyMemberId: string, formData: FormD
 
     revalidatePath("/dashboard/family")
 
+    // Auto-sync birthday event
+    await syncBirthdayEvent(user.id, familyMember.id, validatedData.name, validatedData.birthday ? new Date(validatedData.birthday) : null)
+
     return { success: true, familyMember }
   } catch (error: any) {
     console.error("Update family member error:", error)
     return { success: false, error: error.message || "Failed to update family member" }
+  }
+}
+
+// ============================================
+// BIRTHDAY EVENT AUTO-SYNC
+// ============================================
+
+async function syncBirthdayEvent(userId: string, familyMemberId: string, memberName: string, birthday: Date | null) {
+  const birthdayTitle = `Cumpleaños de ${memberName}`
+
+  // Find existing birthday event for this member
+  const existingBirthdayEvent = await prisma.event.findFirst({
+    where: {
+      userId,
+      familyMemberId,
+      title: { startsWith: "Cumpleaños de " },
+      isRecurring: true,
+      recurrenceType: "YEARLY",
+    },
+  })
+
+  if (birthday) {
+    if (existingBirthdayEvent) {
+      await prisma.event.update({
+        where: { id: existingBirthdayEvent.id },
+        data: { title: birthdayTitle, date: birthday },
+      })
+    } else {
+      await prisma.event.create({
+        data: {
+          userId,
+          familyMemberId,
+          title: birthdayTitle,
+          date: birthday,
+          isRecurring: true,
+          recurrenceType: "YEARLY",
+        },
+      })
+    }
+  } else if (existingBirthdayEvent) {
+    await prisma.event.delete({ where: { id: existingBirthdayEvent.id } })
+  }
+}
+
+// ============================================
+// EVENT CRUD ACTIONS
+// ============================================
+
+export async function createEvent(formData: FormData) {
+  try {
+    const user = await requireAuth()
+
+    const rawData = {
+      title: formData.get("title"),
+      description: formData.get("description") || undefined,
+      date: formData.get("date"),
+      familyMemberId: formData.get("familyMemberId") || undefined,
+      location: formData.get("location") || undefined,
+      isRecurring: formData.get("isRecurring") === "true",
+      recurrenceType: formData.get("recurrenceType") || null,
+    }
+
+    const validatedData = EventSchema.parse(rawData)
+
+    const event = await prisma.event.create({
+      data: {
+        userId: user.id,
+        title: validatedData.title,
+        description: validatedData.description || null,
+        date: new Date(validatedData.date),
+        familyMemberId: validatedData.familyMemberId || null,
+        location: validatedData.location || null,
+        isRecurring: validatedData.isRecurring,
+        recurrenceType: validatedData.recurrenceType || null,
+      },
+    })
+
+    await createAuditLog({
+      userId: user.id,
+      action: "EVENT_CREATED",
+      metadata: { eventId: event.id, title: event.title },
+    })
+
+    revalidatePath("/dashboard/family")
+
+    return { success: true, event }
+  } catch (error: any) {
+    console.error("Create event error:", error)
+    return { success: false, error: error.message || "Failed to create event" }
+  }
+}
+
+export async function updateEvent(eventId: string, formData: FormData) {
+  try {
+    const user = await requireAuth()
+
+    const existingEvent = await prisma.event.findFirst({
+      where: { id: eventId, userId: user.id },
+    })
+
+    if (!existingEvent) {
+      return { success: false, error: "Event not found or access denied" }
+    }
+
+    const rawData = {
+      title: formData.get("title"),
+      description: formData.get("description") || undefined,
+      date: formData.get("date"),
+      familyMemberId: formData.get("familyMemberId") || undefined,
+      location: formData.get("location") || undefined,
+      isRecurring: formData.get("isRecurring") === "true",
+      recurrenceType: formData.get("recurrenceType") || null,
+    }
+
+    const validatedData = EventSchema.parse(rawData)
+
+    const event = await prisma.event.update({
+      where: { id: eventId },
+      data: {
+        title: validatedData.title,
+        description: validatedData.description || null,
+        date: new Date(validatedData.date),
+        familyMemberId: validatedData.familyMemberId || null,
+        location: validatedData.location || null,
+        isRecurring: validatedData.isRecurring,
+        recurrenceType: validatedData.recurrenceType || null,
+      },
+    })
+
+    await createAuditLog({
+      userId: user.id,
+      action: "EVENT_UPDATED",
+      metadata: { eventId, title: validatedData.title },
+    })
+
+    revalidatePath("/dashboard/family")
+
+    return { success: true, event }
+  } catch (error: any) {
+    console.error("Update event error:", error)
+    return { success: false, error: error.message || "Failed to update event" }
+  }
+}
+
+export async function deleteEvent(eventId: string) {
+  try {
+    const user = await requireAuth()
+
+    const event = await prisma.event.findFirst({
+      where: { id: eventId, userId: user.id },
+    })
+
+    if (!event) {
+      return { success: false, error: "Event not found or access denied" }
+    }
+
+    await createAuditLog({
+      userId: user.id,
+      action: "EVENT_DELETED",
+      metadata: { eventId, title: event.title },
+    })
+
+    await prisma.event.delete({ where: { id: eventId } })
+
+    revalidatePath("/dashboard/family")
+
+    return { success: true }
+  } catch (error: any) {
+    console.error("Delete event error:", error)
+    return { success: false, error: error.message || "Failed to delete event" }
   }
 }
