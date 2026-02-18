@@ -6,7 +6,7 @@ Multi-user personal management system: gym training, finances, nutrition, and fa
 
 **Stack:**
 - **Frontend:** Next.js 16.0.8 (App Router) + React 19.2.1 + TypeScript 5
-- **UI:** TailwindCSS 3.4 + shadcn/ui (Radix UI)
+- **UI:** TailwindCSS 3.4 + shadcn/ui (Radix UI) instalado + @heroicons/react (`@headlessui/react` puede removerse una vez todos sus usos sean migrados)
 - **Backend:** Prisma 5.22.0 + PostgreSQL 15 + NextAuth.js 5.x
 - **AI:** n8n + Flowise + Qdrant + Redis
 - **Deployment:** Docker Compose (port 3003 → 3000)
@@ -174,3 +174,4 @@ NEXTAUTH_URL="https://dashboard.malacaran8n.uk"
 **Last Updated:** 2026-02-18
 **Skills:** 3 consolidadas (frontend, backend, git-workflow)
 **DB:** 31 tablas, 13 migrations, Prisma 5.22.0 + PostgreSQL 15
+**shadcn/ui:** instalado — Button, Input, Label, Select, Dialog, Card, Badge, Tabs, Sheet en `components/ui/`
