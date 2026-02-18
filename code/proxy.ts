@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { getToken } from "next-auth/jwt"
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // Get token with explicit configuration for production (HTTPS + Cloudflare Tunnel)
   const isProduction = process.env.NODE_ENV === "production"
   const token = await getToken({
