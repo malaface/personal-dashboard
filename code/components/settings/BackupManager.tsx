@@ -10,6 +10,7 @@ import {
   CheckCircleIcon,
 } from "@heroicons/react/24/outline"
 import type { ImportPreview } from "@/lib/backup/types"
+import { Button } from "@/components/ui/button"
 
 interface ExportCounts {
   profile: number
@@ -217,10 +218,11 @@ export default function BackupManager({ exportCounts }: BackupManagerProps) {
               <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
                 {totalExportItems} registros disponibles
               </p>
-              <button
+              <Button
                 onClick={handleExport}
                 disabled={exportLoading || totalExportItems === 0}
-                className="mt-3 px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
+                className="mt-3"
+                size="sm"
               >
                 {exportLoading ? (
                   <>
@@ -236,7 +238,7 @@ export default function BackupManager({ exportCounts }: BackupManagerProps) {
                     Exportar
                   </>
                 )}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -264,14 +266,16 @@ export default function BackupManager({ exportCounts }: BackupManagerProps) {
                 onChange={handleFileSelect}
                 className="hidden"
               />
-              <button
+              <Button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={importLoading}
-                className="mt-3 px-4 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
+                variant="secondary"
+                className="mt-3 bg-green-600 text-white hover:bg-green-700"
+                size="sm"
               >
                 <ArrowUpTrayIcon className="h-4 w-4" />
                 Seleccionar Archivo
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -327,12 +331,13 @@ export default function BackupManager({ exportCounts }: BackupManagerProps) {
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                   Vista Previa de Importación
                 </h3>
-                <button
+                <Button
+                  variant="ghost"
+                  size="icon"
                   onClick={closeModal}
-                  className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                 >
                   <XMarkIcon className="h-5 w-5" />
-                </button>
+                </Button>
               </div>
 
               {!preview.valid ? (
@@ -442,10 +447,10 @@ export default function BackupManager({ exportCounts }: BackupManagerProps) {
                       Modo de importación:
                     </h4>
 
-                    <button
+                    <Button
                       onClick={() => handleImport("merge")}
                       disabled={importLoading}
-                      className="w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-left"
+                      className="w-full h-auto py-3 bg-green-600 text-white hover:bg-green-700 justify-start"
                     >
                       <div className="flex items-center gap-3">
                         {importLoading ? (
@@ -456,40 +461,42 @@ export default function BackupManager({ exportCounts }: BackupManagerProps) {
                         ) : (
                           <ArrowUpTrayIcon className="h-5 w-5" />
                         )}
-                        <div>
+                        <div className="text-left">
                           <div className="font-medium">Agregar (Merge)</div>
                           <div className="text-sm opacity-90">
                             Agrega los datos sin borrar los existentes
                           </div>
                         </div>
                       </div>
-                    </button>
+                    </Button>
 
-                    <button
+                    <Button
                       onClick={() => handleImport("replace")}
                       disabled={importLoading}
-                      className="w-full px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-left"
+                      variant="destructive"
+                      className="w-full h-auto py-3 justify-start"
                     >
                       <div className="flex items-center gap-3">
                         <ExclamationTriangleIcon className="h-5 w-5" />
-                        <div>
+                        <div className="text-left">
                           <div className="font-medium">Reemplazar</div>
                           <div className="text-sm opacity-90">
                             Borra todos los datos existentes primero
                           </div>
                         </div>
                       </div>
-                    </button>
+                    </Button>
                   </div>
                 </>
               )}
 
-              <button
+              <Button
+                variant="outline"
                 onClick={closeModal}
-                className="mt-4 w-full px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
+                className="mt-4 w-full"
               >
                 Cancelar
-              </button>
+              </Button>
             </div>
           </div>
         </div>

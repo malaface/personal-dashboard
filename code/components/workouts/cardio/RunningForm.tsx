@@ -6,6 +6,10 @@ import { z } from "zod"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { createCardioWorkout, updateCardioWorkout } from "@/app/dashboard/workouts/actions"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
 
 const runningFormSchema = z.object({
   name: z.string().min(3, "Minimo 3 caracteres").max(100),
@@ -110,12 +114,12 @@ export default function RunningForm({ workout }: RunningFormProps) {
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Detalles de la Sesion</h3>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre *</label>
-          <input
+          <Label>Nombre *</Label>
+          <Input
             type="text"
             {...form.register("name")}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
             placeholder="ej., Carrera matutina, Intervalos"
+            className="mt-1"
           />
           {form.formState.errors.name && (
             <p className="mt-1 text-sm text-red-600">{form.formState.errors.name.message}</p>
@@ -124,20 +128,20 @@ export default function RunningForm({ workout }: RunningFormProps) {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fecha *</label>
-            <input
+            <Label>Fecha *</Label>
+            <Input
               type="date"
               {...form.register("date")}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="mt-1"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Duracion (min)</label>
-            <input
+            <Label>Duracion (min)</Label>
+            <Input
               type="number"
               {...form.register("duration", { valueAsNumber: true })}
               min="1"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="mt-1"
               placeholder="30"
             />
           </div>
@@ -149,24 +153,24 @@ export default function RunningForm({ workout }: RunningFormProps) {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Distancia (km)</label>
-            <input
+            <Label>Distancia (km)</Label>
+            <Input
               type="number"
               {...form.register("distance", { valueAsNumber: true })}
               min="0"
               step="0.1"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="mt-1"
               placeholder="5.0"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pace (min/km)</label>
-            <input
+            <Label>Pace (min/km)</Label>
+            <Input
               type="number"
               {...form.register("pace", { valueAsNumber: true })}
               min="0"
               step="0.1"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="mt-1"
               placeholder="5.5"
             />
           </div>
@@ -174,66 +178,58 @@ export default function RunningForm({ workout }: RunningFormProps) {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Desnivel (m)</label>
-            <input
+            <Label>Desnivel (m)</Label>
+            <Input
               type="number"
               {...form.register("elevationGain", { valueAsNumber: true })}
               min="0"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="mt-1"
               placeholder="120"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">FC Promedio (bpm)</label>
-            <input
+            <Label>FC Promedio (bpm)</Label>
+            <Input
               type="number"
               {...form.register("avgHeartRate", { valueAsNumber: true })}
               min="30"
               max="250"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="mt-1"
               placeholder="155"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Calorias (kcal)</label>
-          <input
+          <Label>Calorias (kcal)</Label>
+          <Input
             type="number"
             {...form.register("caloriesBurned", { valueAsNumber: true })}
             min="0"
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="mt-1"
             placeholder="400"
           />
         </div>
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notas</label>
-        <textarea
+        <Label>Notas</Label>
+        <Textarea
           {...form.register("notes")}
           rows={2}
           maxLength={500}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="mt-1"
           placeholder="Como estuvo la carrera?"
         />
       </div>
 
       <div className="flex justify-end space-x-3">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
-        >
+        <Button type="button" variant="outline" onClick={() => router.back()}>
           Cancelar
-        </button>
-        <button
-          type="submit"
-          disabled={loading}
-          className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
-        >
+        </Button>
+        <Button type="submit" disabled={loading}>
           {loading ? "Guardando..." : isEditing ? "Actualizar" : "Crear Sesion"}
-        </button>
+        </Button>
       </div>
     </form>
   )

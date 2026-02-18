@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { createInvestment, updateInvestment } from "@/app/dashboard/finance/actions"
 import CategorySelector from "@/components/catalog/CategorySelector"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
 
 interface InvestmentFormProps {
   investment?: {
@@ -82,9 +86,7 @@ export default function InvestmentForm({ investment, onCancel }: InvestmentFormP
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Type *
-            </label>
+            <Label>Type *</Label>
             <CategorySelector
               catalogType="investment_type"
               value={typeId}
@@ -98,16 +100,14 @@ export default function InvestmentForm({ investment, onCancel }: InvestmentFormP
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Name *
-            </label>
-            <input
+            <Label>Name *</Label>
+            <Input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
               maxLength={100}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="mt-1"
               placeholder="e.g., Apple Stock, Bitcoin, etc."
             />
           </div>
@@ -115,17 +115,15 @@ export default function InvestmentForm({ investment, onCancel }: InvestmentFormP
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Initial Amount *
-            </label>
-            <input
+            <Label>Initial Amount *</Label>
+            <Input
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               required
               min="0"
               step="0.01"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="mt-1"
               placeholder="0.00"
             />
             <p className="text-xs text-gray-500 mt-1">
@@ -134,16 +132,14 @@ export default function InvestmentForm({ investment, onCancel }: InvestmentFormP
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Current Value
-            </label>
-            <input
+            <Label>Current Value</Label>
+            <Input
               type="number"
               value={currentValue}
               onChange={(e) => setCurrentValue(e.target.value)}
               min="0"
               step="0.01"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="mt-1"
               placeholder="0.00"
             />
             <p className="text-xs text-gray-500 mt-1">
@@ -153,28 +149,24 @@ export default function InvestmentForm({ investment, onCancel }: InvestmentFormP
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Purchase Date *
-          </label>
-          <input
+          <Label>Purchase Date *</Label>
+          <Input
             type="date"
             value={purchaseDate}
             onChange={(e) => setPurchaseDate(e.target.value)}
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="mt-1"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Notes
-          </label>
-          <textarea
+          <Label>Notes</Label>
+          <Textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={3}
             maxLength={500}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="mt-1"
             placeholder="Optional notes about this investment..."
           />
         </div>
@@ -182,21 +174,13 @@ export default function InvestmentForm({ investment, onCancel }: InvestmentFormP
 
       <div className="flex justify-end space-x-3">
         {onCancel && (
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
-          >
+          <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
-          </button>
+          </Button>
         )}
-        <button
-          type="submit"
-          disabled={loading}
-          className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
+        <Button type="submit" disabled={loading}>
           {loading ? "Saving..." : investment ? "Update Investment" : "Create Investment"}
-        </button>
+        </Button>
       </div>
     </form>
   )

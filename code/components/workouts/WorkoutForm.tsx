@@ -10,6 +10,10 @@ import { PlusIcon } from "@heroicons/react/24/outline"
 import CollapsibleExerciseCard from "@/components/workouts/CollapsibleExerciseCard"
 import QuickAddBar from "@/components/workouts/QuickAddBar"
 import WorkoutTemplateSelector from "@/components/templates/WorkoutTemplateSelector"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
 
 // Zod Schemas
 const setDetailSchema = z.object({
@@ -269,14 +273,12 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Detalles del Entrenamiento</h3>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Nombre del Entrenamiento *
-          </label>
-          <input
+          <Label>Nombre del Entrenamiento *</Label>
+          <Input
             type="text"
             {...form.register("name")}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="ej., Dia de pecho, Dia de pierna"
+            className="mt-1"
           />
           {form.formState.errors.name && (
             <p className="mt-1 text-sm text-red-600">{form.formState.errors.name.message}</p>
@@ -285,13 +287,11 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Fecha *
-            </label>
-            <input
+            <Label>Fecha *</Label>
+            <Input
               type="date"
               {...form.register("date")}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="mt-1"
             />
             {form.formState.errors.date && (
               <p className="mt-1 text-sm text-red-600">{form.formState.errors.date.message}</p>
@@ -299,15 +299,13 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Duracion (minutos)
-            </label>
-            <input
+            <Label>Duracion (minutos)</Label>
+            <Input
               type="number"
               {...form.register("duration", { valueAsNumber: true })}
               min="1"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="60"
+              className="mt-1"
             />
             {form.formState.errors.duration && (
               <p className="mt-1 text-sm text-red-600">{form.formState.errors.duration.message}</p>
@@ -316,15 +314,13 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Notas
-          </label>
-          <textarea
+          <Label>Notas</Label>
+          <Textarea
             {...form.register("notes")}
             rows={2}
             maxLength={500}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Como te fue?"
+            className="mt-1"
           />
           {form.formState.errors.notes && (
             <p className="mt-1 text-sm text-red-600">{form.formState.errors.notes.message}</p>
@@ -346,14 +342,16 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-4">
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Ejercicios *</h3>
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon"
             onClick={addExercise}
-            className="w-8 h-8 flex items-center justify-center bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full hover:bg-blue-100 dark:hover:bg-blue-800"
+            className="rounded-full bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-800"
             title="Agregar ejercicio"
           >
             <PlusIcon className="h-5 w-5" />
-          </button>
+          </Button>
         </div>
 
         {/* Quick Add Bar */}
@@ -388,21 +386,13 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
       {/* Submit */}
       <div className="flex justify-end space-x-3">
         {onCancel && (
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
-          >
+          <Button type="button" variant="outline" onClick={onCancel}>
             Cancelar
-          </button>
+          </Button>
         )}
-        <button
-          type="submit"
-          disabled={loading}
-          className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
+        <Button type="submit" disabled={loading}>
           {loading ? "Guardando..." : workout ? "Actualizar Entrenamiento" : "Crear Entrenamiento"}
-        </button>
+        </Button>
       </div>
 
       {/* Floating Action Button */}

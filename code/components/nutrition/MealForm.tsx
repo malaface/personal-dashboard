@@ -9,6 +9,17 @@ import { createMeal, updateMeal } from "@/app/dashboard/nutrition/actions"
 import { PlusIcon } from "@heroicons/react/24/outline"
 import CollapsibleFoodCard from "@/components/nutrition/CollapsibleFoodCard"
 import QuickMealBar from "@/components/nutrition/QuickMealBar"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select"
 
 // Zod Schemas
 const foodItemSchema = z.object({
@@ -214,14 +225,12 @@ export default function MealForm({ meal }: MealFormProps) {
 
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Nombre *
-            </label>
-            <input
+            <Label>Nombre *</Label>
+            <Input
               type="text"
               {...form.register("name")}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
               placeholder="Ej., Batido de desayuno"
+              className="mt-1"
             />
             {form.formState.errors.name && (
               <p className="mt-1 text-sm text-red-600">{form.formState.errors.name.message}</p>
@@ -229,28 +238,29 @@ export default function MealForm({ meal }: MealFormProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Tipo *
-            </label>
-            <select
-              {...form.register("mealType")}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+            <Label>Tipo *</Label>
+            <Select
+              value={form.watch("mealType")}
+              onValueChange={(v) => form.setValue("mealType", v as MealFormData["mealType"])}
             >
-              <option value="BREAKFAST">Desayuno</option>
-              <option value="LUNCH">Almuerzo</option>
-              <option value="DINNER">Cena</option>
-              <option value="SNACK">Merienda</option>
-            </select>
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="BREAKFAST">Desayuno</SelectItem>
+                <SelectItem value="LUNCH">Almuerzo</SelectItem>
+                <SelectItem value="DINNER">Cena</SelectItem>
+                <SelectItem value="SNACK">Merienda</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Fecha *
-            </label>
-            <input
+            <Label>Fecha *</Label>
+            <Input
               type="date"
               {...form.register("date")}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="mt-1"
             />
             {form.formState.errors.date && (
               <p className="mt-1 text-sm text-red-600">{form.formState.errors.date.message}</p>
@@ -259,15 +269,13 @@ export default function MealForm({ meal }: MealFormProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Notas
-          </label>
-          <textarea
+          <Label>Notas</Label>
+          <Textarea
             {...form.register("notes")}
             rows={2}
             maxLength={300}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
             placeholder="Notas opcionales..."
+            className="mt-1"
           />
         </div>
       </div>
@@ -276,14 +284,16 @@ export default function MealForm({ meal }: MealFormProps) {
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-4">
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Alimentos *</h3>
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon"
             onClick={addFoodItem}
-            className="w-8 h-8 flex items-center justify-center bg-orange-50 dark:bg-orange-900 text-orange-700 dark:text-orange-300 rounded-full hover:bg-orange-100 dark:hover:bg-orange-800"
+            className="rounded-full bg-orange-50 dark:bg-orange-900 text-orange-700 dark:text-orange-300 hover:bg-orange-100 dark:hover:bg-orange-800"
             title="Agregar alimento"
           >
             <PlusIcon className="h-5 w-5" />
-          </button>
+          </Button>
         </div>
 
         {/* Quick Meal Bar */}
@@ -314,13 +324,9 @@ export default function MealForm({ meal }: MealFormProps) {
 
       {/* Submit */}
       <div className="flex justify-end space-x-3">
-        <button
-          type="submit"
-          disabled={loading}
-          className="px-6 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
+        <Button type="submit" disabled={loading}>
           {loading ? "Guardando..." : meal ? "Actualizar Comida" : "Crear Comida"}
-        </button>
+        </Button>
       </div>
 
       {/* Floating Action Button */}

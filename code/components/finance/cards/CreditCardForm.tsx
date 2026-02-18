@@ -4,6 +4,9 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { createCreditCard, updateCreditCard } from "@/app/dashboard/finance/cards/actions"
 import { CheckIcon } from "@heroicons/react/24/outline"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 
 const CARD_COLORS = [
   { value: "#3B82F6", label: "Azul" },
@@ -93,57 +96,49 @@ export default function CreditCardForm({ card, onCancel }: CreditCardFormProps) 
         </h3>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Nombre de la Tarjeta *
-          </label>
-          <input
+          <Label>Nombre de la Tarjeta *</Label>
+          <Input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
             maxLength={100}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="mt-1"
             placeholder="Ej: BBVA Oro, Nu, Citibanamex"
           />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Limite de Credito *
-            </label>
-            <input
+            <Label>Limite de Credito *</Label>
+            <Input
               type="number"
               value={creditLimit}
               onChange={(e) => setCreditLimit(e.target.value)}
               required
               min="0"
               step="0.01"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="mt-1"
               placeholder="50,000"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Saldo Actual
-            </label>
-            <input
+            <Label>Saldo Actual</Label>
+            <Input
               type="number"
               value={currentBalance}
               onChange={(e) => setCurrentBalance(e.target.value)}
               min="0"
               step="0.01"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="mt-1"
               placeholder="0.00"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Tasa de Interes Anual (%) *
-          </label>
-          <input
+          <Label>Tasa de Interes Anual (%) *</Label>
+          <Input
             type="number"
             value={annualInterestRate}
             onChange={(e) => setAnnualInterestRate(e.target.value)}
@@ -151,48 +146,42 @@ export default function CreditCardForm({ card, onCancel }: CreditCardFormProps) 
             min="0"
             max="100"
             step="0.01"
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="mt-1"
             placeholder="36.5"
           />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Dia de Corte (1-31) *
-            </label>
-            <input
+            <Label>Dia de Corte (1-31) *</Label>
+            <Input
               type="number"
               value={cutoffDay}
               onChange={(e) => setCutoffDay(e.target.value)}
               required
               min="1"
               max="31"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="mt-1"
               placeholder="15"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Dia de Pago (1-31) *
-            </label>
-            <input
+            <Label>Dia de Pago (1-31) *</Label>
+            <Input
               type="number"
               value={paymentDay}
               onChange={(e) => setPaymentDay(e.target.value)}
               required
               min="1"
               max="31"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="mt-1"
               placeholder="5"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Color
-          </label>
+          <Label>Color</Label>
           <div className="flex gap-2 flex-wrap">
             {CARD_COLORS.map((c) => (
               <button
@@ -212,21 +201,13 @@ export default function CreditCardForm({ card, onCancel }: CreditCardFormProps) 
 
       <div className="flex justify-end space-x-3">
         {onCancel && (
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
-          >
+          <Button type="button" variant="outline" onClick={onCancel}>
             Cancelar
-          </button>
+          </Button>
         )}
-        <button
-          type="submit"
-          disabled={loading}
-          className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
+        <Button type="submit" disabled={loading}>
           {loading ? "Guardando..." : isEditing ? "Actualizar Tarjeta" : "Crear Tarjeta"}
-        </button>
+        </Button>
       </div>
 
       <button

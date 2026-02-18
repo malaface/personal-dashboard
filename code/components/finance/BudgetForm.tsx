@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { createBudget, updateBudget } from "@/app/dashboard/finance/actions"
 import CategorySelector from "@/components/catalog/CategorySelector"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 
 interface BudgetFormProps {
   budget?: {
@@ -73,9 +76,7 @@ export default function BudgetForm({ budget, onCancel }: BudgetFormProps) {
         <h3 className="text-lg font-semibold">Budget Details</h3>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Category *
-          </label>
+          <Label>Category *</Label>
           <CategorySelector
             catalogType="transaction_category"
             value={categoryId}
@@ -90,17 +91,14 @@ export default function BudgetForm({ budget, onCancel }: BudgetFormProps) {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Monthly Limit *
-            </label>
-            <input
+            <Label>Monthly Limit *</Label>
+            <Input
               type="number"
               value={limit}
               onChange={(e) => setLimit(e.target.value)}
               required
               min="0"
               step="0.01"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="0.00"
             />
             <p className="text-xs text-gray-500 mt-1">
@@ -109,15 +107,12 @@ export default function BudgetForm({ budget, onCancel }: BudgetFormProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Month *
-            </label>
-            <input
+            <Label>Month *</Label>
+            <Input
               type="month"
               value={month}
               onChange={(e) => setMonth(e.target.value)}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <p className="text-xs text-gray-500 mt-1">
               Month and year for this budget
@@ -162,21 +157,13 @@ export default function BudgetForm({ budget, onCancel }: BudgetFormProps) {
 
       <div className="flex justify-end space-x-3">
         {onCancel && (
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
-          >
+          <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
-          </button>
+          </Button>
         )}
-        <button
-          type="submit"
-          disabled={loading}
-          className="px-6 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
+        <Button type="submit" disabled={loading}>
           {loading ? "Saving..." : budget ? "Update Budget" : "Create Budget"}
-        </button>
+        </Button>
       </div>
     </form>
   )

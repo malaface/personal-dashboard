@@ -4,6 +4,16 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { createFinancialAccount, updateFinancialAccount } from "@/app/dashboard/finance/accounts/actions"
 import { CheckIcon } from "@heroicons/react/24/outline"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select"
 
 const ACCOUNT_TYPES = [
   { value: "DEBIT_CARD", label: "Tarjeta de Debito", icon: "💳", color: "#3B82F6" },
@@ -85,9 +95,7 @@ export default function FinancialAccountForm({ account, onCancel }: FinancialAcc
         </h3>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Tipo de Cuenta *
-          </label>
+          <Label>Tipo de Cuenta *</Label>
           <div className="grid grid-cols-3 gap-3">
             {ACCOUNT_TYPES.map((type) => (
               <button
@@ -108,67 +116,54 @@ export default function FinancialAccountForm({ account, onCancel }: FinancialAcc
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Nombre *
-          </label>
-          <input
+          <Label>Nombre *</Label>
+          <Input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
             maxLength={100}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="mt-1"
             placeholder="Ej: BBVA Debito, Cartera, Nu Ahorro"
           />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Balance Inicial
-            </label>
-            <input
+            <Label>Balance Inicial</Label>
+            <Input
               type="number"
               value={balance}
               onChange={(e) => setBalance(e.target.value)}
               step="0.01"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="mt-1"
               placeholder="0.00"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Moneda
-            </label>
-            <select
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="MXN">MXN</option>
-              <option value="USD">USD</option>
-            </select>
+            <Label>Moneda</Label>
+            <Select value={currency} onValueChange={(v) => setCurrency(v)}>
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="MXN">MXN</SelectItem>
+                <SelectItem value="USD">USD</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>
 
       <div className="flex justify-end space-x-3">
         {onCancel && (
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
-          >
+          <Button type="button" variant="outline" onClick={onCancel}>
             Cancelar
-          </button>
+          </Button>
         )}
-        <button
-          type="submit"
-          disabled={loading}
-          className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
+        <Button type="submit" disabled={loading}>
           {loading ? "Guardando..." : isEditing ? "Actualizar Cuenta" : "Crear Cuenta"}
-        </button>
+        </Button>
       </div>
 
       <button

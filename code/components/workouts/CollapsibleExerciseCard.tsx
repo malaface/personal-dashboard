@@ -12,6 +12,9 @@ import {
 } from "@heroicons/react/24/outline"
 import SmartCombobox from "@/components/catalog/SmartCombobox"
 import ExerciseHistory from "@/components/workouts/ExerciseHistory"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
 
 interface SetDetail {
   setNumber: number
@@ -164,42 +167,22 @@ export default function CollapsibleExerciseCard({
         {/* Action buttons */}
         <div className="flex items-center gap-1 ml-2" onClick={(e) => e.stopPropagation()}>
           {!isFirst && (
-            <button
-              type="button"
-              onClick={onMoveUp}
-              className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-              title="Mover arriba"
-            >
+            <Button type="button" variant="ghost" size="icon" onClick={onMoveUp} title="Mover arriba" className="h-6 w-6">
               <ChevronUpIcon className="h-4 w-4" />
-            </button>
+            </Button>
           )}
           {!isLast && (
-            <button
-              type="button"
-              onClick={onMoveDown}
-              className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-              title="Mover abajo"
-            >
+            <Button type="button" variant="ghost" size="icon" onClick={onMoveDown} title="Mover abajo" className="h-6 w-6">
               <ChevronDownIcon className="h-4 w-4" />
-            </button>
+            </Button>
           )}
-          <button
-            type="button"
-            onClick={onDuplicate}
-            className="p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded"
-            title="Duplicar"
-          >
+          <Button type="button" variant="ghost" size="icon" onClick={onDuplicate} title="Duplicar" className="h-6 w-6 hover:text-blue-600 dark:hover:text-blue-400">
             <DocumentDuplicateIcon className="h-4 w-4" />
-          </button>
+          </Button>
           {totalCount > 1 && (
-            <button
-              type="button"
-              onClick={onRemove}
-              className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded"
-              title="Eliminar"
-            >
+            <Button type="button" variant="ghost" size="icon" onClick={onRemove} title="Eliminar" className="h-6 w-6 hover:text-red-600 dark:hover:text-red-400">
               <TrashIcon className="h-4 w-4" />
-            </button>
+            </Button>
           )}
         </div>
       </div>
@@ -214,9 +197,7 @@ export default function CollapsibleExerciseCard({
         <div className="overflow-hidden">
         <div className="p-4 space-y-3 bg-white dark:bg-gray-800">
           <div>
-            <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
-              Tipo de Ejercicio *
-            </label>
+            <Label className="text-xs text-gray-600 dark:text-gray-400">Tipo de Ejercicio *</Label>
             <Controller
               name={`exercises.${index}.exerciseTypeId`}
               control={form.control}
@@ -247,9 +228,7 @@ export default function CollapsibleExerciseCard({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
-                Grupo Muscular (Opcional)
-              </label>
+              <Label className="text-xs text-gray-600 dark:text-gray-400">Grupo Muscular (Opcional)</Label>
               <Controller
                 name={`exercises.${index}.muscleGroupId`}
                 control={form.control}
@@ -265,9 +244,7 @@ export default function CollapsibleExerciseCard({
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
-                Equipo (Opcional)
-              </label>
+              <Label className="text-xs text-gray-600 dark:text-gray-400">Equipo (Opcional)</Label>
               <Controller
                 name={`exercises.${index}.equipmentId`}
                 control={form.control}
@@ -286,7 +263,7 @@ export default function CollapsibleExerciseCard({
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Series *</label>
+              <Label className="text-xs text-gray-600 dark:text-gray-400">Series *</Label>
               <select
                 value={sets || ""}
                 onChange={(e) => form.setValue(`exercises.${index}.sets`, Number(e.target.value))}
@@ -304,7 +281,7 @@ export default function CollapsibleExerciseCard({
               )}
             </div>
             <div>
-              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Repeticiones *</label>
+              <Label className="text-xs text-gray-600 dark:text-gray-400">Repeticiones *</Label>
               <select
                 value={reps || ""}
                 onChange={(e) => form.setValue(`exercises.${index}.reps`, Number(e.target.value))}
@@ -322,9 +299,9 @@ export default function CollapsibleExerciseCard({
               )}
             </div>
             <div className="col-span-2 sm:col-span-1">
-              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Peso</label>
+              <Label className="text-xs text-gray-600 dark:text-gray-400">Peso</Label>
               <div className="flex gap-1">
-                <input
+                <Input
                   type="number"
                   {...form.register(`exercises.${index}.weight`, {
                     valueAsNumber: true,
@@ -332,7 +309,7 @@ export default function CollapsibleExerciseCard({
                   })}
                   min="0"
                   step="0.5"
-                  className="flex-1 min-w-0 px-2 py-1.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md text-sm"
+                  className="flex-1 min-w-0 h-8 text-sm"
                 />
                 <select
                   {...form.register(`exercises.${index}.weightUnit`)}
@@ -353,9 +330,7 @@ export default function CollapsibleExerciseCard({
           {/* Per-set detail rows */}
           {sets > 0 && setDetails.length > 0 && (
             <div className="space-y-1.5">
-              <label className="block text-xs text-gray-600 dark:text-gray-400">
-                Detalle por serie
-              </label>
+              <Label className="text-xs text-gray-600 dark:text-gray-400">Detalle por serie</Label>
               <div className="grid grid-cols-[auto_1fr_1fr_auto] gap-x-2 gap-y-1 items-center text-xs text-gray-500 dark:text-gray-400">
                 <span></span>
                 <span className="text-center">Reps</span>
@@ -383,7 +358,7 @@ export default function CollapsibleExerciseCard({
                       <option key={n} value={n}>{n}</option>
                     ))}
                   </select>
-                  <input
+                  <Input
                     type="number"
                     value={detail.weight ?? ""}
                     onChange={(e) => {
@@ -397,7 +372,7 @@ export default function CollapsibleExerciseCard({
                     min="0"
                     step="0.5"
                     placeholder="0"
-                    className="px-1.5 py-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded text-sm"
+                    className="h-7 px-1.5 text-sm"
                   />
                   <button
                     type="button"

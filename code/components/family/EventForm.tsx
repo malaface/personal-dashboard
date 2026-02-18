@@ -4,6 +4,17 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { createEvent, updateEvent } from "@/app/dashboard/family/actions"
 import { XMarkIcon } from "@heroicons/react/24/outline"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select"
 
 interface FamilyMemberOption {
   id: string
@@ -80,12 +91,9 @@ export default function EventForm({ members, event, onClose }: EventFormProps) {
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
             {event ? "Editar Evento" : "Nuevo Evento"}
           </h2>
-          <button
-            onClick={onClose}
-            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition"
-          >
+          <Button type="button" variant="ghost" size="icon" onClick={onClose}>
             <XMarkIcon className="h-5 w-5 text-gray-500" />
-          </button>
+          </Button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-4 space-y-4">
@@ -97,17 +105,15 @@ export default function EventForm({ members, event, onClose }: EventFormProps) {
 
           {/* Title */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Título *
-            </label>
-            <input
+            <Label>Título *</Label>
+            <Input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
               minLength={2}
               maxLength={100}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="mt-1"
               placeholder="Ej., Cena familiar, Aniversario..."
             />
           </div>
@@ -115,62 +121,58 @@ export default function EventForm({ members, event, onClose }: EventFormProps) {
           {/* Date + Member */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Fecha *
-              </label>
-              <input
+              <Label>Fecha *</Label>
+              <Input
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="mt-1"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Persona asociada
-              </label>
-              <select
-                value={familyMemberId}
-                onChange={(e) => setFamilyMemberId(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+              <Label>Persona asociada</Label>
+              <Select
+                value={familyMemberId || "_none_"}
+                onValueChange={(v) => setFamilyMemberId(v === "_none_" ? "" : v)}
               >
-                <option value="">Ninguna</option>
-                {members.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.name}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Ninguna" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="_none_">Ninguna</SelectItem>
+                  {members.map((m) => (
+                    <SelectItem key={m.id} value={m.id}>
+                      {m.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
           {/* Location */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Ubicación
-            </label>
-            <input
+            <Label>Ubicación</Label>
+            <Input
               type="text"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               maxLength={200}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="mt-1"
               placeholder="Ej., Casa de los abuelos..."
             />
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Descripción
-            </label>
-            <textarea
+            <Label>Descripción</Label>
+            <Textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={2}
               maxLength={500}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="mt-1"
               placeholder="Notas opcionales sobre el evento..."
             />
           </div>
@@ -192,40 +194,33 @@ export default function EventForm({ members, event, onClose }: EventFormProps) {
 
             {isRecurring && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Frecuencia
-                </label>
-                <select
-                  value={recurrenceType}
-                  onChange={(e) => setRecurrenceType(e.target.value)}
-                  required={isRecurring}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                <Label>Frecuencia</Label>
+                <Select
+                  value={recurrenceType || "_none_"}
+                  onValueChange={(v) => setRecurrenceType(v === "_none_" ? "" : v)}
                 >
-                  <option value="">Seleccionar...</option>
-                  <option value="WEEKLY">Semanal</option>
-                  <option value="MONTHLY">Mensual</option>
-                  <option value="YEARLY">Anual</option>
-                </select>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Seleccionar..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="_none_">Seleccionar...</SelectItem>
+                    <SelectItem value="WEEKLY">Semanal</SelectItem>
+                    <SelectItem value="MONTHLY">Mensual</SelectItem>
+                    <SelectItem value="YEARLY">Anual</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             )}
           </div>
 
           {/* Actions */}
           <div className="flex justify-end gap-3 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition"
-            >
+            <Button type="button" variant="outline" onClick={onClose}>
               Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-4 py-2 text-sm bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
-            >
+            </Button>
+            <Button type="submit" disabled={loading}>
               {loading ? "Guardando..." : event ? "Actualizar" : "Crear Evento"}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

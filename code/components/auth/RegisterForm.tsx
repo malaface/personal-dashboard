@@ -4,6 +4,9 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import PasswordInput from "@/components/ui/PasswordInput"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
 
 export default function RegisterForm() {
   const router = useRouter()
@@ -114,10 +117,8 @@ export default function RegisterForm() {
     <form onSubmit={handleSubmit} className="mt-8 space-y-6">
       <div className="space-y-4">
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Nombre completo
-          </label>
-          <input
+          <Label htmlFor="name">Nombre completo</Label>
+          <Input
             id="name"
             name="name"
             type="text"
@@ -125,15 +126,13 @@ export default function RegisterForm() {
             value={formData.name}
             onChange={handleChange}
             placeholder="Juan Pérez"
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+            className="mt-1"
           />
         </div>
 
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Correo electrónico
-          </label>
-          <input
+          <Label htmlFor="email">Correo electrónico</Label>
+          <Input
             id="email"
             name="email"
             type="email"
@@ -142,14 +141,12 @@ export default function RegisterForm() {
             value={formData.email}
             onChange={handleChange}
             placeholder="tu@email.com"
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+            className="mt-1"
           />
         </div>
 
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Contraseña
-          </label>
+          <Label htmlFor="password">Contraseña</Label>
           <div className="mt-1">
             <PasswordInput
               id="password"
@@ -164,9 +161,7 @@ export default function RegisterForm() {
         </div>
 
         <div>
-          <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Confirmar contraseña
-          </label>
+          <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
           <div className="mt-1">
             <PasswordInput
               id="confirmPassword"
@@ -187,13 +182,9 @@ export default function RegisterForm() {
         </div>
       )}
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
+      <Button type="submit" disabled={loading} className="w-full">
         {loading ? "Creando cuenta..." : "Crear cuenta"}
-      </button>
+      </Button>
 
       <div className="text-center text-sm">
         <span className="text-gray-600 dark:text-gray-400">¿Ya tienes una cuenta? </span>

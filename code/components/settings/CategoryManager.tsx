@@ -5,6 +5,17 @@ import { useRouter } from "next/navigation"
 import CategoryTree from "@/components/catalog/CategoryTree"
 import { CatalogTreeNode } from "@/lib/catalog/types"
 import { PlusIcon } from "@heroicons/react/24/outline"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select"
 
 interface CategoryManagerProps {
   transactionCategories: any[]
@@ -260,13 +271,10 @@ export default function CategoryManager({
             {currentItems.filter((i) => !i.isSystem).length} custom categories
           </p>
         </div>
-        <button
-          onClick={handleCreateNew}
-          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-        >
+        <Button onClick={handleCreateNew}>
           <PlusIcon className="h-5 w-5 mr-2" />
           Add Custom Category
-        </button>
+        </Button>
       </div>
 
       {/* Category Tree */}
@@ -293,107 +301,97 @@ export default function CategoryManager({
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Name *
-                  </label>
-                  <input
+                  <Label>Name *</Label>
+                  <Input
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     required
                     maxLength={50}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Category name"
+                    className="mt-1"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Parent Category
-                  </label>
-                  <select
-                    value={formData.parentId}
-                    onChange={(e) => setFormData({ ...formData, parentId: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  <Label>Parent Category</Label>
+                  <Select
+                    value={formData.parentId || "_root_"}
+                    onValueChange={(value) => setFormData({ ...formData, parentId: value === "_root_" ? "" : value })}
                   >
-                    <option value="">None (Root Level)</option>
-                    {currentItems
-                      .filter((item) => item.level < 2) // Only show items that can have children (level 0-2)
-                      .map((item) => (
-                        <option key={item.id} value={item.id}>
-                          {"  ".repeat(item.level)}
-                          {item.icon && `${item.icon} `}
-                          {item.name}
-                          {item.isSystem && " (System)"}
-                        </option>
-                      ))}
-                  </select>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="None (Root Level)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="_root_">None (Root Level)</SelectItem>
+                      {currentItems
+                        .filter((item) => item.level < 2)
+                        .map((item) => (
+                          <SelectItem key={item.id} value={item.id}>
+                            {"  ".repeat(item.level)}
+                            {item.icon && `${item.icon} `}
+                            {item.name}
+                            {item.isSystem && " (System)"}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
                   <p className="text-xs text-gray-500 mt-1">
                     Maximum nesting depth is 3 levels
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Description
-                  </label>
-                  <textarea
+                  <Label>Description</Label>
+                  <Textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     rows={2}
                     maxLength={200}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Optional description"
+                    className="mt-1"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Icon (Emoji)
-                    </label>
-                    <input
+                    <Label>Icon (Emoji)</Label>
+                    <Input
                       type="text"
                       value={formData.icon}
                       onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
                       maxLength={10}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="💰"
+                      className="mt-1"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Color
-                    </label>
+                    <Label>Color</Label>
                     <input
                       type="color"
                       value={formData.color || "#3B82F6"}
                       onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                      className="w-full h-10 px-1 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="mt-1 w-full h-10 px-1 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                 </div>
 
                 <div className="flex justify-end space-x-3 pt-4">
-                  <button
+                  <Button
                     type="button"
+                    variant="outline"
                     onClick={() => {
                       setShowModal(false)
                       setEditingItem(null)
                       setError("")
                     }}
-                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
                   >
                     Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
+                  </Button>
+                  <Button type="submit" disabled={loading}>
                     {loading ? "Saving..." : editingItem ? "Update" : "Create"}
-                  </button>
+                  </Button>
                 </div>
               </form>
             </div>

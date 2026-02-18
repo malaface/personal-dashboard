@@ -1,6 +1,16 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select"
 
 export interface ProgressFiltersState {
   exerciseTypeId: string
@@ -100,60 +110,60 @@ export default function ProgressFilters({ onFiltersChange }: ProgressFiltersProp
       {/* Exercise & Muscle Group selectors */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Ejercicio
-          </label>
-          <select
-            value={filters.exerciseTypeId}
-            onChange={(e) => updateFilter("exerciseTypeId", e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+          <Label>Ejercicio</Label>
+          <Select
+            value={filters.exerciseTypeId || "_all_"}
+            onValueChange={(v) => updateFilter("exerciseTypeId", v === "_all_" ? "" : v)}
           >
-            <option value="">Todos los ejercicios</option>
-            {exerciseTypes.map((et) => (
-              <option key={et.id} value={et.id}>
-                {et.name} ({et.totalWorkouts})
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="mt-1">
+              <SelectValue placeholder="Todos los ejercicios" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="_all_">Todos los ejercicios</SelectItem>
+              {exerciseTypes.map((et) => (
+                <SelectItem key={et.id} value={et.id}>
+                  {et.name} ({et.totalWorkouts})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Grupo Muscular
-          </label>
-          <select
-            value={filters.muscleGroupId}
-            onChange={(e) => updateFilter("muscleGroupId", e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+          <Label>Grupo Muscular</Label>
+          <Select
+            value={filters.muscleGroupId || "_all_"}
+            onValueChange={(v) => updateFilter("muscleGroupId", v === "_all_" ? "" : v)}
           >
-            <option value="">Todos los grupos</option>
-            {muscleGroups.map((mg) => (
-              <option key={mg.id} value={mg.id}>
-                {mg.name}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="mt-1">
+              <SelectValue placeholder="Todos los grupos" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="_all_">Todos los grupos</SelectItem>
+              {muscleGroups.map((mg) => (
+                <SelectItem key={mg.id} value={mg.id}>
+                  {mg.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
       {/* Time range tabs */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          Rango de Tiempo
-        </label>
-        <div className="flex flex-wrap gap-1">
+        <Label>Rango de Tiempo</Label>
+        <div className="flex flex-wrap gap-1 mt-1">
           {RANGES.map((r) => (
-            <button
+            <Button
               key={r.value}
+              type="button"
+              size="sm"
+              variant={filters.range === r.value ? "default" : "outline"}
               onClick={() => updateFilter("range", r.value)}
-              className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
-                filters.range === r.value
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
-              }`}
             >
               {r.label}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -162,25 +172,21 @@ export default function ProgressFilters({ onFiltersChange }: ProgressFiltersProp
       {filters.range === "custom" && (
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Desde
-            </label>
-            <input
+            <Label>Desde</Label>
+            <Input
               type="date"
               value={filters.startDate}
               onChange={(e) => updateFilter("startDate", e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+              className="mt-1"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Hasta
-            </label>
-            <input
+            <Label>Hasta</Label>
+            <Input
               type="date"
               value={filters.endDate}
               onChange={(e) => updateFilter("endDate", e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+              className="mt-1"
             />
           </div>
         </div>
@@ -188,22 +194,18 @@ export default function ProgressFilters({ onFiltersChange }: ProgressFiltersProp
 
       {/* Metric toggle */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          Métrica
-        </label>
-        <div className="flex gap-1">
+        <Label>Métrica</Label>
+        <div className="flex gap-1 mt-1">
           {METRICS.map((m) => (
-            <button
+            <Button
               key={m.value}
+              type="button"
+              size="sm"
+              variant={filters.metric === m.value ? "default" : "outline"}
               onClick={() => updateFilter("metric", m.value)}
-              className={`px-4 py-1.5 text-sm rounded-lg transition-colors ${
-                filters.metric === m.value
-                  ? "bg-purple-600 text-white"
-                  : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
-              }`}
             >
               {m.label}
-            </button>
+            </Button>
           ))}
         </div>
       </div>

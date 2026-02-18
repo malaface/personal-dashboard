@@ -3,6 +3,10 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { createFamilyMember, updateFamilyMember } from "@/app/dashboard/family/actions"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
 
 interface FamilyMemberFormProps {
   member?: {
@@ -74,33 +78,33 @@ export default function FamilyMemberForm({ member }: FamilyMemberFormProps) {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <Label>
               Nombre *
-            </label>
-            <input
+            </Label>
+            <Input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
               minLength={2}
               maxLength={100}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="mt-1"
               placeholder="Ej., Juan Pérez"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <Label>
               Relación *
-            </label>
-            <input
+            </Label>
+            <Input
               type="text"
               value={relationship}
               onChange={(e) => setRelationship(e.target.value)}
               required
               minLength={2}
               maxLength={50}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="mt-1"
               placeholder="Ej., Padre, Hermana, Amigo"
             />
           </div>
@@ -108,40 +112,40 @@ export default function FamilyMemberForm({ member }: FamilyMemberFormProps) {
 
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <Label>
               Cumpleaños
-            </label>
-            <input
+            </Label>
+            <Input
               type="date"
               value={birthday}
               onChange={(e) => setBirthday(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="mt-1"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <Label>
               Correo Electrónico
-            </label>
-            <input
+            </Label>
+            <Input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="mt-1"
               placeholder="correo@ejemplo.com"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <Label>
               Teléfono
-            </label>
-            <input
+            </Label>
+            <Input
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               maxLength={20}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="mt-1"
               placeholder="+52 555 123 4567"
             />
           </div>
@@ -151,25 +155,21 @@ export default function FamilyMemberForm({ member }: FamilyMemberFormProps) {
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Notas
           </label>
-          <textarea
+          <Textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={3}
             maxLength={500}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="mt-1"
             placeholder="Notas opcionales sobre esta persona..."
           />
         </div>
       </div>
 
       <div className="flex justify-end">
-        <button
-          type="submit"
-          disabled={loading}
-          className="px-6 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
+        <Button type="submit" disabled={loading}>
           {loading ? "Guardando..." : member ? "Actualizar Miembro" : "Agregar Miembro"}
-        </button>
+        </Button>
       </div>
     </form>
   )

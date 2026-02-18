@@ -1,6 +1,16 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select"
 
 export interface FinanceFiltersState {
   categoryId: string
@@ -94,60 +104,60 @@ export default function FinanceFilters({ onFiltersChange }: FinanceFiltersProps)
       {/* Category & Type selectors */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Categoria
-          </label>
-          <select
-            value={filters.categoryId}
-            onChange={(e) => updateFilter("categoryId", e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+          <Label>Categoria</Label>
+          <Select
+            value={filters.categoryId || "_all_"}
+            onValueChange={(v) => updateFilter("categoryId", v === "_all_" ? "" : v)}
           >
-            <option value="">Todas las categorias</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="mt-1">
+              <SelectValue placeholder="Todas las categorias" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="_all_">Todas las categorias</SelectItem>
+              {categories.map((c) => (
+                <SelectItem key={c.id} value={c.id}>
+                  {c.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Tipo
-          </label>
-          <select
-            value={filters.typeId}
-            onChange={(e) => updateFilter("typeId", e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+          <Label>Tipo</Label>
+          <Select
+            value={filters.typeId || "_all_"}
+            onValueChange={(v) => updateFilter("typeId", v === "_all_" ? "" : v)}
           >
-            <option value="">Todos los tipos</option>
-            {types.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.name}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="mt-1">
+              <SelectValue placeholder="Todos los tipos" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="_all_">Todos los tipos</SelectItem>
+              {types.map((t) => (
+                <SelectItem key={t.id} value={t.id}>
+                  {t.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
       {/* Time range tabs */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          Rango de Tiempo
-        </label>
-        <div className="flex flex-wrap gap-1">
+        <Label>Rango de Tiempo</Label>
+        <div className="flex flex-wrap gap-1 mt-1">
           {RANGES.map((r) => (
-            <button
+            <Button
               key={r.value}
+              type="button"
+              size="sm"
+              variant={filters.range === r.value ? "default" : "outline"}
               onClick={() => updateFilter("range", r.value)}
-              className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
-                filters.range === r.value
-                  ? "bg-green-600 text-white"
-                  : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
-              }`}
             >
               {r.label}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -156,25 +166,21 @@ export default function FinanceFilters({ onFiltersChange }: FinanceFiltersProps)
       {filters.range === "custom" && (
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Desde
-            </label>
-            <input
+            <Label>Desde</Label>
+            <Input
               type="date"
               value={filters.startDate}
               onChange={(e) => updateFilter("startDate", e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+              className="mt-1"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Hasta
-            </label>
-            <input
+            <Label>Hasta</Label>
+            <Input
               type="date"
               value={filters.endDate}
               onChange={(e) => updateFilter("endDate", e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+              className="mt-1"
             />
           </div>
         </div>
@@ -182,22 +188,18 @@ export default function FinanceFilters({ onFiltersChange }: FinanceFiltersProps)
 
       {/* Metric toggle */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          Metrica
-        </label>
-        <div className="flex gap-1">
+        <Label>Metrica</Label>
+        <div className="flex gap-1 mt-1">
           {METRICS.map((m) => (
-            <button
+            <Button
               key={m.value}
+              type="button"
+              size="sm"
+              variant={filters.metric === m.value ? "default" : "outline"}
               onClick={() => updateFilter("metric", m.value)}
-              className={`px-4 py-1.5 text-sm rounded-lg transition-colors ${
-                filters.metric === m.value
-                  ? "bg-emerald-600 text-white"
-                  : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
-              }`}
             >
               {m.label}
-            </button>
+            </Button>
           ))}
         </div>
       </div>

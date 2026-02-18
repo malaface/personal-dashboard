@@ -5,6 +5,9 @@ import { signIn } from "next-auth/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import PasswordInput from "@/components/ui/PasswordInput"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
 
 export default function LoginForm() {
   const router = useRouter()
@@ -99,10 +102,8 @@ export default function LoginForm() {
 
       <div className="space-y-4">
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Correo electrónico
-          </label>
-          <input
+          <Label htmlFor="email">Correo electrónico</Label>
+          <Input
             id="email"
             name="email"
             type="email"
@@ -111,13 +112,11 @@ export default function LoginForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="tu@email.com"
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+            className="mt-1"
           />
         </div>
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Contraseña
-          </label>
+          <Label htmlFor="password">Contraseña</Label>
           <div className="mt-1">
             <PasswordInput
               id="password"
@@ -136,14 +135,15 @@ export default function LoginForm() {
         <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
           {error}
           {showResend && (
-            <button
+            <Button
               type="button"
+              variant="link"
               onClick={handleResendVerification}
               disabled={resending}
-              className="ml-2 underline font-medium hover:text-red-800 disabled:opacity-50"
+              className="ml-2 h-auto p-0 text-red-600 underline font-medium hover:text-red-800"
             >
               {resending ? "Reenviando..." : "Reenviar email"}
-            </button>
+            </Button>
           )}
         </div>
       )}
@@ -154,13 +154,9 @@ export default function LoginForm() {
         </div>
       )}
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
+      <Button type="submit" disabled={loading} className="w-full">
         {loading ? "Iniciando sesión..." : "Iniciar sesión"}
-      </button>
+      </Button>
 
       <div className="flex items-center justify-between text-sm">
         <Link href="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">

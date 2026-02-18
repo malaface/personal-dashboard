@@ -10,6 +10,9 @@ import {
   ChevronRightIcon,
   ExclamationCircleIcon,
 } from "@heroicons/react/24/outline"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
 
 interface MealFormData {
   name: string
@@ -125,42 +128,22 @@ export default function CollapsibleFoodCard({
         {/* Action buttons */}
         <div className="flex items-center gap-1 ml-2" onClick={(e) => e.stopPropagation()}>
           {!isFirst && (
-            <button
-              type="button"
-              onClick={onMoveUp}
-              className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-              title="Mover arriba"
-            >
+            <Button type="button" variant="ghost" size="icon" onClick={onMoveUp} title="Mover arriba" className="h-6 w-6">
               <ChevronUpIcon className="h-4 w-4" />
-            </button>
+            </Button>
           )}
           {!isLast && (
-            <button
-              type="button"
-              onClick={onMoveDown}
-              className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-              title="Mover abajo"
-            >
+            <Button type="button" variant="ghost" size="icon" onClick={onMoveDown} title="Mover abajo" className="h-6 w-6">
               <ChevronDownIcon className="h-4 w-4" />
-            </button>
+            </Button>
           )}
-          <button
-            type="button"
-            onClick={onDuplicate}
-            className="p-1 text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/30 rounded"
-            title="Duplicar"
-          >
+          <Button type="button" variant="ghost" size="icon" onClick={onDuplicate} title="Duplicar" className="h-6 w-6 hover:text-orange-600 dark:hover:text-orange-400">
             <DocumentDuplicateIcon className="h-4 w-4" />
-          </button>
+          </Button>
           {totalCount > 1 && (
-            <button
-              type="button"
-              onClick={onRemove}
-              className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded"
-              title="Eliminar"
-            >
+            <Button type="button" variant="ghost" size="icon" onClick={onRemove} title="Eliminar" className="h-6 w-6 hover:text-red-600 dark:hover:text-red-400">
               <TrashIcon className="h-4 w-4" />
-            </button>
+            </Button>
           )}
         </div>
       </div>
@@ -175,11 +158,11 @@ export default function CollapsibleFoodCard({
         <div className="p-4 space-y-3 bg-white dark:bg-gray-800">
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Nombre *</label>
-              <input
+              <Label className="text-xs text-gray-600 dark:text-gray-400">Nombre *</Label>
+              <Input
                 type="text"
                 {...form.register(`foodItems.${index}.name`)}
-                className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md text-sm focus:ring-2 focus:ring-orange-500"
+                className="h-7 text-sm"
                 placeholder="Nombre del alimento"
               />
               {form.formState.errors.foodItems?.[index]?.name && (
@@ -189,22 +172,22 @@ export default function CollapsibleFoodCard({
               )}
             </div>
             <div>
-              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Cantidad *</label>
-              <input
+              <Label className="text-xs text-gray-600 dark:text-gray-400">Cantidad *</Label>
+              <Input
                 type="number"
                 {...form.register(`foodItems.${index}.quantity`, { valueAsNumber: true })}
                 min="0"
                 step="0.1"
-                className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md text-sm focus:ring-2 focus:ring-orange-500"
+                className="h-7 text-sm"
                 placeholder="100"
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Unidad *</label>
-              <input
+              <Label className="text-xs text-gray-600 dark:text-gray-400">Unidad *</Label>
+              <Input
                 type="text"
                 {...form.register(`foodItems.${index}.unit`)}
-                className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md text-sm focus:ring-2 focus:ring-orange-500"
+                className="h-7 text-sm"
                 placeholder="g, ml, oz"
               />
             </div>
@@ -212,21 +195,21 @@ export default function CollapsibleFoodCard({
 
           <div className="grid grid-cols-4 gap-3">
             <div>
-              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Cal</label>
-              <input
+              <Label className="text-xs text-gray-600 dark:text-gray-400">Cal</Label>
+              <Input
                 type="number"
                 {...form.register(`foodItems.${index}.calories`, {
                   valueAsNumber: true,
                   setValueAs: (v: string) => v === '' ? null : Number(v)
                 })}
                 min="0"
-                className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md text-sm focus:ring-2 focus:ring-orange-500"
+                className="h-7 text-sm"
                 placeholder="0"
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Prot (g)</label>
-              <input
+              <Label className="text-xs text-gray-600 dark:text-gray-400">Prot (g)</Label>
+              <Input
                 type="number"
                 {...form.register(`foodItems.${index}.protein`, {
                   valueAsNumber: true,
@@ -234,13 +217,13 @@ export default function CollapsibleFoodCard({
                 })}
                 min="0"
                 step="0.1"
-                className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md text-sm focus:ring-2 focus:ring-orange-500"
+                className="h-7 text-sm"
                 placeholder="0"
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Carbs (g)</label>
-              <input
+              <Label className="text-xs text-gray-600 dark:text-gray-400">Carbs (g)</Label>
+              <Input
                 type="number"
                 {...form.register(`foodItems.${index}.carbs`, {
                   valueAsNumber: true,
@@ -248,13 +231,13 @@ export default function CollapsibleFoodCard({
                 })}
                 min="0"
                 step="0.1"
-                className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md text-sm focus:ring-2 focus:ring-orange-500"
+                className="h-7 text-sm"
                 placeholder="0"
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Grasas (g)</label>
-              <input
+              <Label className="text-xs text-gray-600 dark:text-gray-400">Grasas (g)</Label>
+              <Input
                 type="number"
                 {...form.register(`foodItems.${index}.fats`, {
                   valueAsNumber: true,
@@ -262,7 +245,7 @@ export default function CollapsibleFoodCard({
                 })}
                 min="0"
                 step="0.1"
-                className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md text-sm focus:ring-2 focus:ring-orange-500"
+                className="h-7 text-sm"
                 placeholder="0"
               />
             </div>
