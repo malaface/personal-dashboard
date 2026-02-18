@@ -120,7 +120,7 @@ export async function sendVerificationEmail(email: string, token: string) {
  * Send password reset email
  */
 export async function sendPasswordResetEmail(email: string, token: string) {
-  const resetUrl = `${APP_URL}/api/auth/reset-password?token=${token}`
+  const resetUrl = `${APP_URL}/reset-password?token=${token}`
 
   // If Resend is not configured, log to console (development mode)
   if (!resend) {

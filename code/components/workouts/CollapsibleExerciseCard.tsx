@@ -13,6 +13,13 @@ import {
 import SmartCombobox from "@/components/catalog/SmartCombobox"
 import ExerciseHistory from "@/components/workouts/ExerciseHistory"
 
+interface SetDetail {
+  setNumber: number
+  reps: number
+  weight?: number | null
+  completed: boolean
+}
+
 interface WorkoutFormData {
   name: string
   date: string
@@ -27,6 +34,7 @@ interface WorkoutFormData {
     weight?: number | null
     weightUnit: "kg" | "lbs"
     notes?: string | null
+    setDetails?: SetDetail[]
   }>
 }
 
@@ -66,6 +74,22 @@ export default function CollapsibleExerciseCard({
   const reps = form.watch(`exercises.${index}.reps`)
   const weight = form.watch(`exercises.${index}.weight`)
   const weightUnit = form.watch(`exercises.${index}.weightUnit`) || "kg"
+  const setDetails = form.watch(`exercises.${index}.setDetails`) || []
+
+  // Sync setDetails array when sets count changes
+  useEffect(() => {
+    if (!sets || sets < 1) return
+    const current = form.getValues(`exercises.${index}.setDetails`) || []
+    if (current.length === sets) return
+
+    const newDetails: SetDetail[] = Array.from({ length: sets }, (_, i) => ({
+      setNumber: i + 1,
+      reps: current[i]?.reps ?? reps ?? 10,
+      weight: current[i]?.weight ?? weight ?? null,
+      completed: current[i]?.completed ?? true,
+    }))
+    form.setValue(`exercises.${index}.setDetails`, newDetails)
+  }, [sets]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Check if this exercise has validation errors
   const exerciseErrors = form.formState.errors.exercises?.[index]
@@ -103,7 +127,7 @@ export default function CollapsibleExerciseCard({
 
   return (
     <div
-      className={`border rounded-md overflow-hidden transition-colors ${
+      className={`border rounded-md transition-colors ${
         hasErrors && !isOpen
           ? "border-red-400 dark:border-red-600"
           : "border-gray-200 dark:border-gray-700"
@@ -180,13 +204,14 @@ export default function CollapsibleExerciseCard({
         </div>
       </div>
 
-      {/* Body - animated expandable */}
+      {/* Body - animated expandable using grid-rows trick (no overflow-hidden, so dropdowns render correctly) */}
       <div
         ref={bodyRef}
-        className={`transition-all duration-300 ease-in-out overflow-hidden ${
-          isOpen ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"
+        className={`grid transition-all duration-300 ease-in-out ${
+          isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
         }`}
       >
+        <div className="overflow-hidden">
         <div className="p-4 space-y-3 bg-white dark:bg-gray-800">
           <div>
             <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
@@ -259,15 +284,19 @@ export default function CollapsibleExerciseCard({
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <div>
               <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Series *</label>
-              <input
-                type="number"
-                {...form.register(`exercises.${index}.sets`, { valueAsNumber: true })}
-                min="1"
-                className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md text-sm"
-              />
+              <select
+                value={sets || ""}
+                onChange={(e) => form.setValue(`exercises.${index}.sets`, Number(e.target.value))}
+                className="w-full px-2 py-1.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md text-sm"
+              >
+                <option value="" disabled>-</option>
+                {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+                  <option key={n} value={n}>{n}</option>
+                ))}
+              </select>
               {form.formState.errors.exercises?.[index]?.sets && (
                 <p className="mt-1 text-xs text-red-600">
                   {form.formState.errors.exercises[index]?.sets?.message}
@@ -276,19 +305,23 @@ export default function CollapsibleExerciseCard({
             </div>
             <div>
               <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Repeticiones *</label>
-              <input
-                type="number"
-                {...form.register(`exercises.${index}.reps`, { valueAsNumber: true })}
-                min="1"
-                className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md text-sm"
-              />
+              <select
+                value={reps || ""}
+                onChange={(e) => form.setValue(`exercises.${index}.reps`, Number(e.target.value))}
+                className="w-full px-2 py-1.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md text-sm"
+              >
+                <option value="" disabled>-</option>
+                {Array.from({ length: 30 }, (_, i) => i + 1).map((n) => (
+                  <option key={n} value={n}>{n}</option>
+                ))}
+              </select>
               {form.formState.errors.exercises?.[index]?.reps && (
                 <p className="mt-1 text-xs text-red-600">
                   {form.formState.errors.exercises[index]?.reps?.message}
                 </p>
               )}
             </div>
-            <div>
+            <div className="col-span-2 sm:col-span-1">
               <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Peso</label>
               <div className="flex gap-1">
                 <input
@@ -299,11 +332,11 @@ export default function CollapsibleExerciseCard({
                   })}
                   min="0"
                   step="0.5"
-                  className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md text-sm"
+                  className="flex-1 min-w-0 px-2 py-1.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md text-sm"
                 />
                 <select
                   {...form.register(`exercises.${index}.weightUnit`)}
-                  className="px-1 py-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md text-sm w-16"
+                  className="px-1 py-1.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md text-sm w-16"
                 >
                   <option value="kg">kg</option>
                   <option value="lbs">lbs</option>
@@ -316,6 +349,77 @@ export default function CollapsibleExerciseCard({
               )}
             </div>
           </div>
+
+          {/* Per-set detail rows */}
+          {sets > 0 && setDetails.length > 0 && (
+            <div className="space-y-1.5">
+              <label className="block text-xs text-gray-600 dark:text-gray-400">
+                Detalle por serie
+              </label>
+              <div className="grid grid-cols-[auto_1fr_1fr_auto] gap-x-2 gap-y-1 items-center text-xs text-gray-500 dark:text-gray-400">
+                <span></span>
+                <span className="text-center">Reps</span>
+                <span className="text-center">Peso ({weightUnit})</span>
+                <span></span>
+              </div>
+              {setDetails.map((detail, setIdx) => (
+                <div
+                  key={setIdx}
+                  className="grid grid-cols-[auto_1fr_1fr_auto] gap-x-2 items-center"
+                >
+                  <span className="text-xs font-medium text-gray-500 dark:text-gray-400 w-6 text-center">
+                    S{setIdx + 1}
+                  </span>
+                  <select
+                    value={detail.reps}
+                    onChange={(e) => {
+                      const updated = [...setDetails]
+                      updated[setIdx] = { ...updated[setIdx], reps: Number(e.target.value) }
+                      form.setValue(`exercises.${index}.setDetails`, updated)
+                    }}
+                    className="px-1.5 py-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded text-sm"
+                  >
+                    {Array.from({ length: 30 }, (_, i) => i + 1).map((n) => (
+                      <option key={n} value={n}>{n}</option>
+                    ))}
+                  </select>
+                  <input
+                    type="number"
+                    value={detail.weight ?? ""}
+                    onChange={(e) => {
+                      const updated = [...setDetails]
+                      updated[setIdx] = {
+                        ...updated[setIdx],
+                        weight: e.target.value === "" ? null : Number(e.target.value),
+                      }
+                      form.setValue(`exercises.${index}.setDetails`, updated)
+                    }}
+                    min="0"
+                    step="0.5"
+                    placeholder="0"
+                    className="px-1.5 py-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const updated = [...setDetails]
+                      updated[setIdx] = { ...updated[setIdx], completed: !updated[setIdx].completed }
+                      form.setValue(`exercises.${index}.setDetails`, updated)
+                    }}
+                    className={`w-6 h-6 rounded border text-xs flex items-center justify-center transition-colors ${
+                      detail.completed
+                        ? "bg-green-100 border-green-400 text-green-700 dark:bg-green-900/30 dark:border-green-600 dark:text-green-400"
+                        : "bg-gray-100 border-gray-300 text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-500"
+                    }`}
+                    title={detail.completed ? "Completada" : "No completada"}
+                  >
+                    {detail.completed ? "✓" : "—"}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
         </div>
       </div>
     </div>

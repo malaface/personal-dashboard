@@ -12,6 +12,13 @@ import QuickAddBar from "@/components/workouts/QuickAddBar"
 import WorkoutTemplateSelector from "@/components/templates/WorkoutTemplateSelector"
 
 // Zod Schemas
+const setDetailSchema = z.object({
+  setNumber: z.number().int().min(1),
+  reps: z.number().int().min(1),
+  weight: z.number().min(0).nullable().optional(),
+  completed: z.boolean(),
+})
+
 const exerciseSchema = z.object({
   exerciseTypeId: z.string().min(1, "Exercise type required"),
   muscleGroupId: z.string().nullable().optional(),
@@ -20,7 +27,8 @@ const exerciseSchema = z.object({
   reps: z.number().int().min(1, "Reps must be at least 1"),
   weight: z.number().min(0).nullable().optional(),
   weightUnit: z.enum(["kg", "lbs"]),
-  notes: z.string().max(200).nullable().optional()
+  notes: z.string().max(200).nullable().optional(),
+  setDetails: z.array(setDetailSchema).optional(),
 })
 
 const workoutFormSchema = z.object({

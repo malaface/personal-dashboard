@@ -99,11 +99,11 @@ export default function SmartCombobox({
           type="button"
           onClick={() => !disabled && setIsOpen(!isOpen)}
           disabled={disabled}
-          className={`w-full px-3 py-2 border rounded-md flex items-center justify-between bg-white ${
-            error ? 'border-red-500' : 'border-gray-300'
-          } ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'hover:border-gray-400'}`}
+          className={`w-full px-3 py-2 border rounded-md flex items-center justify-between bg-white dark:bg-gray-700 ${
+            error ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+          } ${disabled ? 'bg-gray-100 dark:bg-gray-800 cursor-not-allowed' : 'hover:border-gray-400 dark:hover:border-gray-500'}`}
         >
-          <span className={selectedItem ? 'text-gray-900' : 'text-gray-500'}>
+          <span className={selectedItem ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}>
             {selectedItem?.name || placeholder}
           </span>
           <ChevronUpDownIcon className="h-5 w-5 text-gray-400" />
@@ -111,7 +111,7 @@ export default function SmartCombobox({
 
         {/* Dropdown */}
         {isOpen && !disabled && (
-          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+          <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg max-h-60 overflow-auto">
             {/* Search input */}
             {searchable && (
               <div className="p-2 border-b">
@@ -120,7 +120,7 @@ export default function SmartCombobox({
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder={`Buscar ${catalogType.replace('_', ' ')}...`}
-                  className="w-full px-2 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   autoFocus
                 />
               </div>
@@ -141,7 +141,7 @@ export default function SmartCombobox({
                   key={item.id}
                   type="button"
                   onClick={() => handleSelect(item.id, item.name)}
-                  className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 flex items-center"
+                  className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white flex items-center"
                 >
                   {item.icon && <span className="mr-2">{item.icon}</span>}
                   <span>{item.name}</span>

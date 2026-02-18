@@ -26,20 +26,22 @@ export default function ExerciseProgressDashboard() {
   const [personalRecords, setPersonalRecords] = useState<PersonalRecordsData | null>(null)
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {/* Filters */}
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
         <ProgressFilters onFiltersChange={setFilters} />
       </div>
 
       {/* Personal Records */}
-      <PersonalRecordsCard
-        records={personalRecords}
-        visible={!!filters.exerciseTypeId}
-      />
+      <div className="relative z-10">
+        <PersonalRecordsCard
+          records={personalRecords}
+          visible={!!filters.exerciseTypeId}
+        />
+      </div>
 
       {/* Chart */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 min-h-[300px] overflow-x-auto">
         <ExerciseProgressChart
           filters={filters}
           onPersonalRecords={setPersonalRecords}

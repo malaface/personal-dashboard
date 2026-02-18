@@ -185,12 +185,28 @@ model Exercise {
   muscleGroup    CatalogItem?     @relation("MuscleGroup", fields: [muscleGroupId], references: [id], onDelete: Restrict)
   equipment      CatalogItem?     @relation("Equipment", fields: [equipmentId], references: [id], onDelete: Restrict)
   progress       WorkoutProgress[]
+  exerciseSets   ExerciseSet[]
 
   @@index([workoutId])
   @@index([exerciseTypeId])
   @@index([muscleGroupId])
   @@index([equipmentId])
   @@map("exercises")
+}
+
+model ExerciseSet {
+  id         String   @id @default(cuid())
+  exerciseId String
+  setNumber  Int      // 1, 2, 3...
+  reps       Int
+  weight     Float?
+  completed  Boolean  @default(true)
+  notes      String?
+
+  exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@index([exerciseId])
+  @@map("exercise_sets")
 }
 
 model WorkoutProgress {

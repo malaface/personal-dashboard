@@ -1,9 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import PasswordInput from "@/components/ui/PasswordInput"
 
 export default function RegisterForm() {
   const router = useRouter()
@@ -150,34 +150,34 @@ export default function RegisterForm() {
           <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Contraseña
           </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            autoComplete="new-password"
-            required
-            value={formData.password}
-            onChange={handleChange}
-            placeholder="Mínimo 8 caracteres"
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-          />
+          <div className="mt-1">
+            <PasswordInput
+              id="password"
+              name="password"
+              autoComplete="new-password"
+              required
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Mínimo 8 caracteres"
+            />
+          </div>
         </div>
 
         <div>
           <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Confirmar contraseña
           </label>
-          <input
-            id="confirmPassword"
-            name="confirmPassword"
-            type="password"
-            autoComplete="new-password"
-            required
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            placeholder="Repite tu contraseña"
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-          />
+          <div className="mt-1">
+            <PasswordInput
+              id="confirmPassword"
+              name="confirmPassword"
+              autoComplete="new-password"
+              required
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              placeholder="Repite tu contraseña"
+            />
+          </div>
         </div>
       </div>
 

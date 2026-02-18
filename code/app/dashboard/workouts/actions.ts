@@ -60,7 +60,7 @@ export async function createWorkout(formData: FormData) {
         caloriesBurned: caloriesBurned || undefined,
         notes: validatedData.notes,
         exercises: {
-          create: validatedData.exercises.map((exercise) => ({
+          create: validatedData.exercises.map((exercise: any) => ({
             exerciseTypeId: exercise.exerciseTypeId,
             muscleGroupId: exercise.muscleGroupId,
             equipmentId: exercise.equipmentId,
@@ -69,6 +69,16 @@ export async function createWorkout(formData: FormData) {
             weight: exercise.weight,
             weightUnit: exercise.weightUnit || "kg",
             notes: exercise.notes,
+            ...(exercise.setDetails?.length > 0 && {
+              exerciseSets: {
+                create: exercise.setDetails.map((sd: any) => ({
+                  setNumber: sd.setNumber,
+                  reps: sd.reps,
+                  weight: sd.weight ?? null,
+                  completed: sd.completed ?? true,
+                })),
+              },
+            }),
           })),
         },
       },
@@ -78,6 +88,7 @@ export async function createWorkout(formData: FormData) {
             exerciseType: true,
             muscleGroup: true,
             equipment: true,
+            exerciseSets: true,
           }
         }
       },
@@ -211,7 +222,7 @@ export async function updateWorkout(workoutId: string, formData: FormData) {
           caloriesBurned: caloriesBurnedUpdate || undefined,
           notes: validatedData.notes,
           exercises: {
-            create: validatedData.exercises.map((exercise) => ({
+            create: validatedData.exercises.map((exercise: any) => ({
               exerciseTypeId: exercise.exerciseTypeId,
               muscleGroupId: exercise.muscleGroupId,
               equipmentId: exercise.equipmentId,
@@ -220,6 +231,16 @@ export async function updateWorkout(workoutId: string, formData: FormData) {
               weight: exercise.weight,
               weightUnit: exercise.weightUnit || "kg",
               notes: exercise.notes,
+              ...(exercise.setDetails?.length > 0 && {
+                exerciseSets: {
+                  create: exercise.setDetails.map((sd: any) => ({
+                    setNumber: sd.setNumber,
+                    reps: sd.reps,
+                    weight: sd.weight ?? null,
+                    completed: sd.completed ?? true,
+                  })),
+                },
+              }),
             })),
           },
         },
@@ -229,6 +250,7 @@ export async function updateWorkout(workoutId: string, formData: FormData) {
               exerciseType: true,
               muscleGroup: true,
               equipment: true,
+              exerciseSets: true,
             }
           }
         },
