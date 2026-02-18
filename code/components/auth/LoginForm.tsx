@@ -36,13 +36,23 @@ export default function LoginForm() {
       })
 
       if (result?.error) {
-        // Check if the error is about email not verified
-        if (result.error.includes("verify your email")) {
-          setError("Tu email aún no ha sido verificado. Revisa tu bandeja de entrada.")
-          setShowResend(true)
-        } else {
-          setError("Email o contraseña inválidos")
-        }
+        // NextAuth returns generic "CredentialsSignin" for all authorize failures.
+        // Check if the real reason is unverified email.
+        try {
+          const statusRes = await fetch("/api/auth/check-email-status", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email }),
+          })
+          const statusData = await statusRes.json()
+          if (statusData.status === "unverified") {
+            setError("Tu email aún no ha sido verificado. Revisa tu bandeja de entrada.")
+            setShowResend(true)
+            setLoading(false)
+            return
+          }
+        } catch {}
+        setError("Email o contraseña inválidos")
         setLoading(false)
       } else if (result?.ok) {
         window.location.href = "/dashboard"
