@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import { Controller, UseFormReturn, FieldArrayWithId } from "react-hook-form"
+import { UseFormReturn, FieldArrayWithId } from "react-hook-form"
 import {
   ChevronUpIcon,
   ChevronDownIcon,
@@ -15,6 +15,14 @@ import ExerciseHistory from "@/components/workouts/ExerciseHistory"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
+// IMPORTANTE: Importamos los componentes del Form de shadcn
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
 
 interface SetDetail {
   setNumber: number
@@ -23,6 +31,7 @@ interface SetDetail {
   completed: boolean
 }
 
+// Aseguramos que el tipo coincida con tu Zod Schema
 interface WorkoutFormData {
   name: string
   date: string
@@ -187,7 +196,7 @@ export default function CollapsibleExerciseCard({
         </div>
       </div>
 
-      {/* Body - animated expandable using grid-rows trick (no overflow-hidden, so dropdowns render correctly) */}
+      {/* Body */}
       <div
         ref={bodyRef}
         className={`grid transition-all duration-300 ease-in-out ${
@@ -196,22 +205,29 @@ export default function CollapsibleExerciseCard({
       >
         <div className="overflow-hidden">
         <div className="p-4 space-y-3 bg-white dark:bg-gray-800">
+          
           <div>
-            <Label className="text-xs text-gray-600 dark:text-gray-400">Tipo de Ejercicio *</Label>
-            <Controller
-              name={`exercises.${index}.exerciseTypeId`}
+            {/* CORRECCIÓN PRINCIPAL: Usamos FormField aquí */}
+            <FormField
               control={form.control}
-              render={({ field: controllerField }) => (
-                <SmartCombobox
-                  catalogType="exercise_category"
-                  value={controllerField.value}
-                  onChange={controllerField.onChange}
-                  placeholder="Seleccionar ejercicio (Press de banca, Sentadilla, etc.)"
-                  required
-                  error={form.formState.errors.exercises?.[index]?.exerciseTypeId?.message}
-                />
+              name={`exercises.${index}.exerciseTypeId`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs text-gray-600 dark:text-gray-400">Tipo de Ejercicio *</FormLabel>
+                  <FormControl>
+                    <SmartCombobox
+                      catalogType="exercise_category"
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder="Seleccionar ejercicio (Press de banca, Sentadilla, etc.)"
+                      required
+                    />
+                  </FormControl>
+                  <FormMessage /> {/* Esto muestra el error automáticamente */}
+                </FormItem>
               )}
             />
+
             <ExerciseHistory
               exerciseTypeId={exerciseTypeId || null}
               currentSets={sets || 0}
@@ -228,34 +244,43 @@ export default function CollapsibleExerciseCard({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label className="text-xs text-gray-600 dark:text-gray-400">Grupo Muscular (Opcional)</Label>
-              <Controller
-                name={`exercises.${index}.muscleGroupId`}
+              {/* Opcional: También aplicamos FormField para consistencia */}
+              <FormField
                 control={form.control}
-                render={({ field: controllerField }) => (
-                  <SmartCombobox
-                    catalogType="muscle_group"
-                    value={controllerField.value || ""}
-                    onChange={(value) => controllerField.onChange(value || null)}
-                    placeholder="Seleccionar grupo muscular"
-                    error={form.formState.errors.exercises?.[index]?.muscleGroupId?.message}
-                  />
+                name={`exercises.${index}.muscleGroupId`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs text-gray-600 dark:text-gray-400">Grupo Muscular (Opcional)</FormLabel>
+                    <FormControl>
+                      <SmartCombobox
+                        catalogType="muscle_group"
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                        placeholder="Seleccionar grupo"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
             </div>
             <div>
-              <Label className="text-xs text-gray-600 dark:text-gray-400">Equipo (Opcional)</Label>
-              <Controller
-                name={`exercises.${index}.equipmentId`}
+              <FormField
                 control={form.control}
-                render={({ field: controllerField }) => (
-                  <SmartCombobox
-                    catalogType="equipment_type"
-                    value={controllerField.value || ""}
-                    onChange={(value) => controllerField.onChange(value || null)}
-                    placeholder="Seleccionar equipo"
-                    error={form.formState.errors.exercises?.[index]?.equipmentId?.message}
-                  />
+                name={`exercises.${index}.equipmentId`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs text-gray-600 dark:text-gray-400">Equipo (Opcional)</FormLabel>
+                    <FormControl>
+                      <SmartCombobox
+                        catalogType="equipment_type"
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                        placeholder="Seleccionar equipo"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
             </div>
