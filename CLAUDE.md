@@ -1,365 +1,181 @@
-# Personal Dashboard - CLAUDE.md
+# Personal Dashboard — CLAUDE.md
 
-This file provides guidance to Claude Code when working with the Personal Dashboard project.
+## Project Overview
 
-## 📋 Project Overview
+Multi-user personal management system: gym training, finances, nutrition, and family CRM with AI integration.
 
-**Personal Dashboard** - Multi-user management system for tracking gym training, finances & investments, nutrition, and family CRM with AI integration.
+**Stack:**
+- **Frontend:** Next.js 16.0.8 (App Router) + React 19.2.1 + TypeScript 5
+- **UI:** TailwindCSS 3.4 + shadcn/ui (Radix UI) instalado + @heroicons/react (`@headlessui/react` puede removerse una vez todos sus usos sean migrados)
+- **Backend:** Prisma 5.22.0 + PostgreSQL 15 + NextAuth.js 5.x
+- **AI:** n8n + Flowise + Qdrant + Redis
+- **Deployment:** Docker Compose con profiles (dev: DB+Redis, prod: stack completo en port 3003)
 
-**Technology Stack:**
-- **Frontend:** Next.js 15.0.3 (App Router) + React 18.3.1 + TypeScript 5.3.3
-- **UI:** TailwindCSS 3.4.1 + shadcn/ui (Radix UI 1.0.0)
-- **Backend:** Supabase JS 2.39.0 (Auth, PostgreSQL 15.1, Realtime, Storage)
-- **AI Services:** n8n 1.19.4 + Flowise 1.4.12 + Qdrant 1.7.4 + Redis 7.2.3
-- **Deployment:** Docker Compose (port 3003)
-
-**Current Status:**
-- **Phase 0:** ✅ COMPLETED (Security Hardening & Infrastructure)
-- **Phase 1:** 📋 PENDING (Foundation - Next.js setup, auth, database schema)
-
-See `fases/fase0-completado.md` for completed work.
+**Estado actual:** App construida y funcional. Módulos activos: Gym, Finance, Nutrition, Family CRM.
 
 ---
 
-## 🎯 Skills System
+## Skills (cargar bajo demanda)
 
-**This project uses a modular skills system** to reduce context and load knowledge on-demand.
+| Skill | Trigger keywords |
+|-------|-----------------|
+| `frontend` | `'use client'`, `page.tsx`, `layout.tsx`, `Server Component`, `Client Component`, `shadcn`, `form`, `Tailwind`, `component`, `middleware`, `useForm` |
+| `backend` | `prisma`, `migration`, `Server Action`, `API route`, `NextAuth`, `requireAuth`, `DATABASE_URL`, `schema.prisma`, `userId`, `audit log`, `n8n`, `Flowise`, `Qdrant`, `Redis`, `backup` |
+| `git-workflow` | `commit`, `branch`, `PR`, `push`, `merge`, `git`, `github`, `tag`, `release` |
 
-**Skills Location:** `.claude/skills/` (local to this project)
+---
 
-**Total Skills:** 13 (3,781 lines of documentation)
-**Context Saved:** ~32,000 tokens loaded only when needed
+## Service Ports
 
-### Quick Skill Reference
+| Servicio | Puerto | URL | Entorno |
+|---------|--------|-----|---------|
+| Dashboard (Docker) | 3003 → 3000 | http://localhost:3003 | prod (`make prod`) |
+| Dashboard (dev) | 3000 | http://localhost:3000 | dev (`npm run dev`) |
+| PostgreSQL | 5434 → 5432 | localhost:5434 | ambos |
+| Redis | 6379 | localhost:6379 | ambos |
+| n8n | 5678 | http://localhost:5678 | externo |
+| Flowise | 3001 | http://localhost:3001 | externo |
+| Qdrant | 6333 | http://localhost:6333 | externo |
 
-| When you need to... | Invoke Skill | Trigger Keywords |
-|---------------------|--------------|------------------|
-| Work with Next.js | `nextjs-app-router-patterns` | Server Component, Client Component, route handler, middleware |
-| Build UI components | `react-ui-component-library` | shadcn, form, Tailwind, dark mode, accessibility |
-| Implement auth | `supabase-integration-patterns` | auth, SSR, RLS policy, real-time |
-| Optimize queries | `postgresql-advanced-patterns` | optimization, index, CTE, full-text search |
-| Database operations | `database-management` | backup, restore, migration, health check |
-| Phase workflows | `dashboard-dev-workflow` | Phase 1, Phase 2, testing, deployment |
-| Schema reference | `dashboard-schema-reference` | workouts, transactions, meals, family_members |
-| Git operations | `git-workflow-manager` | commit, branch, PR, rollback |
-| AI integration | `ai-services-integration` | n8n, Flowise, Qdrant, Redis, vector search |
-| Troubleshooting | `troubleshooting-guide` | error, failure, issue, not working |
+---
 
-**Auto-Invocation:** Skills load automatically when keywords are detected.
+## File Structure
 
-**Manual Invocation:** Mention skill name explicitly:
 ```
-"Use nextjs-app-router-patterns skill to help me create this component"
-"Invoke database-management skill for backup procedures"
+personal-dashboard/
+├── CLAUDE.md
+├── code/                        # Next.js app
+│   ├── app/                     # App Router (pages, layouts, API routes)
+│   │   ├── (auth)/              # /login, /register
+│   │   └── dashboard/           # /dashboard + módulos
+│   ├── components/
+│   │   ├── ui/                  # shadcn/ui components (editables)
+│   │   ├── layout/              # DashboardShell, Sidebar, MobileBottomNav
+│   │   ├── gym/ finance/ nutrition/ family/
+│   ├── lib/
+│   │   ├── db/prisma.ts         # Prisma singleton (siempre importar de aquí)
+│   │   ├── auth/                # requireAuth(), verifyOwnership()
+│   │   ├── audit/logger.ts      # logAudit()
+│   │   └── validations/         # Zod schemas
+│   └── prisma/
+│       ├── schema.prisma        # 31 tablas
+│       ├── migrations/          # 13 migrations aplicadas
+│       └── seeds/               # Catalog items
+├── docs/                        # Reportes y documentación
+└── backups/                     # DB backups
 ```
 
 ---
 
-## 🚀 Development Workflow
+## Common Commands
 
-### Starting a New Phase
-
-**ALWAYS follow this workflow:**
-
-1. **Read the phase guide** in `fases/faseN-*.md`
-2. **Validate pre-requisites** using provided commands
-3. **Create backup** before changes (if Phase 0+)
-4. **Follow checklist** step-by-step
-5. **Run validation** after each major task
-6. **Commit using git-workflow-manager skill**
-
-### Common Development Commands
-
-**Navigate to project:**
 ```bash
-cd /home/badfaceserverlap/docker/contenedores/projects/personal-dashboard-project
+# Docker (desde la raíz del proyecto)
+make down                             # Detener todos los contenedores
+make pull                             # git pull + npm install
+make up                               # DB → migraciones → rebuild → arrancar todo
+make dev                              # Solo DB + Redis (desarrollo)
+make prod                             # Todo el stack sin rebuild
+make prod-build                       # Todo el stack con rebuild
+make status                           # Ver estado de contenedores
+make logs                             # Logs de todos los servicios
+make logs-app                         # Logs solo de la app
+make db-shell                         # Shell de PostgreSQL
+make backup                           # Backup de la DB
+
+# Desarrollo (desde code/)
+cd /home/badfaceserverlap/personal-dashboard/code
+npm run dev                           # Dev server :3000
+npm run build                         # Build producción
+npm run lint                          # Lint
+npx tsc --noEmit                      # TypeScript check
+
+# Prisma (desde code/)
+npx prisma migrate dev --name nombre  # Nueva migration (dev)
+npx prisma migrate deploy             # Aplicar migrations (prod)
+npx prisma migrate status             # Ver estado
+npx prisma generate                   # Regenerar Prisma Client
+npm run prisma:seed                   # Seeds
 ```
 
-**Next.js development (Phase 1+):**
+---
+
+## Critical Rules
+
+### Next.js
+- ❌ NUNCA `'use client'` sin necesidad real (event handlers, hooks, browser APIs)
+- ❌ NUNCA importar Server Components en Client Components — pasar como `children`
+- ❌ NUNCA exponer secrets en Client Components
+- ✅ SIEMPRE Suspense boundaries en async Server Components
+
+### Prisma & DB
+- ❌ NUNCA `prisma db push` en producción — usar `migrate deploy`
+- ❌ NUNCA múltiples instancias de PrismaClient — usar `lib/db/prisma.ts`
+- ❌ NUNCA queries sin `userId` del session — aislamiento de usuarios obligatorio
+- ❌ NUNCA operaciones multi-step sin `prisma.$transaction()`
+- ✅ SIEMPRE `npx prisma generate` después de cambios de schema
+- ✅ SIEMPRE backup antes de migrations en producción
+
+### Git
+- ❌ NUNCA commit directo a `main` o `develop`
+- ❌ NUNCA `git add .` — stage archivos específicos
+- ✅ SIEMPRE feature branches
+- ✅ SIEMPRE build + lint + tsc antes de commit
+- ✅ SIEMPRE usar `gh` CLI para PRs e issues
+
+---
+
+## Git Workflow (resumen)
+
 ```bash
-cd code
-npm install          # Install dependencies
-npm run dev          # Development mode (port 3000)
-npm run build        # Build for production
-npm start            # Production server
-npx tsc --noEmit     # Type checking
-npm run lint         # Lint code
+# 1. Crear branch desde develop
+git checkout develop && git pull origin develop
+git checkout -b "feature/nombre"
+
+# 2. Pre-commit checks
+npm run build && npm run lint && npx tsc --noEmit
+
+# 3. Stage específico + commit
+git add code/path/to/file.tsx
+git commit -m "feat: descripción
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
+
+# 4. PR
+git push -u origin "feature/nombre"
+gh pr create --base develop --title "feat: Descripción" --body "..."
 ```
 
-**Infrastructure health check (ALWAYS before commits):**
+**Branch naming:** `feature/`, `fix/`, `refactor/`, `docs/`, `chore/`, `hotfix/`
+
+**Al resolver un problema (OBLIGATORIO):**
+1. Crear reporte en `docs/YYYY-MM-DD-descripcion.md`
+2. Hacer commit al repositorio
+
+---
+
+## Environment Variables
+
 ```bash
-cd /home/badfaceserverlap/docker/contenedores
-bash shared/scripts/health-check.sh
-```
+# code/.env.local (desarrollo)
+DATABASE_URL="postgresql://dashboard_user:PASSWORD@localhost:5434/dashboard"
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="..."
+RESEND_API_KEY="..."
+REDIS_URL="redis://:PASSWORD@localhost:6379"
+N8N_BASE_URL="http://localhost:5678"
+FLOWISE_BASE_URL="http://localhost:3001"
+QDRANT_URL="http://localhost:6333"
+QDRANT_API_KEY="..."
 
-**Database operations:**
-```bash
-# Connect to PostgreSQL
-docker exec -it supabase-db psql -U postgres
-
-# Run migration
-docker exec -i supabase-db psql -U postgres < supabase/migrations/XXX_migration.sql
-
-# Check tables and RLS
-docker exec -i supabase-db psql -U postgres -c "\dt public.*"
-docker exec -i supabase-db psql -U postgres -c "SELECT tablename, rowsecurity FROM pg_tables WHERE schemaname = 'public';"
-```
-
----
-
-## 🔧 Service Configuration
-
-### Port Mapping
-
-| Service | Port | Access URL |
-|---------|------|------------|
-| **Dashboard** | 3003 → 3000 | http://localhost:3003 (Docker) or :3000 (dev) |
-| **Supabase Kong** | 8000 | http://localhost:8000 (Auth, DB, Realtime, Storage) |
-| **n8n** | 5678 | http://localhost:5678 (Automation) |
-| **Flowise** | 3001 | http://localhost:3001 (AI Chatflows) |
-| **Qdrant** | 6333 | http://localhost:6333 (Vector DB API) |
-| **Redis** | 6379 | localhost:6379 (Cache) |
-| **PostgreSQL** | 5432 | localhost:5432 (Direct DB) |
-
-### Test Credentials
-
-**Created in Phase 0:**
-- **Email:** malacaram807@gmail.com
-- **Password:** My_badface27
-
-### Environment Variables
-
-**Dashboard-specific:** `code/.env.local`
-```bash
-NEXT_PUBLIC_SUPABASE_URL=http://localhost:8000
-NEXT_PUBLIC_SUPABASE_ANON_KEY=[from AI Platform .env]
-SUPABASE_SERVICE_ROLE_KEY=[from AI Platform .env]
-```
-
-**Master config:** `../ai-platform/.env` (all service credentials)
-
----
-
-## 📊 Database Schema
-
-**16 Tables across 4 modules + shared:**
-
-### 1. Gym Training Module
-- `workouts` - Workout sessions
-- `exercises` - Individual exercises
-- `workout_progress` - Progress tracking
-
-### 2. Finance Module
-- `transactions` - Income/expense tracking
-- `investments` - Portfolio management
-- `budgets` - Monthly limits
-- `transaction_audit` - Audit trail
-
-### 3. Nutrition Module
-- `meals` - Meal entries (breakfast/lunch/dinner/snack)
-- `food_items` - Individual foods
-- `nutrition_goals` - Daily targets
-
-### 4. Family CRM Module
-- `family_members` - Member profiles
-- `time_logs` - Time tracking
-- `events` - Important dates
-- `reminders` - Task reminders
-
-### 5. Shared Tables
-- `profiles` - Extended user profiles
-- `notifications` - In-app notifications
-
-**All tables have RLS (Row Level Security) enabled** - users only access their own data.
-
-**For detailed schema:** Invoke `dashboard-schema-reference` skill
-
----
-
-## 🔒 Security & Best Practices
-
-### Critical Rules (NEVER break these)
-
-**Next.js:**
-- ❌ Never use `'use client'` unless absolutely necessary (interactivity)
-- ❌ Never import Server Components in Client Components
-- ❌ Never expose secrets in Client Components (use Server Components/API Routes)
-- ✅ Always use Suspense boundaries for async Server Components
-
-**Supabase:**
-- ❌ Never use `createClient` without SSR helpers (`lib/supabase/server.ts` or `client.ts`)
-- ❌ Never expose `service_role_key` in client code
-- ❌ Never create tables without RLS enabled
-- ✅ Always verify `auth.uid()` is NOT NULL in RLS policies
-
-**PostgreSQL:**
-- ❌ Never create tables without primary key
-- ❌ Never forget indexes on foreign keys
-- ❌ Never use `SELECT *` in production
-- ✅ Always use transactions for multi-step operations
-
-**Git:**
-- ❌ Never use `git add .` (stage specific files only)
-- ❌ Never commit without running health-check.sh
-- ❌ Never push directly to main branch
-- ✅ Always work from submodule directory: `/home/badfaceserverlap/docker/contenedores`
-
-**For comprehensive rules:** Invoke respective skill (e.g., `nextjs-app-router-patterns`)
-
----
-
-## 🧪 Testing & Validation
-
-**Before EVERY commit:**
-
-1. **Health check (MANDATORY):**
-   ```bash
-   cd /home/badfaceserverlap/docker/contenedores
-   bash shared/scripts/health-check.sh
-   ```
-
-2. **Build check:**
-   ```bash
-   cd code
-   npm run build  # Must complete without errors
-   ```
-
-3. **Authentication test:**
-   ```bash
-   curl -X POST http://localhost:8000/auth/v1/token?grant_type=password \
-     -H "Content-Type: application/json" \
-     -H "apikey: ${ANON_KEY}" \
-     -d '{"email":"malacaram807@gmail.com","password":"My_badface27"}'
-   ```
-
-4. **Database connectivity:**
-   ```bash
-   docker exec -i supabase-db psql -U postgres -c "SELECT COUNT(*) FROM auth.users;"
-   ```
-
----
-
-## 📁 Project Structure
-
-```
-personal-dashboard-project/
-├── .claude/
-│   └── skills/              # 13 skills (3,781 lines)
-│       ├── nextjs-app-router-patterns/
-│       ├── react-ui-component-library/
-│       ├── supabase-integration-patterns/
-│       ├── postgresql-advanced-patterns/
-│       ├── database-management/
-│       ├── git-workflow-manager/
-│       ├── docker-operations/
-│       ├── dashboard-dev-workflow/
-│       ├── dashboard-schema-reference/
-│       ├── ai-services-integration/
-│       ├── troubleshooting-guide/
-│       ├── service-port-reference/
-│       └── monitoring-operations/
-├── CLAUDE.md                # This file
-├── README.md                # Project status
-├── fases/                   # Phase guides (0-5)
-│   ├── fase0-completado.md  # ✅ Security (DONE)
-│   ├── fase1-foundation.md  # 📋 Next.js + Auth (PENDING)
-│   └── ...
-├── code/                    # Next.js app (Phase 1+)
-│   ├── app/                 # App Router
-│   ├── lib/                 # Utils & Supabase clients
-│   ├── components/          # React components
-│   └── supabase/migrations/ # DB migrations
-├── docs/                    # Documentation
-└── backups/                 # Dashboard backups
+# code/.env.production
+DATABASE_URL="postgresql://dashboard_user:PASSWORD@dashboard-postgres:5432/dashboard"
+NEXTAUTH_URL="https://dashboard.malacaran8n.uk"
 ```
 
 ---
 
-## 🔥 Quick Troubleshooting
-
-**Port conflicts:**
-```bash
-netstat -tuln | grep 3003
-lsof -ti:3003 | xargs kill -9
-```
-
-**Database connection issues:**
-```bash
-docker ps | grep supabase-db
-docker logs supabase-db --tail 50
-docker-compose restart supabase-db kong
-```
-
-**Next.js module errors:**
-```bash
-rm -rf .next
-rm -rf node_modules package-lock.json
-npm install
-```
-
-**For comprehensive troubleshooting:** Invoke `troubleshooting-guide` skill
-
----
-
-## 🎯 Success Criteria
-
-**Dashboard is considered "working" when:**
-
-- ✅ Next.js runs without errors (port 3000 dev, 3003 Docker)
-- ✅ User can login with test credentials
-- ✅ All 4 modules (Gym, Finance, Nutrition, Family) functional
-- ✅ CRUD operations work for all entities
-- ✅ RLS policies prevent unauthorized access
-- ✅ AI features provide suggestions
-- ✅ Prometheus metrics exposed
-- ✅ All health checks pass
-
----
-
-## 📚 Important References
-
-**Planning & Documentation:**
-- Phase plan: `.claude/plans/quizzical-knitting-knuth.md` (if exists)
-- Implementation guide: `../../docs/guia-implementacion-dashboard.md`
-- Phase 0 report: `../../docs/phase0-security-hardening-report.md`
-- Skills catalog: `../../docs/skills-catalog.md`
-
-**Infrastructure:**
-- Main repo: `/home/badfaceserverlap/docker/contenedores/`
-- AI Platform: `../ai-platform/`
-- Monitoring: `../../shared/monitoring/`
-- Scripts: `../../shared/scripts/`
-
-**Git Workflow:**
-- Parent CLAUDE.md: `../../CLAUDE.md` (infrastructure git workflow)
-- Use `git-workflow-manager` skill for all git operations
-
----
-
-## 🚨 Critical Reminders
-
-1. **ALWAYS validate pre-requisites** before starting a phase
-2. **NEVER skip health checks** before committing
-3. **ALWAYS use specific file staging** (never `git add .`)
-4. **READ the phase guide completely** before starting work
-5. **TEST authentication flows** after any auth changes
-6. **BACKUP before major changes** (Phase 0+)
-7. **INVOKE APPROPRIATE SKILL** for detailed guidance
-
----
-
-**🎨 Skills-Driven Development:**
-
-This project uses **on-demand skills loading** to:
-- Reduce initial context by 78% (41K → 8.8K tokens)
-- Provide 69.5K tokens of documentation when needed
-- Maintain focus on current work
-- Scale without context bloat
-
-**For ANY task, check the skill reference table above and invoke the appropriate skill.**
-
----
-
-**Last Updated:** 2025-12-09
-**Skills Version:** 1.0.0
-**Context Optimization:** Active (-78% initial context)
+**Last Updated:** 2026-02-19
+**Skills:** 3 consolidadas (frontend, backend, git-workflow)
+**DB:** 31 tablas, 13 migrations, Prisma 5.22.0 + PostgreSQL 15
+**shadcn/ui:** instalado — Button, Input, Label, Select, Dialog, Card, Badge, Tabs, Sheet en `components/ui/`

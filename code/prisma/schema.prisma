@@ -1,0 +1,858 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// AUTHENTICATION TABLES (NextAuth.js)
+// ============================================
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  password      String
+  image         String?
+  role          Role      @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  accounts      Account[]
+  sessions      Session[]
+  profile       Profile?
+  workouts      Workout[]
+  transactions  Transaction[]
+  investments   Investment[]
+  budgets       Budget[]
+  meals         Meal[]
+  nutritionGoals NutritionGoal[]
+  familyMembers FamilyMember[]
+  timeLogs      TimeLog[]
+  events        Event[]
+  reminders     Reminder[]
+  notifications Notification[]
+  auditLogs     AuditLog[]
+  catalogItems  CatalogItem[]
+  workoutTemplates WorkoutTemplate[]
+  mealTemplates    MealTemplate[]
+  aiCredentials AICredential[]
+  financialAccounts FinancialAccount[]
+  creditCards       CreditCard[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+// ============================================
+// PROFILE MODULE
+// ============================================
+
+model Profile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  bio       String?
+  birthday  DateTime?
+  phone     String?
+  country   String?
+  city      String?
+  timezone  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+// ============================================
+// GYM TRAINING MODULE
+// ============================================
+
+model Workout {
+  id             String      @id @default(cuid())
+  userId         String
+  name           String
+  type           WorkoutType @default(GYM)
+  date           DateTime    @default(now())
+  duration       Int?        // minutes
+  caloriesBurned Float?      // kcal
+  notes          String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercises      Exercise[]
+  cardioSession  CardioSession?
+
+  @@index([userId, type, date])
+  @@map("workouts")
+}
+
+model CardioSession {
+  id            String      @id @default(cuid())
+  workoutId     String      @unique
+  distance      Float?      // meters for swimming, km for running/cycling
+  distanceUnit  String      @default("km") // "m" | "km"
+  pace          Float?      // min/km (running)
+  avgSpeed      Float?      // km/h (cycling)
+  maxSpeed      Float?      // km/h (cycling)
+  elevationGain Float?      // meters (running/cycling)
+  avgHeartRate  Int?        // bpm
+  laps          Int?        // swimming
+  poolSize      Int?        // 25 or 50 meters (swimming)
+  strokeType    StrokeType? // swimming
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  workout Workout @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+
+  @@index([workoutId])
+  @@map("cardio_sessions")
+}
+
+model Exercise {
+  id          String   @id @default(cuid())
+  workoutId   String
+
+  // Legacy field (nullable during transition)
+  name        String?
+
+  // NEW: CatalogItem references
+  exerciseTypeId  String?  @map("exercise_type_id")
+  muscleGroupId   String?  @map("muscle_group_id")
+  equipmentId     String?  @map("equipment_id")
+
+  sets        Int
+  reps        Int
+  weight      Float?   // kg
+  weightUnit  String   @default("kg") @map("weight_unit") // "kg" | "lbs"
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workout        Workout          @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  exerciseType   CatalogItem?     @relation("ExerciseType", fields: [exerciseTypeId], references: [id], onDelete: Restrict)
+  muscleGroup    CatalogItem?     @relation("MuscleGroup", fields: [muscleGroupId], references: [id], onDelete: Restrict)
+  equipment      CatalogItem?     @relation("Equipment", fields: [equipmentId], references: [id], onDelete: Restrict)
+  progress       WorkoutProgress[]
+  exerciseSets   ExerciseSet[]
+
+  @@index([workoutId])
+  @@index([exerciseTypeId])
+  @@index([muscleGroupId])
+  @@index([equipmentId])
+  @@map("exercises")
+}
+
+model ExerciseSet {
+  id         String   @id @default(cuid())
+  exerciseId String
+  setNumber  Int      // 1, 2, 3...
+  reps       Int
+  weight     Float?
+  completed  Boolean  @default(true)
+  notes      String?
+
+  exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@index([exerciseId])
+  @@map("exercise_sets")
+}
+
+model WorkoutProgress {
+  id         String   @id @default(cuid())
+  exerciseId String
+  date       DateTime @default(now())
+  sets       Int
+  reps       Int
+  weight     Float    // kg
+  volume     Float    // sets * reps * weight
+  createdAt  DateTime @default(now())
+
+  exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@index([exerciseId, date])
+  @@map("workout_progress")
+}
+
+// ============================================
+// WORKOUT TEMPLATES
+// ============================================
+
+model WorkoutTemplate {
+  id          String   @id @default(cuid())
+  userId      String?  // NULL = public template
+  name        String
+  description String?
+  isPublic    Boolean  @default(false) // Public templates visible to all users
+  difficulty  TemplateDifficulty? // BEGINNER | INTERMEDIATE | ADVANCED
+  tags        String[] @default([]) // e.g., ["strength", "upper-body", "push"]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user      User?                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercises WorkoutTemplateExercise[]
+
+  @@index([userId])
+  @@index([isPublic])
+  @@map("workout_templates")
+}
+
+model WorkoutTemplateExercise {
+  id         String  @id @default(cuid())
+  templateId String
+
+  exerciseTypeId String?
+  muscleGroupId  String?
+  equipmentId    String?
+
+  sets       Int
+  reps       Int
+  weight     Float?
+  notes      String?
+  sortOrder  Int     @default(0) // Order in template
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  template     WorkoutTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  exerciseType CatalogItem?    @relation("TemplateExerciseType", fields: [exerciseTypeId], references: [id], onDelete: Restrict)
+  muscleGroup  CatalogItem?    @relation("TemplateMuscleGroup", fields: [muscleGroupId], references: [id], onDelete: Restrict)
+  equipment    CatalogItem?    @relation("TemplateEquipment", fields: [equipmentId], references: [id], onDelete: Restrict)
+
+  @@index([templateId])
+  @@index([exerciseTypeId])
+  @@map("workout_template_exercises")
+}
+
+enum TemplateDifficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+// ============================================
+// MULTI-MODE TRAINING ENUMS
+// ============================================
+
+enum WorkoutType {
+  GYM
+  SWIMMING
+  RUNNING
+  CYCLING
+}
+
+enum StrokeType {
+  FREESTYLE
+  BACKSTROKE
+  BREASTSTROKE
+  BUTTERFLY
+  MIXED
+}
+
+// ============================================
+// FINANCE MODULE
+// ============================================
+
+enum AccountType {
+  DEBIT_CARD
+  CASH
+  SAVINGS
+}
+
+model FinancialAccount {
+  id          String      @id @default(cuid())
+  userId      String
+  accountType AccountType
+  name        String
+  balance     Float       @default(0)
+  currency    String      @default("MXN")
+  icon        String?
+  color       String?
+  sortOrder   Int         @default(0)
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[] @relation("TransactionFromAccount")
+
+  @@index([userId, isActive])
+  @@map("financial_accounts")
+}
+
+model CreditCard {
+  id                 String  @id @default(cuid())
+  userId             String
+  name               String
+  creditLimit        Float
+  currentBalance     Float   @default(0)
+  annualInterestRate Float
+  cutoffDay          Int     // 1-31
+  paymentDay         Int     // 1-31
+  icon               String?
+  color              String?
+  sortOrder          Int     @default(0)
+  isActive           Boolean @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[] @relation("TransactionCreditCard")
+
+  @@index([userId, isActive])
+  @@index([userId, cutoffDay])
+  @@map("credit_cards")
+}
+
+model Transaction {
+  id          String        @id @default(cuid())
+  userId      String
+
+  // Legacy fields (will be removed in cleanup migration)
+  type        String?       // 'income' | 'expense'
+  category    String?
+
+  // New CatalogItem references
+  typeId      String?       // Reference to CatalogItem (transaction type)
+  categoryId  String?       // Reference to CatalogItem (transaction category)
+
+  amount      Float
+  currency    String        @default("MXN") // "MXN" | "USD"
+  description String?
+  date        DateTime      @default(now())
+
+  // Financial account / credit card references
+  fromAccountId String?
+  creditCardId  String?
+  toAccountId   String?     // For transfers - logical reference only
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  typeItem        CatalogItem?       @relation("TransactionType", fields: [typeId], references: [id], onDelete: Restrict)
+  categoryItem    CatalogItem?       @relation("TransactionCategory", fields: [categoryId], references: [id], onDelete: Restrict)
+  fromAccount     FinancialAccount?  @relation("TransactionFromAccount", fields: [fromAccountId], references: [id], onDelete: SetNull)
+  creditCard      CreditCard?        @relation("TransactionCreditCard", fields: [creditCardId], references: [id], onDelete: SetNull)
+  audits          TransactionAudit[]
+
+  @@index([userId, date])
+  @@index([userId, category])
+  @@index([userId, categoryId])
+  @@index([typeId])
+  @@index([fromAccountId])
+  @@index([creditCardId])
+  @@map("transactions")
+}
+
+model TransactionAudit {
+  id            String   @id @default(cuid())
+  transactionId String
+  action        AuditAction
+  oldValue      Json?
+  newValue      Json?
+  changedAt     DateTime @default(now())
+
+  transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+
+  @@index([transactionId])
+  @@map("transaction_audit")
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+model Investment {
+  id           String   @id @default(cuid())
+  userId       String
+  name         String
+
+  // Legacy field (will be removed in cleanup migration)
+  type         String?  // 'stock' | 'crypto' | 'bond' | 'real_estate'
+
+  // New CatalogItem reference
+  typeId       String?  // Reference to CatalogItem (investment type)
+
+  amount       Float
+  currentValue Float?
+  purchaseDate DateTime
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user     User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  typeItem CatalogItem? @relation(fields: [typeId], references: [id], onDelete: Restrict)
+
+  @@index([userId])
+  @@index([typeId])
+  @@map("investments")
+}
+
+model Budget {
+  id        String   @id @default(cuid())
+  userId    String
+
+  // Legacy field (will be removed in cleanup migration)
+  category  String?
+
+  // New CatalogItem reference
+  categoryId String? // Reference to CatalogItem (budget category)
+
+  limit     Float
+  month     DateTime // YYYY-MM-01
+  spent     Float    @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryItem CatalogItem? @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  @@unique([userId, category, month])
+  @@index([userId, month])
+  @@index([categoryId])
+  @@map("budgets")
+}
+
+// ============================================
+// NUTRITION MODULE
+// ============================================
+
+model Meal {
+  id        String    @id @default(cuid())
+  userId    String
+  name      String
+  mealType  MealType
+  date      DateTime  @default(now())
+  notes     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  foodItems FoodItem[]
+
+  @@index([userId, date])
+  @@map("meals")
+}
+
+enum MealType {
+  BREAKFAST
+  LUNCH
+  DINNER
+  SNACK
+}
+
+model FoodItem {
+  id          String   @id @default(cuid())
+  mealId      String
+  name        String
+  quantity    Float
+  unit        String   // g, ml, oz, cup, etc.
+  calories    Float?
+  protein     Float?   // grams
+  carbs       Float?   // grams
+  fats        Float?   // grams
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  meal Meal @relation(fields: [mealId], references: [id], onDelete: Cascade)
+
+  @@index([mealId])
+  @@map("food_items")
+}
+
+model NutritionGoal {
+  id        String   @id @default(cuid())
+  userId    String
+  calories  Float
+  protein   Float    // grams
+  carbs     Float    // grams
+  fats      Float    // grams
+  date      DateTime @unique @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("nutrition_goals")
+}
+
+// ============================================
+// MEAL TEMPLATES
+// ============================================
+
+model MealTemplate {
+  id          String   @id @default(cuid())
+  userId      String?  // NULL = public template
+  name        String
+  description String?
+  mealType    MealType? // BREAKFAST | LUNCH | DINNER | SNACK
+  isPublic    Boolean  @default(false) // Public templates visible to all users
+  tags        String[] @default([]) // e.g., ["high-protein", "low-carb", "vegan"]
+
+  // Auto-calculated totals (sum of all items)
+  totalCalories Float   @default(0)
+  totalProtein  Float   @default(0)
+  totalCarbs    Float   @default(0)
+  totalFats     Float   @default(0)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user      User?              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  foodItems MealTemplateItem[]
+
+  @@index([userId])
+  @@index([isPublic])
+  @@index([mealType])
+  @@map("meal_templates")
+}
+
+model MealTemplateItem {
+  id         String  @id @default(cuid())
+  templateId String
+
+  name       String
+  quantity   Float
+  unit       String   // g, ml, oz, cup, etc.
+  calories   Float?
+  protein    Float?   // grams
+  carbs      Float?   // grams
+  fats       Float?   // grams
+  sortOrder  Int     @default(0) // Order in template
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  template MealTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@index([templateId])
+  @@map("meal_template_items")
+}
+
+// ============================================
+// FAMILY CRM MODULE
+// ============================================
+
+model FamilyMember {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+
+  // Legacy field (will be removed in cleanup migration)
+  relationship String
+
+  // New CatalogItem reference
+  relationshipTypeId String? @map("relationship_type_id")
+
+  birthday    DateTime?
+  email       String?
+  phone       String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  relationshipType CatalogItem? @relation("FamilyRelationshipType", fields: [relationshipTypeId], references: [id], onDelete: Restrict)
+  timeLogs         TimeLog[]
+  events           Event[]
+
+  @@index([userId])
+  @@index([relationshipTypeId])
+  @@map("family_members")
+}
+
+model TimeLog {
+  id             String   @id @default(cuid())
+  userId         String
+  familyMemberId String?
+  activity       String
+
+  // New CatalogItem reference
+  activityTypeId String? @map("activity_type_id")
+
+  duration       Int      // minutes
+  date           DateTime @default(now())
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  familyMember FamilyMember? @relation(fields: [familyMemberId], references: [id], onDelete: SetNull)
+  activityType CatalogItem?  @relation("TimeLogActivityType", fields: [activityTypeId], references: [id], onDelete: Restrict)
+
+  @@index([userId, date])
+  @@index([activityTypeId])
+  @@map("time_logs")
+}
+
+model Event {
+  id             String   @id @default(cuid())
+  userId         String
+  familyMemberId String?
+  title          String
+  description    String?
+
+  // New CatalogItem reference
+  categoryId     String? @map("category_id")
+
+  date           DateTime
+  location       String?
+  isRecurring    Boolean        @default(false)
+  recurrenceType RecurrenceType?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  familyMember FamilyMember? @relation(fields: [familyMemberId], references: [id], onDelete: SetNull)
+  category     CatalogItem?  @relation("EventCategory", fields: [categoryId], references: [id], onDelete: Restrict)
+
+  @@index([userId, date])
+  @@index([categoryId])
+  @@map("events")
+}
+
+enum RecurrenceType {
+  YEARLY
+  MONTHLY
+  WEEKLY
+}
+
+model Reminder {
+  id        String    @id @default(cuid())
+  userId    String
+  title     String
+  description String?
+
+  // New CatalogItem reference
+  categoryId  String? @map("category_id")
+
+  dueDate   DateTime
+  priority  Priority  @default(MEDIUM)
+  completed Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  user     User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category CatalogItem? @relation("ReminderCategory", fields: [categoryId], references: [id], onDelete: Restrict)
+
+  @@index([userId, dueDate])
+  @@index([categoryId])
+  @@map("reminders")
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+// ============================================
+// SHARED TABLES
+// ============================================
+
+model Notification {
+  id        String             @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String
+  read      Boolean            @default(false)
+  createdAt DateTime           @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@map("notifications")
+}
+
+enum NotificationType {
+  INFO
+  WARNING
+  ERROR
+  SUCCESS
+}
+
+// ============================================
+// CATALOG SYSTEM (Nested Categories)
+// ============================================
+
+model CatalogItem {
+  id          String   @id @default(cuid())
+
+  // Identification
+  catalogType String   // 'transaction_category' | 'investment_type' | 'budget_category'
+  name        String   // Display name (e.g., "Food", "Restaurants")
+  slug        String   // URL-friendly identifier (e.g., "food", "restaurants")
+  description String?  // Optional description
+
+  // Hierarchy (Self-relation)
+  parentId    String?  // NULL for root level
+  level       Int      @default(0) // 0, 1, 2, or 3
+
+  // Ownership & Permissions
+  isSystem    Boolean  @default(false) // true = system category, false = user-specific
+  userId      String?  // NULL if isSystem=true, user's UUID if isSystem=false
+
+  // UI/UX Enhancements
+  icon        String?  // Emoji or icon class (e.g., "🍔", "lucide-home")
+  color       String?  // Hex color for UI (e.g., "#FF5733")
+  sortOrder   Int      @default(0) // Display order
+
+  // Metadata & Soft Delete
+  metadata    Json?    // Flexible additional data
+  isActive    Boolean  @default(true) // Soft delete flag
+
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent      CatalogItem? @relation("CatalogItemHierarchy", fields: [parentId], references: [id], onDelete: Restrict)
+  children    CatalogItem[] @relation("CatalogItemHierarchy")
+
+  // Finance Module Relations
+  transactionsAsType     Transaction[] @relation("TransactionType")
+  transactionsAsCategory Transaction[] @relation("TransactionCategory")
+  investments            Investment[]
+  budgets                Budget[]
+
+  // Gym Module Relations
+  exercisesAsType        Exercise[] @relation("ExerciseType")
+  exercisesAsMuscleGroup Exercise[] @relation("MuscleGroup")
+  exercisesAsEquipment   Exercise[] @relation("Equipment")
+
+  // Workout Template Relations
+  templateExercisesAsType        WorkoutTemplateExercise[] @relation("TemplateExerciseType")
+  templateExercisesAsMuscleGroup WorkoutTemplateExercise[] @relation("TemplateMuscleGroup")
+  templateExercisesAsEquipment   WorkoutTemplateExercise[] @relation("TemplateEquipment")
+
+  // Family Module Relations
+  familyMembersAsRelationshipType FamilyMember[] @relation("FamilyRelationshipType")
+  timeLogsAsActivityType          TimeLog[]      @relation("TimeLogActivityType")
+  eventsAsCategory                Event[]        @relation("EventCategory")
+  remindersAsCategory             Reminder[]     @relation("ReminderCategory")
+
+  // Indexes
+  @@unique([catalogType, slug, userId]) // Prevent duplicate slugs per catalog type per user
+  @@index([catalogType, isSystem, userId]) // Fast lookup for RLS
+  @@index([parentId]) // Fast hierarchy traversal
+  @@index([userId]) // User-specific queries
+  @@map("catalog_items")
+}
+
+// ============================================
+// AUDIT & SECURITY
+// ============================================
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?  // Nullable for failed login attempts
+  action    String   // LOGIN, LOGOUT, REGISTER, PASSWORD_CHANGE, LOGIN_FAILED, EMAIL_VERIFIED
+  ipAddress String?
+  userAgent String?  @db.Text
+  metadata  Json?    // Additional contextual information
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
+  @@index([ipAddress, createdAt])
+  @@map("audit_logs")
+}
+
+// ============================================
+// AI CREDENTIALS (Encrypted API Keys)
+// ============================================
+
+model AICredential {
+  id        String   @id @default(cuid())
+  userId    String
+
+  // Credential Info
+  provider  AIProvider // GEMINI, OPENAI, CLAUDE, etc.
+  apiKey    String     @db.Text // Encrypted API key
+  label     String?    // Optional friendly name (e.g., "My Gemini Key")
+
+  // Status & Validation
+  isActive  Boolean    @default(true)
+  isValid   Boolean    @default(false) // Set to true after successful validation
+  lastValidated DateTime?
+
+  // Usage Tracking (optional, for future analytics)
+  usageCount Int      @default(0)
+  lastUsedAt DateTime?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Indexes
+  @@index([userId, provider])
+  @@index([userId, isActive])
+  @@map("ai_credentials")
+}
+
+enum AIProvider {
+  GEMINI
+  OPENAI
+  CLAUDE
+  HUGGINGFACE
+}
