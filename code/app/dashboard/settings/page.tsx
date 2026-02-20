@@ -19,7 +19,7 @@ export default async function SettingsPage() {
   ])
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-6 md:p-8 pb-24 sm:pb-8">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Ajustes</h1>
