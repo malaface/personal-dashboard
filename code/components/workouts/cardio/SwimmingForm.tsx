@@ -134,7 +134,7 @@ export default function SwimmingForm({ workout }: SwimmingFormProps) {
 
         <div>
           <Label>Nombre *</Label>
-          <input
+          <Input
             type="text"
             {...form.register("name")}
             className="mt-1"
@@ -158,7 +158,7 @@ export default function SwimmingForm({ workout }: SwimmingFormProps) {
             <Label>Duracion (min)</Label>
             <Input
               type="number"
-              {...form.register("duration", { valueAsNumber: true })}
+              {...form.register("duration", { setValueAs: (v: string) => v === '' || Number.isNaN(Number(v)) ? undefined : Number(v) })}
               min="1"
               className="mt-1"
               placeholder="45"
@@ -175,7 +175,7 @@ export default function SwimmingForm({ workout }: SwimmingFormProps) {
             <Label>Distancia (m)</Label>
             <Input
               type="number"
-              {...form.register("distance", { valueAsNumber: true })}
+              {...form.register("distance", { setValueAs: (v: string) => v === '' || Number.isNaN(Number(v)) ? undefined : Number(v) })}
               min="0"
               step="25"
               className="mt-1"
@@ -186,7 +186,7 @@ export default function SwimmingForm({ workout }: SwimmingFormProps) {
             <Label>Vueltas</Label>
             <Input
               type="number"
-              {...form.register("laps", { valueAsNumber: true })}
+              {...form.register("laps", { setValueAs: (v: string) => v === '' || Number.isNaN(Number(v)) ? undefined : Number(v) })}
               min="1"
               className="mt-1"
               placeholder="40"
@@ -197,26 +197,34 @@ export default function SwimmingForm({ workout }: SwimmingFormProps) {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <Label>Alberca</Label>
-            <select
-              {...form.register("poolSize")}
-              className="mt-1"
+            <Select
+              value={form.watch("poolSize") || ""}
+              onValueChange={(val) => form.setValue("poolSize", val as "25" | "50", { shouldValidate: true })}
             >
-              <option value="">Seleccionar</option>
-              <option value="25">25 metros</option>
-              <option value="50">50 metros</option>
-            </select>
+              <SelectTrigger className="mt-1">
+                <SelectValue placeholder="Seleccionar" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="25">25 metros</SelectItem>
+                <SelectItem value="50">50 metros</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <Label>Estilo</Label>
-            <select
-              {...form.register("strokeType")}
-              className="mt-1"
+            <Select
+              value={form.watch("strokeType") || ""}
+              onValueChange={(val) => form.setValue("strokeType", val as SwimmingFormData["strokeType"], { shouldValidate: true })}
             >
-              <option value="">Seleccionar</option>
-              {Object.entries(strokeLabels).map(([key, label]) => (
-                <option key={key} value={key}>{label}</option>
-              ))}
-            </select>
+              <SelectTrigger className="mt-1">
+                <SelectValue placeholder="Seleccionar" />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(strokeLabels).map(([key, label]) => (
+                  <SelectItem key={key} value={key}>{label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -225,7 +233,7 @@ export default function SwimmingForm({ workout }: SwimmingFormProps) {
             <Label>FC Promedio (bpm)</Label>
             <Input
               type="number"
-              {...form.register("avgHeartRate", { valueAsNumber: true })}
+              {...form.register("avgHeartRate", { setValueAs: (v: string) => v === '' || Number.isNaN(Number(v)) ? undefined : Number(v) })}
               min="30"
               max="250"
               className="mt-1"
@@ -236,7 +244,7 @@ export default function SwimmingForm({ workout }: SwimmingFormProps) {
             <Label>Calorias (kcal)</Label>
             <Input
               type="number"
-              {...form.register("caloriesBurned", { valueAsNumber: true })}
+              {...form.register("caloriesBurned", { setValueAs: (v: string) => v === '' || Number.isNaN(Number(v)) ? undefined : Number(v) })}
               min="0"
               className="mt-1"
               placeholder="350"

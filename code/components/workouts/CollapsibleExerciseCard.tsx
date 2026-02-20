@@ -15,6 +15,13 @@ import ExerciseHistory from "@/components/workouts/ExerciseHistory"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select"
 // IMPORTANTE: Importamos los componentes del Form de shadcn
 import {
   FormControl,
@@ -286,63 +293,73 @@ export default function CollapsibleExerciseCard({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            <div>
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="w-20">
               <Label className="text-xs text-gray-600 dark:text-gray-400">Series *</Label>
-              <select
-                value={sets || ""}
-                onChange={(e) => form.setValue(`exercises.${index}.sets`, Number(e.target.value))}
-                className="w-full px-2 py-1.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md text-sm"
+              <Select
+                value={String(sets || "")}
+                onValueChange={(v) => form.setValue(`exercises.${index}.sets`, Number(v))}
               >
-                <option value="" disabled>-</option>
-                {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
-                  <option key={n} value={n}>{n}</option>
-                ))}
-              </select>
+                <SelectTrigger className="h-8 text-sm">
+                  <SelectValue placeholder="-" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+                    <SelectItem key={n} value={String(n)}>{n}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               {form.formState.errors.exercises?.[index]?.sets && (
                 <p className="mt-1 text-xs text-red-600">
                   {form.formState.errors.exercises[index]?.sets?.message}
                 </p>
               )}
             </div>
-            <div>
-              <Label className="text-xs text-gray-600 dark:text-gray-400">Repeticiones *</Label>
-              <select
-                value={reps || ""}
-                onChange={(e) => form.setValue(`exercises.${index}.reps`, Number(e.target.value))}
-                className="w-full px-2 py-1.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md text-sm"
+            <div className="w-20">
+              <Label className="text-xs text-gray-600 dark:text-gray-400">Reps *</Label>
+              <Select
+                value={String(reps || "")}
+                onValueChange={(v) => form.setValue(`exercises.${index}.reps`, Number(v))}
               >
-                <option value="" disabled>-</option>
-                {Array.from({ length: 30 }, (_, i) => i + 1).map((n) => (
-                  <option key={n} value={n}>{n}</option>
-                ))}
-              </select>
+                <SelectTrigger className="h-8 text-sm">
+                  <SelectValue placeholder="-" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: 30 }, (_, i) => i + 1).map((n) => (
+                    <SelectItem key={n} value={String(n)}>{n}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               {form.formState.errors.exercises?.[index]?.reps && (
                 <p className="mt-1 text-xs text-red-600">
                   {form.formState.errors.exercises[index]?.reps?.message}
                 </p>
               )}
             </div>
-            <div className="col-span-2 sm:col-span-1">
+            <div className="max-w-[200px]">
               <Label className="text-xs text-gray-600 dark:text-gray-400">Peso</Label>
               <div className="flex gap-1">
                 <Input
                   type="number"
                   {...form.register(`exercises.${index}.weight`, {
-                    valueAsNumber: true,
                     setValueAs: (v) => v === '' ? null : Number(v)
                   })}
                   min="0"
                   step="0.5"
                   className="flex-1 min-w-0 h-8 text-sm"
                 />
-                <select
-                  {...form.register(`exercises.${index}.weightUnit`)}
-                  className="px-1 py-1.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md text-sm w-16"
+                <Select
+                  value={weightUnit}
+                  onValueChange={(v) => form.setValue(`exercises.${index}.weightUnit`, v as "kg" | "lbs")}
                 >
-                  <option value="kg">kg</option>
-                  <option value="lbs">lbs</option>
-                </select>
+                  <SelectTrigger className="h-8 text-sm w-[70px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="kg">kg</SelectItem>
+                    <SelectItem value="lbs">lbs</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               {form.formState.errors.exercises?.[index]?.weight && (
                 <p className="mt-1 text-xs text-red-600">
@@ -370,19 +387,23 @@ export default function CollapsibleExerciseCard({
                   <span className="text-xs font-medium text-gray-500 dark:text-gray-400 w-6 text-center">
                     S{setIdx + 1}
                   </span>
-                  <select
-                    value={detail.reps}
-                    onChange={(e) => {
+                  <Select
+                    value={String(detail.reps)}
+                    onValueChange={(v) => {
                       const updated = [...setDetails]
-                      updated[setIdx] = { ...updated[setIdx], reps: Number(e.target.value) }
+                      updated[setIdx] = { ...updated[setIdx], reps: Number(v) }
                       form.setValue(`exercises.${index}.setDetails`, updated)
                     }}
-                    className="px-1.5 py-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded text-sm"
                   >
-                    {Array.from({ length: 30 }, (_, i) => i + 1).map((n) => (
-                      <option key={n} value={n}>{n}</option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="h-7 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 30 }, (_, i) => i + 1).map((n) => (
+                        <SelectItem key={n} value={String(n)}>{n}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <Input
                     type="number"
                     value={detail.weight ?? ""}

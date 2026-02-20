@@ -139,7 +139,7 @@ export default function RunningForm({ workout }: RunningFormProps) {
             <Label>Duracion (min)</Label>
             <Input
               type="number"
-              {...form.register("duration", { valueAsNumber: true })}
+              {...form.register("duration", { setValueAs: (v: string) => v === '' || Number.isNaN(Number(v)) ? undefined : Number(v) })}
               min="1"
               className="mt-1"
               placeholder="30"
@@ -156,7 +156,7 @@ export default function RunningForm({ workout }: RunningFormProps) {
             <Label>Distancia (km)</Label>
             <Input
               type="number"
-              {...form.register("distance", { valueAsNumber: true })}
+              {...form.register("distance", { setValueAs: (v: string) => v === '' || Number.isNaN(Number(v)) ? undefined : Number(v) })}
               min="0"
               step="0.1"
               className="mt-1"
@@ -167,7 +167,7 @@ export default function RunningForm({ workout }: RunningFormProps) {
             <Label>Pace (min/km)</Label>
             <Input
               type="number"
-              {...form.register("pace", { valueAsNumber: true })}
+              {...form.register("pace", { setValueAs: (v: string) => v === '' || Number.isNaN(Number(v)) ? undefined : Number(v) })}
               min="0"
               step="0.1"
               className="mt-1"
@@ -181,7 +181,7 @@ export default function RunningForm({ workout }: RunningFormProps) {
             <Label>Desnivel (m)</Label>
             <Input
               type="number"
-              {...form.register("elevationGain", { valueAsNumber: true })}
+              {...form.register("elevationGain", { setValueAs: (v: string) => v === '' || Number.isNaN(Number(v)) ? undefined : Number(v) })}
               min="0"
               className="mt-1"
               placeholder="120"
@@ -191,7 +191,7 @@ export default function RunningForm({ workout }: RunningFormProps) {
             <Label>FC Promedio (bpm)</Label>
             <Input
               type="number"
-              {...form.register("avgHeartRate", { valueAsNumber: true })}
+              {...form.register("avgHeartRate", { setValueAs: (v: string) => v === '' || Number.isNaN(Number(v)) ? undefined : Number(v) })}
               min="30"
               max="250"
               className="mt-1"
@@ -204,7 +204,7 @@ export default function RunningForm({ workout }: RunningFormProps) {
           <Label>Calorias (kcal)</Label>
           <Input
             type="number"
-            {...form.register("caloriesBurned", { valueAsNumber: true })}
+            {...form.register("caloriesBurned", { setValueAs: (v: string) => v === '' || Number.isNaN(Number(v)) ? undefined : Number(v) })}
             min="0"
             className="mt-1"
             placeholder="400"

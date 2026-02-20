@@ -306,7 +306,7 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
               <Label>Duracion (minutos)</Label>
               <Input
                 type="number"
-                {...form.register("duration", { valueAsNumber: true })}
+                {...form.register("duration", { setValueAs: (v) => v === '' || Number.isNaN(Number(v)) ? undefined : Number(v) })}
                 min="1"
                 placeholder="60"
                 className="mt-1"

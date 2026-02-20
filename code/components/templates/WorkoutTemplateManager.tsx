@@ -9,6 +9,13 @@ import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select'
 import SmartCombobox from '@/components/catalog/SmartCombobox'
 
 // Zod schemas
@@ -321,15 +328,19 @@ export default function WorkoutTemplateManager() {
               {/* Difficulty */}
               <div>
                 <Label>Dificultad</Label>
-                <select
-                  {...form.register('difficulty')}
-                  className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                <Select
+                  value={form.watch('difficulty') || ''}
+                  onValueChange={(val) => form.setValue('difficulty', val as any, { shouldValidate: true })}
                 >
-                  <option value="">Sin especificar</option>
-                  <option value="BEGINNER">Principiante</option>
-                  <option value="INTERMEDIATE">Intermedio</option>
-                  <option value="ADVANCED">Avanzado</option>
-                </select>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Sin especificar" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="BEGINNER">Principiante</SelectItem>
+                    <SelectItem value="INTERMEDIATE">Intermedio</SelectItem>
+                    <SelectItem value="ADVANCED">Avanzado</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Is Public */}
@@ -475,7 +486,7 @@ export default function WorkoutTemplateManager() {
                             Sets
                           </Label>
                           <Input
-                            {...form.register(`exercises.${index}.sets`, { valueAsNumber: true })}
+                            {...form.register(`exercises.${index}.sets`, { setValueAs: (v: string) => v === '' || Number.isNaN(Number(v)) ? undefined : Number(v) })}
                             type="number"
                             className="mt-1"
                           />
@@ -486,7 +497,7 @@ export default function WorkoutTemplateManager() {
                             Reps
                           </Label>
                           <Input
-                            {...form.register(`exercises.${index}.reps`, { valueAsNumber: true })}
+                            {...form.register(`exercises.${index}.reps`, { setValueAs: (v: string) => v === '' || Number.isNaN(Number(v)) ? undefined : Number(v) })}
                             type="number"
                             className="mt-1"
                           />
@@ -497,7 +508,7 @@ export default function WorkoutTemplateManager() {
                             Peso (kg)
                           </Label>
                           <Input
-                            {...form.register(`exercises.${index}.weight`, { valueAsNumber: true })}
+                            {...form.register(`exercises.${index}.weight`, { setValueAs: (v: string) => v === '' || Number.isNaN(Number(v)) ? undefined : Number(v) })}
                             type="number"
                             step="0.5"
                             className="mt-1"

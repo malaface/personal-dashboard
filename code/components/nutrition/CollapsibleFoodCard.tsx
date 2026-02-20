@@ -175,7 +175,7 @@ export default function CollapsibleFoodCard({
               <Label className="text-xs text-gray-600 dark:text-gray-400">Cantidad *</Label>
               <Input
                 type="number"
-                {...form.register(`foodItems.${index}.quantity`, { valueAsNumber: true })}
+                {...form.register(`foodItems.${index}.quantity`, { setValueAs: (v: string) => v === '' || Number.isNaN(Number(v)) ? undefined : Number(v) })}
                 min="0"
                 step="0.1"
                 className="h-7 text-sm"
@@ -199,8 +199,7 @@ export default function CollapsibleFoodCard({
               <Input
                 type="number"
                 {...form.register(`foodItems.${index}.calories`, {
-                  valueAsNumber: true,
-                  setValueAs: (v: string) => v === '' ? null : Number(v)
+                  setValueAs: (v: string) => v === '' || Number.isNaN(Number(v)) ? null : Number(v)
                 })}
                 min="0"
                 className="h-7 text-sm"
@@ -212,8 +211,7 @@ export default function CollapsibleFoodCard({
               <Input
                 type="number"
                 {...form.register(`foodItems.${index}.protein`, {
-                  valueAsNumber: true,
-                  setValueAs: (v: string) => v === '' ? null : Number(v)
+                  setValueAs: (v: string) => v === '' || Number.isNaN(Number(v)) ? null : Number(v)
                 })}
                 min="0"
                 step="0.1"
@@ -226,8 +224,7 @@ export default function CollapsibleFoodCard({
               <Input
                 type="number"
                 {...form.register(`foodItems.${index}.carbs`, {
-                  valueAsNumber: true,
-                  setValueAs: (v: string) => v === '' ? null : Number(v)
+                  setValueAs: (v: string) => v === '' || Number.isNaN(Number(v)) ? null : Number(v)
                 })}
                 min="0"
                 step="0.1"
@@ -240,8 +237,7 @@ export default function CollapsibleFoodCard({
               <Input
                 type="number"
                 {...form.register(`foodItems.${index}.fats`, {
-                  valueAsNumber: true,
-                  setValueAs: (v: string) => v === '' ? null : Number(v)
+                  setValueAs: (v: string) => v === '' || Number.isNaN(Number(v)) ? null : Number(v)
                 })}
                 min="0"
                 step="0.1"

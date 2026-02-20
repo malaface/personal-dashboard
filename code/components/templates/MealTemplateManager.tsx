@@ -9,6 +9,13 @@ import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select'
 
 // Zod schemas
 const foodItemSchema = z.object({
@@ -347,16 +354,20 @@ export default function MealTemplateManager() {
               {/* Meal Type */}
               <div>
                 <Label>Tipo de Comida</Label>
-                <select
-                  {...form.register('mealType')}
-                  className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                <Select
+                  value={form.watch('mealType') || ''}
+                  onValueChange={(val) => form.setValue('mealType', val as any, { shouldValidate: true })}
                 >
-                  <option value="">Sin especificar</option>
-                  <option value="BREAKFAST">Desayuno</option>
-                  <option value="LUNCH">Almuerzo</option>
-                  <option value="DINNER">Cena</option>
-                  <option value="SNACK">Snack</option>
-                </select>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Sin especificar" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="BREAKFAST">Desayuno</SelectItem>
+                    <SelectItem value="LUNCH">Almuerzo</SelectItem>
+                    <SelectItem value="DINNER">Cena</SelectItem>
+                    <SelectItem value="SNACK">Snack</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Is Public */}
@@ -458,7 +469,7 @@ export default function MealTemplateManager() {
                           </Label>
                           <div className="flex gap-2">
                             <Input
-                              {...form.register(`foodItems.${index}.quantity`, { valueAsNumber: true })}
+                              {...form.register(`foodItems.${index}.quantity`, { setValueAs: (v: string) => v === '' || Number.isNaN(Number(v)) ? undefined : Number(v) })}
                               type="number"
                               step="0.1"
                               className="w-20"
@@ -479,7 +490,7 @@ export default function MealTemplateManager() {
                             Calorías
                           </Label>
                           <Input
-                            {...form.register(`foodItems.${index}.calories`, { valueAsNumber: true })}
+                            {...form.register(`foodItems.${index}.calories`, { setValueAs: (v: string) => v === '' || Number.isNaN(Number(v)) ? undefined : Number(v) })}
                             type="number"
                             step="0.1"
                             className="mt-1"
@@ -491,7 +502,7 @@ export default function MealTemplateManager() {
                             Proteína (g)
                           </Label>
                           <Input
-                            {...form.register(`foodItems.${index}.protein`, { valueAsNumber: true })}
+                            {...form.register(`foodItems.${index}.protein`, { setValueAs: (v: string) => v === '' || Number.isNaN(Number(v)) ? undefined : Number(v) })}
                             type="number"
                             step="0.1"
                             className="mt-1"
@@ -503,7 +514,7 @@ export default function MealTemplateManager() {
                             Carbos (g)
                           </Label>
                           <Input
-                            {...form.register(`foodItems.${index}.carbs`, { valueAsNumber: true })}
+                            {...form.register(`foodItems.${index}.carbs`, { setValueAs: (v: string) => v === '' || Number.isNaN(Number(v)) ? undefined : Number(v) })}
                             type="number"
                             step="0.1"
                             className="mt-1"
@@ -515,7 +526,7 @@ export default function MealTemplateManager() {
                             Grasas (g)
                           </Label>
                           <Input
-                            {...form.register(`foodItems.${index}.fats`, { valueAsNumber: true })}
+                            {...form.register(`foodItems.${index}.fats`, { setValueAs: (v: string) => v === '' || Number.isNaN(Number(v)) ? undefined : Number(v) })}
                             type="number"
                             step="0.1"
                             className="mt-1"

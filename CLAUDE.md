@@ -9,7 +9,7 @@ Multi-user personal management system: gym training, finances, nutrition, and fa
 - **UI:** TailwindCSS 3.4 + shadcn/ui (Radix UI) instalado + @heroicons/react (`@headlessui/react` puede removerse una vez todos sus usos sean migrados)
 - **Backend:** Prisma 5.22.0 + PostgreSQL 15 + NextAuth.js 5.x
 - **AI:** n8n + Flowise + Qdrant + Redis
-- **Deployment:** Docker Compose (port 3003 → 3000)
+- **Deployment:** Docker Compose con profiles (dev: DB+Redis, prod: stack completo en port 3003)
 
 **Estado actual:** App construida y funcional. Módulos activos: Gym, Finance, Nutrition, Family CRM.
 
@@ -27,15 +27,15 @@ Multi-user personal management system: gym training, finances, nutrition, and fa
 
 ## Service Ports
 
-| Servicio | Puerto | URL |
-|---------|--------|-----|
-| Dashboard (Docker) | 3003 → 3000 | http://localhost:3003 |
-| Dashboard (dev) | 3000 | http://localhost:3000 |
-| PostgreSQL | 5434 → 5432 | localhost:5434 |
-| n8n | 5678 | http://localhost:5678 |
-| Flowise | 3001 | http://localhost:3001 |
-| Qdrant | 6333 | http://localhost:6333 |
-| Redis | 6379 | localhost:6379 |
+| Servicio | Puerto | URL | Entorno |
+|---------|--------|-----|---------|
+| Dashboard (Docker) | 3003 → 3000 | http://localhost:3003 | prod (`make prod`) |
+| Dashboard (dev) | 3000 | http://localhost:3000 | dev (`npm run dev`) |
+| PostgreSQL | 5434 → 5432 | localhost:5434 | ambos |
+| Redis | 6379 | localhost:6379 | ambos |
+| n8n | 5678 | http://localhost:5678 | externo |
+| Flowise | 3001 | http://localhost:3001 | externo |
+| Qdrant | 6333 | http://localhost:6333 | externo |
 
 ---
 
@@ -70,28 +70,32 @@ personal-dashboard/
 ## Common Commands
 
 ```bash
-# Desarrollo
+# Docker (desde la raíz del proyecto)
+make down                             # Detener todos los contenedores
+make pull                             # git pull + npm install
+make up                               # DB → migraciones → rebuild → arrancar todo
+make dev                              # Solo DB + Redis (desarrollo)
+make prod                             # Todo el stack sin rebuild
+make prod-build                       # Todo el stack con rebuild
+make status                           # Ver estado de contenedores
+make logs                             # Logs de todos los servicios
+make logs-app                         # Logs solo de la app
+make db-shell                         # Shell de PostgreSQL
+make backup                           # Backup de la DB
+
+# Desarrollo (desde code/)
 cd /home/badfaceserverlap/personal-dashboard/code
 npm run dev                           # Dev server :3000
 npm run build                         # Build producción
 npm run lint                          # Lint
 npx tsc --noEmit                      # TypeScript check
 
-# Prisma
+# Prisma (desde code/)
 npx prisma migrate dev --name nombre  # Nueva migration (dev)
 npx prisma migrate deploy             # Aplicar migrations (prod)
 npx prisma migrate status             # Ver estado
 npx prisma generate                   # Regenerar Prisma Client
 npm run prisma:seed                   # Seeds
-
-# Base de datos
-docker exec -it dashboard-postgres psql -U dashboard_user -d dashboard
-docker exec dashboard-postgres psql -U dashboard_user -d dashboard -c "SELECT COUNT(*) FROM users;"
-docker exec dashboard-postgres pg_isready -U dashboard_user
-docker logs dashboard-postgres --tail 50
-
-# Backup
-docker exec dashboard-postgres pg_dump -U dashboard_user -Fc dashboard > backups/dashboard-$(date +%Y%m%d).dump
 ```
 
 ---
@@ -171,7 +175,7 @@ NEXTAUTH_URL="https://dashboard.malacaran8n.uk"
 
 ---
 
-**Last Updated:** 2026-02-18
+**Last Updated:** 2026-02-19
 **Skills:** 3 consolidadas (frontend, backend, git-workflow)
 **DB:** 31 tablas, 13 migrations, Prisma 5.22.0 + PostgreSQL 15
 **shadcn/ui:** instalado — Button, Input, Label, Select, Dialog, Card, Badge, Tabs, Sheet en `components/ui/`
