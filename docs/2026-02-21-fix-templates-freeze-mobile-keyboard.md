@@ -42,6 +42,10 @@
 | `code/components/templates/MealTemplateSelector.tsx` | Elimina double-fetch, usa datos locales |
 | `code/components/templates/WorkoutTemplateManager.tsx` | State update local post-save/delete |
 | `code/components/templates/MealTemplateManager.tsx` | State update local post-save/delete |
+| `code/components/workouts/WorkoutForm.tsx` | Fix infinite loop en handleTemplateLoad |
+
+#### 4. Fix loop infinito en WorkoutForm.handleTemplateLoad (causa raiz principal)
+- **`code/components/workouts/WorkoutForm.tsx`** — El `handleTemplateLoad` usaba `while (fields.length > 0) { remove(0) }` que es un **loop infinito** porque `fields.length` no se actualiza sincronamente en react-hook-form. Luego usaba `append()` individual por cada ejercicio, causando N re-renders. Reemplazado por `replace()` que hace todo en una sola operacion atomica.
 
 ---
 

@@ -109,7 +109,7 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
     }
   })
 
-  const { fields, append, remove, swap, insert } = useFieldArray({
+  const { fields, append, remove, swap, insert, replace } = useFieldArray({
     control: form.control,
     name: "exercises"
   })
@@ -212,12 +212,9 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
     }>
   }) => {
     form.setValue("name", data.name)
-    // Remove all current exercises and replace with template
-    while (fields.length > 0) {
-      remove(0)
-    }
-    for (const ex of data.exercises) {
-      append({
+    // Replace all exercises at once (avoids per-item re-renders)
+    replace(
+      data.exercises.map(ex => ({
         exerciseTypeId: ex.exerciseTypeId || "",
         muscleGroupId: ex.muscleGroupId || null,
         equipmentId: ex.equipmentId || null,
@@ -226,8 +223,8 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
         weight: ex.weight,
         weightUnit: "kg",
         notes: ex.notes,
-      })
-    }
+      }))
+    )
     // Collapse all after template load for overview
     setOpenExerciseIndex(-1)
   }
