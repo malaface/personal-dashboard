@@ -59,7 +59,7 @@ interface MealTemplate {
 
 export default function MealTemplateManager() {
   const [templates, setTemplates] = useState<MealTemplate[]>([])
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showDialog, setShowDialog] = useState(false)
   const [editingTemplate, setEditingTemplate] = useState<MealTemplate | null>(null)
@@ -173,7 +173,12 @@ export default function MealTemplateManager() {
         throw new Error(errorData.error || 'Failed to save template')
       }
 
-      await fetchTemplates()
+      const result = await response.json()
+      if (editingTemplate) {
+        setTemplates(prev => prev.map(t => t.id === editingTemplate.id ? result.template : t))
+      } else {
+        setTemplates(prev => [result.template, ...prev])
+      }
       setShowDialog(false)
     } catch (err: any) {
       setError(err.message)
@@ -193,7 +198,7 @@ export default function MealTemplateManager() {
 
       if (!response.ok) throw new Error('Failed to delete template')
 
-      await fetchTemplates()
+      setTemplates(prev => prev.filter(t => t.id !== id))
     } catch (err: any) {
       setError(err.message)
     } finally {

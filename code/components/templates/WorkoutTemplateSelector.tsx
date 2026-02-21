@@ -87,30 +87,21 @@ export default function WorkoutTemplateSelector({
     }
   }
 
-  const loadTemplate = async (templateId: string) => {
-    setLoading(true)
-    setError(null)
-
-    try {
-      const response = await fetch(`/api/templates/workouts/${templateId}/load`)
-
-      if (!response.ok) {
-        throw new Error('Failed to load template')
-      }
-
-      const result = await response.json()
-      onTemplateLoad(result.data)
-      setIsOpen(false)
-    } catch (err: any) {
-      setError(err.message || 'Error loading template')
-    } finally {
-      setLoading(false)
-    }
-  }
-
   const handleSelect = (template: WorkoutTemplate) => {
     setSelectedTemplate(template)
-    loadTemplate(template.id)
+    onTemplateLoad({
+      name: template.name,
+      exercises: template.exercises.map(ex => ({
+        exerciseTypeId: ex.exerciseTypeId,
+        muscleGroupId: ex.muscleGroupId,
+        equipmentId: ex.equipmentId,
+        sets: ex.sets,
+        reps: ex.reps,
+        weight: ex.weight,
+        notes: ex.notes
+      }))
+    })
+    setIsOpen(false)
   }
 
   const getDifficultyBadge = (diff: string | null) => {

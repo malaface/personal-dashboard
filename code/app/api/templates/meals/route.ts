@@ -30,16 +30,22 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Get templates with filters
-    const templates = await getMealTemplates(user.id, {
+    // Get templates with filters + pagination
+    const take = parseInt(searchParams.get("take") || "50", 10)
+    const skip = parseInt(searchParams.get("skip") || "0", 10)
+
+    const { templates, total } = await getMealTemplates(user.id, {
       mealType,
       tags,
-      search
+      search,
+      take: Math.min(take, 100),
+      skip
     })
 
     return NextResponse.json({
       templates,
-      count: templates.length
+      count: templates.length,
+      total
     })
 
   } catch (error: any) {

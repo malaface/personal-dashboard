@@ -1,9 +1,29 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { EllipsisHorizontalIcon } from "@heroicons/react/24/outline"
 import { bottomNavItems } from "@/lib/navigation"
+
+function useKeyboardVisible() {
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false)
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.visualViewport) return
+
+    const viewport = window.visualViewport
+    const handleResize = () => {
+      const isKeyboard = viewport.height < window.innerHeight * 0.75
+      setIsKeyboardVisible(isKeyboard)
+    }
+
+    viewport.addEventListener('resize', handleResize)
+    return () => viewport.removeEventListener('resize', handleResize)
+  }, [])
+
+  return isKeyboardVisible
+}
 
 interface MobileBottomNavProps {
   onMoreClick: () => void
@@ -11,6 +31,9 @@ interface MobileBottomNavProps {
 
 export default function MobileBottomNav({ onMoreClick }: MobileBottomNavProps) {
   const pathname = usePathname()
+  const isKeyboardVisible = useKeyboardVisible()
+
+  if (isKeyboardVisible) return null
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 md:hidden safe-area-bottom">

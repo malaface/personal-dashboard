@@ -96,30 +96,26 @@ export default function MealTemplateSelector({
     }
   }
 
-  const loadTemplate = async (templateId: string) => {
-    setLoading(true)
-    setError(null)
-
-    try {
-      const response = await fetch(`/api/templates/meals/${templateId}/load`)
-
-      if (!response.ok) {
-        throw new Error('Failed to load template')
-      }
-
-      const result = await response.json()
-      onTemplateLoad(result.data)
-      setIsOpen(false)
-    } catch (err: any) {
-      setError(err.message || 'Error loading template')
-    } finally {
-      setLoading(false)
-    }
-  }
-
   const handleSelect = (template: MealTemplate) => {
     setSelectedTemplate(template)
-    loadTemplate(template.id)
+    onTemplateLoad({
+      name: template.name,
+      mealType: template.mealType,
+      totalCalories: template.totalCalories,
+      totalProtein: template.totalProtein,
+      totalCarbs: template.totalCarbs,
+      totalFats: template.totalFats,
+      foodItems: template.foodItems.map(item => ({
+        name: item.name,
+        quantity: item.quantity,
+        unit: item.unit,
+        calories: item.calories,
+        protein: item.protein,
+        carbs: item.carbs,
+        fats: item.fats
+      }))
+    })
+    setIsOpen(false)
   }
 
   const getMealTypeBadge = (type: string | null) => {

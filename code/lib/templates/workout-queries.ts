@@ -10,6 +10,8 @@ export async function getWorkoutTemplates(userId: string, filters?: {
   difficulty?: "BEGINNER" | "INTERMEDIATE" | "ADVANCED"
   tags?: string[]
   search?: string
+  take?: number
+  skip?: number
 }) {
   const where: any = {
     OR: [
@@ -40,33 +42,41 @@ export async function getWorkoutTemplates(userId: string, filters?: {
     ]
   }
 
-  const templates = await prisma.workoutTemplate.findMany({
-    where,
-    include: {
-      exercises: {
-        include: {
-          exerciseType: true,
-          muscleGroup: true,
-          equipment: true
+  const take = filters?.take ?? 50
+  const skip = filters?.skip ?? 0
+
+  const [templates, total] = await Promise.all([
+    prisma.workoutTemplate.findMany({
+      where,
+      include: {
+        exercises: {
+          include: {
+            exerciseType: true,
+            muscleGroup: true,
+            equipment: true
+          },
+          orderBy: {
+            sortOrder: 'asc'
+          }
         },
-        orderBy: {
-          sortOrder: 'asc'
+        user: {
+          select: {
+            name: true,
+            email: true
+          }
         }
       },
-      user: {
-        select: {
-          name: true,
-          email: true
-        }
-      }
-    },
-    orderBy: [
-      { isPublic: 'desc' }, // Public first
-      { updatedAt: 'desc' }
-    ]
-  })
+      orderBy: [
+        { isPublic: 'desc' },
+        { updatedAt: 'desc' }
+      ],
+      take,
+      skip
+    }),
+    prisma.workoutTemplate.count({ where })
+  ])
 
-  return templates
+  return { templates, total }
 }
 
 // ============================================

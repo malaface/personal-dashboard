@@ -56,7 +56,7 @@ interface WorkoutTemplate {
 
 export default function WorkoutTemplateManager() {
   const [templates, setTemplates] = useState<WorkoutTemplate[]>([])
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showDialog, setShowDialog] = useState(false)
   const [editingTemplate, setEditingTemplate] = useState<WorkoutTemplate | null>(null)
@@ -170,7 +170,12 @@ export default function WorkoutTemplateManager() {
         throw new Error(errorData.error || 'Failed to save template')
       }
 
-      await fetchTemplates()
+      const result = await response.json()
+      if (editingTemplate) {
+        setTemplates(prev => prev.map(t => t.id === editingTemplate.id ? result.template : t))
+      } else {
+        setTemplates(prev => [result.template, ...prev])
+      }
       setShowDialog(false)
     } catch (err: any) {
       setError(err.message)
@@ -190,7 +195,7 @@ export default function WorkoutTemplateManager() {
 
       if (!response.ok) throw new Error('Failed to delete template')
 
-      await fetchTemplates()
+      setTemplates(prev => prev.filter(t => t.id !== id))
     } catch (err: any) {
       setError(err.message)
     } finally {
