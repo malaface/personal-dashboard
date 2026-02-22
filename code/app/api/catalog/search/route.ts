@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
     const searchTerm = query.toLowerCase().trim()
 
     // Build WHERE clause
-    const whereClause: any = {
+    const whereClause: Record<string, unknown> = {
       catalogType,
       isActive: true,
       OR: [
@@ -215,10 +215,10 @@ export async function GET(request: NextRequest) {
       query: searchTerm
     })
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("GET /api/catalog/search error:", error)
 
-    if (error.message === "Unauthorized") {
+    if (error instanceof Error && error.message === "Unauthorized") {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
@@ -226,7 +226,7 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: "Internal server error", details: error.message },
+      { error: "Internal server error", details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
   }

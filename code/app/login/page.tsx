@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import { Metadata } from "next"
 import LoginForm from "@/components/auth/LoginForm"
 
@@ -55,7 +56,9 @@ export default function LoginPage({
           </div>
         )}
 
-        <LoginForm />
+        <Suspense fallback={<div className="animate-pulse h-64 bg-gray-100 dark:bg-gray-700 rounded-md" />}>
+          <LoginForm />
+        </Suspense>
       </div>
     </div>
   )

@@ -81,9 +81,9 @@ export async function createCatalogItem(data: {
     revalidatePath("/dashboard/finance")
 
     return { success: true, catalogItem }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Create catalog item error:", error)
-    return { success: false, error: error.message || "Failed to create category" }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to create category" }
   }
 }
 
@@ -154,9 +154,9 @@ export async function updateCatalogItem(
     revalidatePath("/dashboard/finance")
 
     return { success: true, catalogItem }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Update catalog item error:", error)
-    return { success: false, error: error.message || "Failed to update category" }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to update category" }
   }
 }
 
@@ -201,9 +201,9 @@ export async function deleteCatalogItem(id: string) {
     revalidatePath("/dashboard/finance")
 
     return { success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Delete catalog item error:", error)
-    return { success: false, error: error.message || "Failed to delete category" }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to delete category" }
   }
 }
 
@@ -247,8 +247,8 @@ export async function hardDeleteCatalogItem(id: string) {
     revalidatePath("/dashboard/finance")
 
     return { success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Hard delete catalog item error:", error)
-    return { success: false, error: error.message || "Failed to delete category" }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to delete category" }
   }
 }

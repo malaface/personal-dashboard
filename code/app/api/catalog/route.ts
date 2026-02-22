@@ -5,6 +5,7 @@ import { buildCatalogTree } from "@/lib/catalog/utils"
 import { createCatalogItem } from "@/lib/catalog/mutations"
 import { CatalogType } from "@/lib/catalog/types"
 import { CatalogItemSchema } from "@/lib/validations/catalog"
+import { ZodError } from "zod"
 import { prisma } from "@/lib/db/prisma"
 
 /**
@@ -67,10 +68,10 @@ export async function GET(request: NextRequest) {
     // Default: flat list
     return NextResponse.json({ items, count: items.length })
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("GET /api/catalog error:", error)
 
-    if (error.message === "Unauthorized") {
+    if (error instanceof Error && error.message === "Unauthorized") {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
@@ -130,19 +131,19 @@ export async function POST(request: NextRequest) {
       item: completeItem
     }, { status: 201 })
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("POST /api/catalog error:", error)
 
-    if (error.message === "Unauthorized") {
+    if (error instanceof Error && error.message === "Unauthorized") {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
       )
     }
 
-    if (error.name === "ZodError") {
+    if (error instanceof ZodError) {
       return NextResponse.json(
-        { error: "Validation error", details: error.errors },
+        { error: "Validation error", details: error.issues },
         { status: 400 }
       )
     }

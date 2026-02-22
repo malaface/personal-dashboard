@@ -47,14 +47,14 @@ async function seedPublicTemplates() {
   })
 
   // Template 1: Full Body Beginner
-  const fullBodyBeginner = await prisma.workoutTemplate.create({
+  const _fullBodyBeginner = await prisma.workoutTemplate.create({
     data: {
       userId: null,
       name: 'Full Body - Principiante',
       description: 'Rutina completa para principiantes que trabaja todos los grupos musculares principales',
       isPublic: true,
       difficulty: 'BEGINNER',
-      tags: ['full-body', 'beginner', 'strength'],
+      tags: ['cuerpo-completo', 'principiante', 'fuerza'],
       exercises: {
         create: [
           {
@@ -87,14 +87,14 @@ async function seedPublicTemplates() {
   })
 
   // Template 2: Upper Body Intermediate
-  const upperBodyIntermediate = await prisma.workoutTemplate.create({
+  const _upperBodyIntermediate = await prisma.workoutTemplate.create({
     data: {
       userId: null,
       name: 'Upper Body - Intermedio',
       description: 'Rutina enfocada en tren superior con mayor volumen e intensidad',
       isPublic: true,
       difficulty: 'INTERMEDIATE',
-      tags: ['upper-body', 'intermediate', 'hypertrophy'],
+      tags: ['tren-superior', 'intermedio', 'hipertrofia'],
       exercises: {
         create: [
           {
@@ -127,14 +127,14 @@ async function seedPublicTemplates() {
   })
 
   // Template 3: Strength Focus Advanced
-  const strengthAdvanced = await prisma.workoutTemplate.create({
+  const _strengthAdvanced = await prisma.workoutTemplate.create({
     data: {
       userId: null,
       name: 'Strength - Avanzado',
       description: 'Rutina de fuerza con los 3 grandes: sentadilla, press banca y peso muerto',
       isPublic: true,
       difficulty: 'ADVANCED',
-      tags: ['strength', 'advanced', 'powerlifting'],
+      tags: ['fuerza', 'avanzado', 'powerlifting'],
       exercises: {
         create: [
           {
@@ -173,14 +173,14 @@ async function seedPublicTemplates() {
   // ============================================
 
   // Template 1: High Protein Breakfast
-  const highProteinBreakfast = await prisma.mealTemplate.create({
+  const _highProteinBreakfast = await prisma.mealTemplate.create({
     data: {
       userId: null,
       name: 'Desayuno Alto en Proteína',
       description: 'Desayuno balanceado con alto contenido proteico para iniciar el día',
       mealType: 'BREAKFAST',
       isPublic: true,
-      tags: ['high-protein', 'breakfast', 'muscle-gain'],
+      tags: ['alto-proteina', 'desayuno', 'ganancia-muscular'],
       totalCalories: 520,
       totalProtein: 45,
       totalCarbs: 35,
@@ -233,14 +233,14 @@ async function seedPublicTemplates() {
   })
 
   // Template 2: Post-Workout Lunch
-  const postWorkoutLunch = await prisma.mealTemplate.create({
+  const _postWorkoutLunch = await prisma.mealTemplate.create({
     data: {
       userId: null,
       name: 'Almuerzo Post-Entrenamiento',
       description: 'Comida completa para recuperación muscular después del entrenamiento',
       mealType: 'LUNCH',
       isPublic: true,
-      tags: ['post-workout', 'lunch', 'recovery'],
+      tags: ['post-entreno', 'almuerzo', 'recuperacion'],
       totalCalories: 650,
       totalProtein: 50,
       totalCarbs: 65,
@@ -293,14 +293,14 @@ async function seedPublicTemplates() {
   })
 
   // Template 3: Light Dinner
-  const lightDinner = await prisma.mealTemplate.create({
+  const _lightDinner = await prisma.mealTemplate.create({
     data: {
       userId: null,
       name: 'Cena Ligera',
       description: 'Cena balanceada y ligera para terminar el día',
       mealType: 'DINNER',
       isPublic: true,
-      tags: ['light', 'dinner', 'balanced'],
+      tags: ['ligera', 'cena', 'balanceada'],
       totalCalories: 420,
       totalProtein: 35,
       totalCarbs: 30,

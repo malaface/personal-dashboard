@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/auth/utils'
 import { getGymMuscleDistribution } from '@/lib/analytics/queries'
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const user = await requireAuth()
     const data = await getGymMuscleDistribution(user.id)
@@ -18,10 +18,10 @@ export async function GET(request: NextRequest) {
       data,
       timestamp: new Date().toISOString()
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Gym muscle distribution API error:', error)
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }
     )
   }

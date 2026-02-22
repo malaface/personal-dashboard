@@ -1,206 +1,223 @@
-# Personal Dashboard - Multi-User Management System
+# Personal Dashboard
 
-## Repository Information
+Sistema de gestión personal multi-usuario: entrenamiento gym, finanzas, nutrición y CRM familiar con integración de IA.
 
-**Repository:** https://github.com/malaface/personal-dashboard (private)
-**Original Location:** Extracted from docker-contenedores infrastructure
-**Status:** Phase 0 Completed - Ready for Phase 1 Development
-**Migration Date:** 2025-12-10
+**Repo:** https://github.com/malaface/personal-dashboard (privado)
 
-This project is designed to integrate with but not depend on the parent infrastructure.
+## Stack
 
----
+| Capa | Tecnología |
+|------|-----------|
+| Frontend | Next.js 16 (App Router) + React 19 + TypeScript 5 |
+| UI | TailwindCSS 3.4 + shadcn/ui (Radix UI) |
+| Backend | Prisma 5.22 + PostgreSQL 15 + NextAuth.js 5.x |
+| AI | n8n + Flowise + Qdrant + Redis |
+| Deploy | Docker Compose con profiles |
 
-**Proyecto:** Dashboard Personal Interactivo
-**Última actualización:** 2025-12-10
-**Estado:** Fase 0 ✅ COMPLETADA
+## Módulos
 
----
-
-## 📋 Descripción del Proyecto
-
-Dashboard personal integral para gestión de actividades diarias con integración de IA y servicios backend existentes.
-
-### Módulos Principales
-
-1. **Gym Training Tracker** - Seguimiento de entrenamientos y progreso físico
-2. **Finance & Investment Tracker** - Gestión financiera y seguimiento de inversiones
-3. **Nutrition Tracker** - Control nutricional y registro de comidas
-4. **Family CRM** - Gestión de tiempo familiar y eventos importantes
+- **Gym** — Seguimiento de entrenamientos, ejercicios, templates
+- **Finance** — Gestión financiera, cuentas, tarjetas
+- **Nutrition** — Control nutricional, registro de comidas, templates
+- **Family CRM** — Contactos familiares, eventos, calendario
 
 ---
 
-## 🏗️ Arquitectura
+## Requisitos previos
 
-### Stack Tecnológico
-- **Frontend:** Next.js 15 (App Router) + React 18
-- **Backend:** Supabase (Auth, PostgreSQL, Realtime, Storage)
-- **Styling:** TailwindCSS + shadcn/ui
-- **Validation:** Zod
-- **AI Integration:** n8n workflows + Flowise chatflows + Qdrant vector search
-- **Monitoring:** Prometheus + Grafana
-- **Deployment:** Docker Compose
+- Docker y Docker Compose v2
+- Node.js 18+ y npm
+- Git
+- `make` (viene preinstalado en Linux/macOS)
 
-### Puerto Asignado
-- **Externo:** 3003
-- **Interno:** 3000 (Next.js default)
+## Inicio rápido
 
-### Redes Docker
-- `localai_default` - Acceso a servicios de AI Platform
-- `monitoring` - Integración con Prometheus/Grafana
-
-### Servicios Integrados
-- **Supabase** (Kong:8000) - Auth, Database, Realtime, Storage
-- **n8n** (5678) - Automation workflows
-- **Flowise** (3001) - AI Chatflows
-- **Qdrant** (6333/6334) - Vector search
-- **Redis** (6379) - Cache y rate limiting
-- **PostgreSQL** (5432) - Database principal
-
----
-
-## 📊 Estado de las Fases
-
-| Fase | Nombre | Estado | Documentación |
-|------|--------|--------|---------------|
-| 0 | Security Hardening & Infrastructure | ✅ COMPLETADA | [fase0-completado.md](fases/fase0-completado.md) |
-| 1 | Foundation (Weeks 1-2) | 📋 PENDIENTE | [fase1-foundation.md](fases/fase1-foundation.md) |
-| 2 | Core Modules (Weeks 3-6) | ⏳ PENDIENTE | [fase2-core-modules.md](fases/fase2-core-modules.md) |
-| 3 | AI Integration (Weeks 7-8) | ⏳ PENDIENTE | [fase3-ai-integration.md](fases/fase3-ai-integration.md) |
-| 4 | Polish & Deploy (Weeks 9-10) | ⏳ PENDIENTE | [fase4-polish-deploy.md](fases/fase4-polish-deploy.md) |
-| 5 | Post-Launch (Optional) | ⏳ PENDIENTE | [fase5-post-launch.md](fases/fase5-post-launch.md) |
-
----
-
-## 🔒 Seguridad (Fase 0 - Completada)
-
-### Cambios Implementados
-
-| Configuración | Antes | Después | Motivo |
-|--------------|-------|---------|--------|
-| DISABLE_SIGNUP | false | ✅ **true** | Evitar registros públicos |
-| ENABLE_EMAIL_AUTOCONFIRM | true | ✅ **false** | Verificación obligatoria |
-| ENABLE_PHONE_AUTOCONFIRM | true | ✅ **false** | Verificación SMS |
-| FUNCTIONS_VERIFY_JWT | false | ✅ **true** | Auth en edge functions |
-| VAULT_ENC_KEY | placeholder | ✅ **generado** | Cifrado real |
-
-### Tokens de Autenticación Generados
-- ✅ **QDRANT_API_KEY** - Protección de vector database
-- ✅ **N8N_API_TOKEN** - Autenticación de webhooks
-
----
-
-## 🚀 Inicio Rápido
-
-### Para Iniciar una Nueva Fase
-
-1. **Abre el archivo de la fase** en `fases/faseN-nombre.md`
-2. **Lee la sección "Pre-Requisitos"** y valida todo antes de empezar
-3. **Copia el "Prompt de Inicio"** para nueva conversación con Claude
-4. **Sigue el checklist paso a paso**
-5. **Valida al finalizar** con los comandos de la sección final
-
-### Comandos de Gestión
+### 1. Clonar y configurar variables de entorno
 
 ```bash
-# Ver servicios activos
-cd projects/personal-dashboard-project
-docker-compose ps
+git clone git@github.com:malaface/personal-dashboard.git
+cd personal-dashboard
 
-# Ver logs del dashboard
-docker-compose logs -f nextjs-dashboard
+# Crear archivo .env en la raíz con las variables de Docker Compose
+cp .env.example .env  # o crearla manualmente
 
-# Reiniciar dashboard
-docker-compose restart nextjs-dashboard
-
-# Detener dashboard
-docker-compose down
+# Crear archivo .env.local en code/ para desarrollo
+cp code/.env.example code/.env.local  # o crearla manualmente
 ```
 
----
-
-## 📁 Estructura del Proyecto
+Variables necesarias en `.env` (raíz):
 
 ```
-projects/personal-dashboard-project/
-├── README.md                    # Este archivo
-├── fases/                       # Documentación de cada fase
-│   ├── fase0-completado.md
-│   ├── fase1-foundation.md
-│   ├── fase2-core-modules.md
-│   ├── fase3-ai-integration.md
-│   ├── fase4-polish-deploy.md
-│   └── fase5-post-launch.md
-├── code/                        # Código fuente del dashboard
-│   └── app/                     # Next.js application (Fase 1+)
-├── docs/                        # Documentación técnica
-│   └── database-schema.md       # Esquema de base de datos
-└── backups/                     # Backups específicos del dashboard
+DASHBOARD_DB_PASSWORD=...
+DASHBOARD_REDIS_PASSWORD=...
+NEXTAUTH_SECRET=...
+RESEND_API_KEY=...
+RESEND_FROM_EMAIL=...
 ```
 
----
+Variables necesarias en `code/.env.local`:
 
-## 🔗 Referencias Importantes
+```
+DATABASE_URL="postgresql://dashboard_user:PASSWORD@localhost:5434/dashboard"
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="..."
+REDIS_URL="redis://:PASSWORD@localhost:6379"
+```
 
-### Documentación del Proyecto
-- **Plan Completo:** `/home/badfaceserverlap/.claude/plans/quizzical-knitting-knuth.md`
-- **Guía Completa:** `/home/badfaceserverlap/docker/contenedores/docs/guia-implementacion-dashboard.md`
-- **Reporte Fase 0:** `/home/badfaceserverlap/docker/contenedores/docs/phase0-security-hardening-report.md`
+### 2. Levantar servicios (desarrollo)
 
-### Infraestructura
-- **AI Platform:** `../ai-platform/`
-- **Monitoring:** `../../shared/monitoring/`
-- **Backups AI Platform:** `../../shared/backups/ai-platform/manual-pre-dashboard-phase0`
-
-### Usuario Admin
-- **Email:** malacaram807@gmail.com
-- **Password:** My_badface27
-- **Creado en:** Fase 0 (2025-12-09)
-
----
-
-## 📝 Notas de Desarrollo
-
-### Variables de Entorno
-Las variables se cargan desde `../ai-platform/.env`:
-- NEXT_PUBLIC_SUPABASE_URL
-- NEXT_PUBLIC_SUPABASE_ANON_KEY
-- SUPABASE_SERVICE_ROLE_KEY
-- N8N_API_TOKEN
-- FLOWISE_USERNAME, FLOWISE_PASSWORD
-- QDRANT_API_KEY
-- REDIS_URL
-- DATABASE_URL
-
-### Git Workflow
 ```bash
-# Trabajar siempre en develop
-git checkout develop
+# Levantar solo DB + Redis
+make dev
 
-# Crear commits descriptivos
-git commit -m "Stable solution: [descripción]"
+# Instalar dependencias y correr la app
+cd code
+npm install
+npx prisma generate
+npx prisma migrate deploy
+npm run dev
+```
 
-# Validar antes de commit
-bash shared/scripts/health-check.sh
+La app estará en **http://localhost:3000**.
+
+### 3. Levantar servicios (producción)
+
+```bash
+# Levantar todo el stack: DB + Redis + App
+make prod
+
+# O si necesitas reconstruir la imagen de la app
+make prod-build
+```
+
+La app estará en **http://localhost:3003**.
+
+---
+
+## Docker Compose Profiles
+
+El proyecto usa **Docker Compose profiles** para separar entornos sin duplicar configuración:
+
+| Comando | Qué levanta | Cuándo usar |
+|---------|-------------|-------------|
+| `make dev` | PostgreSQL + Redis | Desarrollo local (app con `npm run dev`) |
+| `make prod` | PostgreSQL + Redis + App | Producción |
+| `make prod-build` | Todo + rebuild de imagen | Deploy con cambios de código |
+| `make down` | Detiene todo | Siempre (incluye la app con `--profile app`) |
+
+### Todos los comandos disponibles
+
+```bash
+# Flujo de actualización
+make down         # Detener todos los contenedores
+make pull         # git pull + npm install
+make up           # DB → migraciones → rebuild → arrancar todo
+
+# Desarrollo
+make dev          # Solo DB + Redis (app con npm run dev)
+
+# Producción (manual)
+make prod         # Levantar todo sin rebuild
+make prod-build   # Levantar todo con rebuild de la app
+
+# Utilidades
+make status       # Ver estado de contenedores
+make logs         # Logs de todos los servicios
+make logs-app     # Logs solo de la app
+make db-shell     # Shell interactivo de PostgreSQL
+make backup       # Backup de la DB → backups/
 ```
 
 ---
 
-## 🎯 Próximos Pasos
+## Puertos
 
-**Fase 1 - Foundation (Pendiente):**
-1. Inicializar proyecto Next.js 15
-2. Instalar dependencias base
-3. Configurar Supabase clients
-4. Crear esquema de base de datos
-5. Implementar RLS policies
-6. Crear páginas de autenticación
-7. Construir layout y navegación
-
-**Ver detalles completos en:** [fases/fase1-foundation.md](fases/fase1-foundation.md)
+| Servicio | Puerto | URL | Entorno |
+|---------|--------|-----|---------|
+| Dashboard (Docker) | 3003 → 3000 | http://localhost:3003 | prod |
+| Dashboard (dev) | 3000 | http://localhost:3000 | dev |
+| PostgreSQL | 5434 → 5432 | localhost:5434 | ambos |
+| Redis | 6379 | localhost:6379 | ambos |
+| n8n | 5678 | http://localhost:5678 | externo |
+| Flowise | 3001 | http://localhost:3001 | externo |
+| Qdrant | 6333 | http://localhost:6333 | externo |
 
 ---
 
-**Creado:** 2025-12-09
-**Última actualización:** 2025-12-09
-**Fase Actual:** 0 ✅ COMPLETADA
+## Actualizar la aplicación
+
+Tres comandos, siempre en el mismo orden:
+
+```bash
+make down    # 1. Detener todo
+make pull    # 2. Traer cambios + instalar dependencias
+make up      # 3. Levantar DB → migrar → rebuild → arrancar app
+```
+
+`make up` se encarga de todo automáticamente:
+1. Levanta PostgreSQL + Redis
+2. Espera a que la DB esté healthy
+3. Ejecuta `prisma generate` + `prisma migrate deploy`
+4. Reconstruye la imagen de la app y la levanta
+
+Si quieres hacer backup antes de actualizar (recomendado cuando hay migraciones):
+
+```bash
+make backup  # antes de make down
+```
+
+---
+
+## Estructura del proyecto
+
+```
+personal-dashboard/
+├── README.md
+├── CLAUDE.md                    # Instrucciones para Claude Code
+├── Makefile                     # Shortcuts de Docker Compose
+├── docker-compose.yml           # DB + Redis + App (con profiles)
+├── code/                        # Next.js app
+│   ├── app/                     # App Router (pages, layouts, API routes)
+│   │   ├── (auth)/              # /login, /register
+│   │   └── dashboard/           # /dashboard + módulos
+│   ├── components/
+│   │   ├── ui/                  # shadcn/ui (editables)
+│   │   ├── layout/              # Shell, Sidebar, MobileBottomNav
+│   │   ├── gym/ finance/ nutrition/ family/
+│   │   └── templates/           # MealTemplateManager, WorkoutTemplateManager
+│   ├── lib/
+│   │   ├── db/prisma.ts         # Prisma singleton
+│   │   ├── auth/                # requireAuth(), verifyOwnership()
+│   │   ├── audit/logger.ts      # logAudit()
+│   │   └── validations/         # Zod schemas
+│   ├── prisma/
+│   │   ├── schema.prisma        # 31 tablas
+│   │   └── migrations/          # Migraciones aplicadas
+│   └── Dockerfile               # Build de producción
+├── docs/                        # Reportes y documentación
+└── backups/                     # Backups de DB
+```
+
+---
+
+## Git workflow
+
+```bash
+# Crear branch desde develop
+git checkout develop && git pull origin develop
+git checkout -b "feature/nombre"
+
+# Hacer cambios, luego pre-commit checks
+cd code
+npm run build && npm run lint && npx tsc --noEmit
+
+# Stage específico + commit
+git add code/path/to/file.tsx
+git commit -m "feat: descripción"
+
+# Push + PR
+git push -u origin "feature/nombre"
+gh pr create --base develop --title "feat: Descripción" --body "..."
+```
+
+**Convención de branches:** `feature/`, `fix/`, `refactor/`, `docs/`, `chore/`, `hotfix/`

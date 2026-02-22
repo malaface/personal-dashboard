@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { ChevronUpDownIcon } from '@heroicons/react/24/outline'
 
 interface MealTemplate {
@@ -13,7 +13,15 @@ interface MealTemplate {
   totalProtein: number
   totalCarbs: number
   totalFats: number
-  foodItems: any[]
+  foodItems: Array<{
+    name: string
+    quantity: number
+    unit: string
+    calories: number | null
+    protein: number | null
+    carbs: number | null
+    fats: number | null
+  }>
   user: {
     name: string | null
     email: string
@@ -56,23 +64,7 @@ export default function MealTemplateSelector({
   const [error, setError] = useState<string | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  // Fetch templates on mount
-  useEffect(() => {
-    fetchTemplates()
-  }, [mealType])
-
-  // Close dropdown on outside click
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setIsOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
-
-  const fetchTemplates = async () => {
+  const fetchTemplates = useCallback(async () => {
     setLoading(true)
     setError(null)
 
@@ -88,38 +80,50 @@ export default function MealTemplateSelector({
 
       const data = await response.json()
       setTemplates(data.templates || [])
-    } catch (err: any) {
-      setError(err.message || 'Error loading templates')
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error loading templates')
       setTemplates([])
     } finally {
       setLoading(false)
     }
-  }
+  }, [mealType])
 
-  const loadTemplate = async (templateId: string) => {
-    setLoading(true)
-    setError(null)
+  // Fetch templates on mount
+  useEffect(() => {
+    fetchTemplates()
+  }, [fetchTemplates])
 
-    try {
-      const response = await fetch(`/api/templates/meals/${templateId}/load`)
-
-      if (!response.ok) {
-        throw new Error('Failed to load template')
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setIsOpen(false)
       }
-
-      const result = await response.json()
-      onTemplateLoad(result.data)
-      setIsOpen(false)
-    } catch (err: any) {
-      setError(err.message || 'Error loading template')
-    } finally {
-      setLoading(false)
     }
-  }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   const handleSelect = (template: MealTemplate) => {
     setSelectedTemplate(template)
-    loadTemplate(template.id)
+    onTemplateLoad({
+      name: template.name,
+      mealType: template.mealType,
+      totalCalories: template.totalCalories,
+      totalProtein: template.totalProtein,
+      totalCarbs: template.totalCarbs,
+      totalFats: template.totalFats,
+      foodItems: template.foodItems.map(item => ({
+        name: item.name,
+        quantity: item.quantity,
+        unit: item.unit,
+        calories: item.calories,
+        protein: item.protein,
+        carbs: item.carbs,
+        fats: item.fats
+      }))
+    })
+    setIsOpen(false)
   }
 
   const getMealTypeBadge = (type: string | null) => {
@@ -136,7 +140,7 @@ export default function MealTemplateSelector({
       BREAKFAST: 'Desayuno',
       LUNCH: 'Almuerzo',
       DINNER: 'Cena',
-      SNACK: 'Snack'
+      SNACK: 'Colación'
     }
 
     return (

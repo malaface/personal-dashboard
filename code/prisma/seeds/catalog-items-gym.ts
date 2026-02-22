@@ -36,80 +36,80 @@ interface CatalogSeed {
 
 const exerciseCategoriesStructure: CatalogSeed[] = [
   {
-    name: "Strength Training",
+    name: "Entrenamiento de Fuerza",
     slug: "strength-training",
     icon: "💪",
     color: "#EF4444",
     sortOrder: 1,
-    description: "Resistance and weight training exercises",
+    description: "Ejercicios de resistencia y pesas",
     children: [
       {
-        name: "Chest",
+        name: "Pecho",
         slug: "chest",
         icon: "🏋️",
         sortOrder: 1,
-        description: "Pectoral muscle exercises",
+        description: "Ejercicios de pectorales",
         children: [
-          { name: "Bench Press", slug: "bench-press", description: "Barbell bench press", sortOrder: 1 },
-          { name: "Dumbbell Flyes", slug: "dumbbell-flyes", description: "Chest flyes with dumbbells", sortOrder: 2 },
-          { name: "Push-ups", slug: "push-ups", description: "Bodyweight push-ups", sortOrder: 3 },
-          { name: "Incline Press", slug: "incline-press", description: "Incline bench press", sortOrder: 4 },
-          { name: "Cable Crossover", slug: "cable-crossover", description: "Cable chest crossover", sortOrder: 5 }
+          { name: "Press de Banca", slug: "bench-press", description: "Press de banca con barra", sortOrder: 1 },
+          { name: "Aperturas con Mancuernas", slug: "dumbbell-flyes", description: "Aperturas de pecho con mancuernas", sortOrder: 2 },
+          { name: "Flexiones", slug: "push-ups", description: "Flexiones con peso corporal", sortOrder: 3 },
+          { name: "Press Inclinado", slug: "incline-press", description: "Press de banca inclinado", sortOrder: 4 },
+          { name: "Crossover en Cable", slug: "cable-crossover", description: "Cruce de cables para pecho", sortOrder: 5 }
         ]
       },
       {
-        name: "Back",
+        name: "Espalda",
         slug: "back",
         icon: "🦵",
         sortOrder: 2,
-        description: "Back muscle exercises",
+        description: "Ejercicios de espalda",
         children: [
-          { name: "Deadlift", slug: "deadlift", description: "Conventional deadlift", sortOrder: 1 },
-          { name: "Pull-ups", slug: "pull-ups", description: "Bodyweight pull-ups", sortOrder: 2 },
-          { name: "Barbell Rows", slug: "barbell-rows", description: "Bent-over barbell rows", sortOrder: 3 },
-          { name: "Lat Pulldown", slug: "lat-pulldown", description: "Cable lat pulldown", sortOrder: 4 },
-          { name: "T-Bar Row", slug: "t-bar-row", description: "T-bar row exercise", sortOrder: 5 }
+          { name: "Peso Muerto", slug: "deadlift", description: "Peso muerto convencional", sortOrder: 1 },
+          { name: "Dominadas", slug: "pull-ups", description: "Dominadas con peso corporal", sortOrder: 2 },
+          { name: "Remo con Barra", slug: "barbell-rows", description: "Remo inclinado con barra", sortOrder: 3 },
+          { name: "Jalón al Pecho", slug: "lat-pulldown", description: "Jalón de dorsales en polea", sortOrder: 4 },
+          { name: "Remo en T", slug: "t-bar-row", description: "Remo en barra T", sortOrder: 5 }
         ]
       },
       {
-        name: "Legs",
+        name: "Piernas",
         slug: "legs",
         icon: "🦿",
         sortOrder: 3,
-        description: "Lower body exercises",
+        description: "Ejercicios de tren inferior",
         children: [
-          { name: "Squat", slug: "squat", description: "Back squat", sortOrder: 1 },
-          { name: "Leg Press", slug: "leg-press", description: "Machine leg press", sortOrder: 2 },
-          { name: "Lunges", slug: "lunges", description: "Walking or stationary lunges", sortOrder: 3 },
-          { name: "Leg Curls", slug: "leg-curls", description: "Hamstring curls", sortOrder: 4 },
-          { name: "Calf Raises", slug: "calf-raises", description: "Standing calf raises", sortOrder: 5 }
+          { name: "Sentadilla", slug: "squat", description: "Sentadilla trasera", sortOrder: 1 },
+          { name: "Prensa de Piernas", slug: "leg-press", description: "Prensa de piernas en máquina", sortOrder: 2 },
+          { name: "Zancadas", slug: "lunges", description: "Zancadas caminando o estáticas", sortOrder: 3 },
+          { name: "Curl de Piernas", slug: "leg-curls", description: "Curl de isquiotibiales", sortOrder: 4 },
+          { name: "Elevación de Talones", slug: "calf-raises", description: "Elevación de talones de pie", sortOrder: 5 }
         ]
       },
       {
-        name: "Shoulders",
+        name: "Hombros",
         slug: "shoulders",
         icon: "💪",
         sortOrder: 4,
-        description: "Shoulder exercises",
+        description: "Ejercicios de hombros",
         children: [
-          { name: "Overhead Press", slug: "overhead-press", description: "Military press", sortOrder: 1 },
-          { name: "Lateral Raises", slug: "lateral-raises", description: "Dumbbell lateral raises", sortOrder: 2 },
-          { name: "Front Raises", slug: "front-raises", description: "Front dumbbell raises", sortOrder: 3 },
-          { name: "Shrugs", slug: "shrugs", description: "Barbell or dumbbell shrugs", sortOrder: 4 }
+          { name: "Press Militar", slug: "overhead-press", description: "Press militar con barra", sortOrder: 1 },
+          { name: "Elevaciones Laterales", slug: "lateral-raises", description: "Elevaciones laterales con mancuernas", sortOrder: 2 },
+          { name: "Elevaciones Frontales", slug: "front-raises", description: "Elevaciones frontales con mancuernas", sortOrder: 3 },
+          { name: "Encogimientos", slug: "shrugs", description: "Encogimientos con barra o mancuernas", sortOrder: 4 }
         ]
       },
       {
-        name: "Arms",
+        name: "Brazos",
         slug: "arms",
         icon: "💪",
         sortOrder: 5,
-        description: "Arm exercises",
+        description: "Ejercicios de brazos",
         children: [
-          { name: "Biceps Curls", slug: "biceps-curls", description: "Barbell or dumbbell curls", sortOrder: 1 },
-          { name: "Hammer Curls", slug: "hammer-curls", description: "Neutral grip curls", sortOrder: 2 },
-          { name: "Tricep Dips", slug: "tricep-dips", description: "Bodyweight or weighted dips", sortOrder: 3 },
-          { name: "Overhead Extension", slug: "overhead-extension", description: "Tricep overhead extension", sortOrder: 4 },
-          { name: "Skull Crushers", slug: "skull-crushers", description: "Lying tricep extension", sortOrder: 5 }
+          { name: "Curl de Bíceps", slug: "biceps-curls", description: "Curl con barra o mancuernas", sortOrder: 1 },
+          { name: "Curl de Martillo", slug: "hammer-curls", description: "Curl con agarre neutro", sortOrder: 2 },
+          { name: "Fondos de Tríceps", slug: "tricep-dips", description: "Fondos con peso corporal o lastre", sortOrder: 3 },
+          { name: "Extensión sobre la Cabeza", slug: "overhead-extension", description: "Extensión de tríceps sobre la cabeza", sortOrder: 4 },
+          { name: "Press Francés", slug: "skull-crushers", description: "Extensión de tríceps acostado", sortOrder: 5 }
         ]
       },
       {
@@ -117,12 +117,12 @@ const exerciseCategoriesStructure: CatalogSeed[] = [
         slug: "core-exercises",
         icon: "🎯",
         sortOrder: 6,
-        description: "Core strengthening exercises",
+        description: "Ejercicios de fortalecimiento del core",
         children: [
-          { name: "Planks", slug: "planks", description: "Front plank holds", sortOrder: 1 },
-          { name: "Crunches", slug: "crunches", description: "Abdominal crunches", sortOrder: 2 },
-          { name: "Russian Twists", slug: "russian-twists", description: "Oblique twists", sortOrder: 3 },
-          { name: "Leg Raises", slug: "leg-raises", description: "Hanging leg raises", sortOrder: 4 }
+          { name: "Plancha", slug: "planks", description: "Plancha frontal isométrica", sortOrder: 1 },
+          { name: "Abdominales", slug: "crunches", description: "Abdominales clásicos", sortOrder: 2 },
+          { name: "Giros Rusos", slug: "russian-twists", description: "Giros oblicuos", sortOrder: 3 },
+          { name: "Elevación de Piernas", slug: "leg-raises", description: "Elevación de piernas colgado", sortOrder: 4 }
         ]
       }
     ]
@@ -133,163 +133,163 @@ const exerciseCategoriesStructure: CatalogSeed[] = [
     icon: "🏃",
     color: "#10B981",
     sortOrder: 2,
-    description: "Cardiovascular exercises",
+    description: "Ejercicios cardiovasculares",
     children: [
-      { name: "Running", slug: "running", icon: "🏃‍♂️", description: "Outdoor or treadmill running", sortOrder: 1 },
-      { name: "Cycling", slug: "cycling", icon: "🚴", description: "Outdoor or stationary cycling", sortOrder: 2 },
-      { name: "Swimming", slug: "swimming", icon: "🏊", description: "Pool swimming", sortOrder: 3 },
-      { name: "Rowing", slug: "rowing", icon: "🚣", description: "Rowing machine", sortOrder: 4 },
-      { name: "Jump Rope", slug: "jump-rope", description: "Jump rope cardio", sortOrder: 5 },
-      { name: "HIIT", slug: "hiit", description: "High-intensity interval training", sortOrder: 6 }
+      { name: "Correr", slug: "running", icon: "🏃‍♂️", description: "Correr al aire libre o en caminadora", sortOrder: 1 },
+      { name: "Ciclismo", slug: "cycling", icon: "🚴", description: "Ciclismo al aire libre o estacionario", sortOrder: 2 },
+      { name: "Natación", slug: "swimming", icon: "🏊", description: "Natación en alberca", sortOrder: 3 },
+      { name: "Remo", slug: "rowing", icon: "🚣", description: "Máquina de remo", sortOrder: 4 },
+      { name: "Saltar la Cuerda", slug: "jump-rope", description: "Cardio con cuerda para saltar", sortOrder: 5 },
+      { name: "HIIT", slug: "hiit", description: "Entrenamiento de intervalos de alta intensidad", sortOrder: 6 }
     ]
   },
   {
-    name: "Flexibility",
+    name: "Flexibilidad",
     slug: "flexibility",
     icon: "🧘",
     color: "#8B5CF6",
     sortOrder: 3,
-    description: "Stretching and mobility exercises",
+    description: "Ejercicios de estiramiento y movilidad",
     children: [
-      { name: "Yoga", slug: "yoga", description: "Yoga practice", sortOrder: 1 },
-      { name: "Dynamic Stretching", slug: "dynamic-stretching", description: "Movement-based stretches", sortOrder: 2 },
-      { name: "Static Stretching", slug: "static-stretching", description: "Hold stretches", sortOrder: 3 },
-      { name: "Foam Rolling", slug: "foam-rolling", description: "Myofascial release", sortOrder: 4 },
-      { name: "Pilates", slug: "pilates", description: "Pilates exercises", sortOrder: 5 }
+      { name: "Yoga", slug: "yoga", description: "Práctica de yoga", sortOrder: 1 },
+      { name: "Estiramiento Dinámico", slug: "dynamic-stretching", description: "Estiramientos basados en movimiento", sortOrder: 2 },
+      { name: "Estiramiento Estático", slug: "static-stretching", description: "Estiramientos sostenidos", sortOrder: 3 },
+      { name: "Rodillo de Espuma", slug: "foam-rolling", description: "Liberación miofascial", sortOrder: 4 },
+      { name: "Pilates", slug: "pilates", description: "Ejercicios de Pilates", sortOrder: 5 }
     ]
   },
   {
-    name: "Sports",
+    name: "Deportes",
     slug: "sports",
     icon: "⚽",
     color: "#F59E0B",
     sortOrder: 4,
-    description: "Sports activities",
+    description: "Actividades deportivas",
     children: [
-      { name: "Basketball", slug: "basketball", icon: "🏀", description: "Basketball training", sortOrder: 1 },
-      { name: "Soccer", slug: "soccer", icon: "⚽", description: "Soccer practice", sortOrder: 2 },
-      { name: "Tennis", slug: "tennis", icon: "🎾", description: "Tennis training", sortOrder: 3 },
-      { name: "Martial Arts", slug: "martial-arts", icon: "🥋", description: "Martial arts practice", sortOrder: 4 },
-      { name: "Boxing", slug: "boxing", icon: "🥊", description: "Boxing training", sortOrder: 5 }
+      { name: "Basquetbol", slug: "basketball", icon: "🏀", description: "Entrenamiento de basquetbol", sortOrder: 1 },
+      { name: "Futbol", slug: "soccer", icon: "⚽", description: "Práctica de futbol", sortOrder: 2 },
+      { name: "Tenis", slug: "tennis", icon: "🎾", description: "Entrenamiento de tenis", sortOrder: 3 },
+      { name: "Artes Marciales", slug: "martial-arts", icon: "🥋", description: "Práctica de artes marciales", sortOrder: 4 },
+      { name: "Boxeo", slug: "boxing", icon: "🥊", description: "Entrenamiento de boxeo", sortOrder: 5 }
     ]
   }
 ]
 
 const equipmentTypesStructure: CatalogSeed[] = [
   {
-    name: "Free Weights",
+    name: "Peso Libre",
     slug: "free-weights",
     icon: "🏋️",
     color: "#EF4444",
     sortOrder: 1,
-    description: "Free weight equipment",
+    description: "Equipo de peso libre",
     children: [
-      { name: "Barbell", slug: "barbell", description: "Standard barbell", sortOrder: 1 },
-      { name: "Dumbbell", slug: "dumbbell", description: "Dumbbells", sortOrder: 2 },
-      { name: "Kettlebell", slug: "kettlebell", description: "Kettlebell weights", sortOrder: 3 },
-      { name: "EZ Bar", slug: "ez-bar", description: "EZ curl bar", sortOrder: 4 },
-      { name: "Weight Plates", slug: "weight-plates", description: "Weight plates", sortOrder: 5 }
+      { name: "Barra", slug: "barbell", description: "Barra olímpica estándar", sortOrder: 1 },
+      { name: "Mancuernas", slug: "dumbbell", description: "Mancuernas", sortOrder: 2 },
+      { name: "Pesa Rusa", slug: "kettlebell", description: "Pesa rusa (kettlebell)", sortOrder: 3 },
+      { name: "Barra Z", slug: "ez-bar", description: "Barra Z para curl", sortOrder: 4 },
+      { name: "Discos", slug: "weight-plates", description: "Discos de peso", sortOrder: 5 }
     ]
   },
   {
-    name: "Machines",
+    name: "Máquinas",
     slug: "machines",
     icon: "⚙️",
     color: "#3B82F6",
     sortOrder: 2,
-    description: "Gym machines",
+    description: "Máquinas de gimnasio",
     children: [
-      { name: "Cable Machine", slug: "cable-machine", description: "Cable pulley system", sortOrder: 1 },
-      { name: "Smith Machine", slug: "smith-machine", description: "Smith machine rack", sortOrder: 2 },
-      { name: "Leg Press Machine", slug: "leg-press-machine", description: "Leg press", sortOrder: 3 },
-      { name: "Lat Pulldown Machine", slug: "lat-pulldown-machine", description: "Lat pulldown", sortOrder: 4 },
-      { name: "Chest Press Machine", slug: "chest-press-machine", description: "Machine chest press", sortOrder: 5 }
+      { name: "Polea / Cable", slug: "cable-machine", description: "Sistema de poleas y cables", sortOrder: 1 },
+      { name: "Máquina Smith", slug: "smith-machine", description: "Máquina Smith guiada", sortOrder: 2 },
+      { name: "Prensa de Piernas", slug: "leg-press-machine", description: "Prensa de piernas", sortOrder: 3 },
+      { name: "Jalón de Dorsales", slug: "lat-pulldown-machine", description: "Máquina de jalón al pecho", sortOrder: 4 },
+      { name: "Press de Pecho", slug: "chest-press-machine", description: "Máquina de press de pecho", sortOrder: 5 }
     ]
   },
   {
-    name: "Bodyweight",
+    name: "Peso Corporal",
     slug: "bodyweight",
     icon: "🤸",
     color: "#10B981",
     sortOrder: 3,
-    description: "Bodyweight training",
+    description: "Entrenamiento con peso corporal",
     children: [
-      { name: "No Equipment", slug: "no-equipment", description: "Pure bodyweight", sortOrder: 1 },
-      { name: "Pull-up Bar", slug: "pull-up-bar", description: "Pull-up bar", sortOrder: 2 },
-      { name: "Dip Station", slug: "dip-station", description: "Dip bars", sortOrder: 3 },
-      { name: "Rings", slug: "rings", description: "Gymnastic rings", sortOrder: 4 }
+      { name: "Sin Equipo", slug: "no-equipment", description: "Solo peso corporal", sortOrder: 1 },
+      { name: "Barra de Dominadas", slug: "pull-up-bar", description: "Barra para dominadas", sortOrder: 2 },
+      { name: "Estación de Fondos", slug: "dip-station", description: "Barras paralelas para fondos", sortOrder: 3 },
+      { name: "Anillas", slug: "rings", description: "Anillas de gimnasia", sortOrder: 4 }
     ]
   },
   {
-    name: "Cardio Equipment",
+    name: "Equipo de Cardio",
     slug: "cardio-equipment",
     icon: "🏃",
     color: "#F59E0B",
     sortOrder: 4,
-    description: "Cardio machines",
+    description: "Máquinas de cardio",
     children: [
-      { name: "Treadmill", slug: "treadmill", description: "Running treadmill", sortOrder: 1 },
-      { name: "Stationary Bike", slug: "stationary-bike", description: "Exercise bike", sortOrder: 2 },
-      { name: "Rowing Machine", slug: "rowing-machine", description: "Indoor rower", sortOrder: 3 },
-      { name: "Elliptical", slug: "elliptical", description: "Elliptical trainer", sortOrder: 4 },
-      { name: "Stair Climber", slug: "stair-climber", description: "Stair climbing machine", sortOrder: 5 }
+      { name: "Caminadora", slug: "treadmill", description: "Caminadora / banda para correr", sortOrder: 1 },
+      { name: "Bicicleta Estacionaria", slug: "stationary-bike", description: "Bicicleta fija de ejercicio", sortOrder: 2 },
+      { name: "Máquina de Remo", slug: "rowing-machine", description: "Remadora indoor", sortOrder: 3 },
+      { name: "Elíptica", slug: "elliptical", description: "Máquina elíptica", sortOrder: 4 },
+      { name: "Escaladora", slug: "stair-climber", description: "Máquina escaladora", sortOrder: 5 }
     ]
   }
 ]
 
 const muscleGroupsStructure: CatalogSeed[] = [
   {
-    name: "Upper Body",
+    name: "Tren Superior",
     slug: "upper-body",
     icon: "💪",
     color: "#EF4444",
     sortOrder: 1,
-    description: "Upper body muscles",
+    description: "Músculos del tren superior",
     children: [
       {
-        name: "Chest",
+        name: "Pecho",
         slug: "chest-muscle",
         sortOrder: 1,
-        description: "Pectoral muscles"
+        description: "Músculos pectorales"
       },
       {
-        name: "Back",
+        name: "Espalda",
         slug: "back-muscle",
         sortOrder: 2,
-        description: "Back muscles"
+        description: "Músculos de la espalda"
       },
       {
-        name: "Shoulders",
+        name: "Hombros",
         slug: "shoulders-muscle",
         sortOrder: 3,
-        description: "Deltoid muscles"
+        description: "Músculos deltoides"
       },
       {
-        name: "Arms",
+        name: "Brazos",
         slug: "arms-muscle",
         sortOrder: 4,
-        description: "Arm muscles",
+        description: "Músculos de los brazos",
         children: [
-          { name: "Biceps", slug: "biceps-muscle", description: "Bicep muscles", sortOrder: 1 },
-          { name: "Triceps", slug: "triceps-muscle", description: "Tricep muscles", sortOrder: 2 },
-          { name: "Forearms", slug: "forearms-muscle", description: "Forearm muscles", sortOrder: 3 }
+          { name: "Bíceps", slug: "biceps-muscle", description: "Músculos del bíceps", sortOrder: 1 },
+          { name: "Tríceps", slug: "triceps-muscle", description: "Músculos del tríceps", sortOrder: 2 },
+          { name: "Antebrazos", slug: "forearms-muscle", description: "Músculos del antebrazo", sortOrder: 3 }
         ]
       }
     ]
   },
   {
-    name: "Lower Body",
+    name: "Tren Inferior",
     slug: "lower-body",
     icon: "🦵",
     color: "#3B82F6",
     sortOrder: 2,
-    description: "Lower body muscles",
+    description: "Músculos del tren inferior",
     children: [
-      { name: "Quadriceps", slug: "quads", description: "Front thigh muscles", sortOrder: 1 },
-      { name: "Hamstrings", slug: "hamstrings", description: "Back thigh muscles", sortOrder: 2 },
-      { name: "Glutes", slug: "glutes", description: "Gluteal muscles", sortOrder: 3 },
-      { name: "Calves", slug: "calves", description: "Calf muscles", sortOrder: 4 },
-      { name: "Hip Flexors", slug: "hip-flexors", description: "Hip flexor muscles", sortOrder: 5 }
+      { name: "Cuádriceps", slug: "quads", description: "Músculos frontales del muslo", sortOrder: 1 },
+      { name: "Isquiotibiales", slug: "hamstrings", description: "Músculos posteriores del muslo", sortOrder: 2 },
+      { name: "Glúteos", slug: "glutes", description: "Músculos glúteos", sortOrder: 3 },
+      { name: "Pantorrillas", slug: "calves", description: "Músculos de la pantorrilla", sortOrder: 4 },
+      { name: "Flexores de Cadera", slug: "hip-flexors", description: "Músculos flexores de la cadera", sortOrder: 5 }
     ]
   },
   {
@@ -298,52 +298,75 @@ const muscleGroupsStructure: CatalogSeed[] = [
     icon: "🎯",
     color: "#10B981",
     sortOrder: 3,
-    description: "Core muscles",
+    description: "Músculos del core",
     children: [
-      { name: "Abs", slug: "abs", description: "Abdominal muscles", sortOrder: 1 },
-      { name: "Obliques", slug: "obliques", description: "Side abdominal muscles", sortOrder: 2 },
-      { name: "Lower Back", slug: "lower-back", description: "Lower back muscles", sortOrder: 3 }
+      { name: "Abdominales", slug: "abs", description: "Músculos abdominales", sortOrder: 1 },
+      { name: "Oblicuos", slug: "obliques", description: "Músculos oblicuos laterales", sortOrder: 2 },
+      { name: "Espalda Baja", slug: "lower-back", description: "Músculos de la espalda baja", sortOrder: 3 }
     ]
   }
 ]
 
-async function seedCatalogItems(
+async function upsertCatalogItems(
   catalogType: string,
   structure: CatalogSeed[],
   parentId: string | null = null
 ): Promise<void> {
   for (const item of structure) {
-    // Create the catalog item
-    const created = await prisma.catalogItem.create({
-      data: {
-        catalogType,
-        name: item.name,
-        slug: item.slug,
-        description: item.description,
-        icon: item.icon,
-        color: item.color,
-        sortOrder: item.sortOrder || 0,
-        parentId,
-        isSystem: true,
-        userId: null,
-        isActive: true,
-      }
+    // Try to find existing item by slug + catalogType
+    const existing = await prisma.catalogItem.findFirst({
+      where: { catalogType, slug: item.slug, isSystem: true }
     })
 
-    console.log(`  ✓ Created ${catalogType}: ${item.name} (level ${created.level}) - ID: ${created.id}`)
+    let itemId: string
 
-    // Recursively seed children
+    if (existing) {
+      // Update existing item (preserve ID and foreign key references)
+      await prisma.catalogItem.update({
+        where: { id: existing.id },
+        data: {
+          name: item.name,
+          description: item.description,
+          icon: item.icon,
+          color: item.color,
+          sortOrder: item.sortOrder || 0,
+          parentId,
+        }
+      })
+      itemId = existing.id
+      console.log(`  ✏️ Updated ${catalogType}: ${item.name} (slug: ${item.slug})`)
+    } else {
+      // Create new item
+      const created = await prisma.catalogItem.create({
+        data: {
+          catalogType,
+          name: item.name,
+          slug: item.slug,
+          description: item.description,
+          icon: item.icon,
+          color: item.color,
+          sortOrder: item.sortOrder || 0,
+          parentId,
+          isSystem: true,
+          userId: null,
+          isActive: true,
+        }
+      })
+      itemId = created.id
+      console.log(`  ✅ Created ${catalogType}: ${item.name} (slug: ${item.slug})`)
+    }
+
+    // Recursively upsert children
     if (item.children && item.children.length > 0) {
-      await seedCatalogItems(catalogType, item.children, created.id)
+      await upsertCatalogItems(catalogType, item.children, itemId)
     }
   }
 }
 
 export async function seedGymCatalogItems() {
-  console.log("🏋️ Seeding Gym Training Module Catalog Items...")
+  console.log("🏋️ Seeding Gym Training Module Catalog Items (upsert mode)...")
 
   try {
-    // Check if gym catalog items already exist
     const existingCount = await prisma.catalogItem.count({
       where: {
         isSystem: true,
@@ -353,32 +376,19 @@ export async function seedGymCatalogItems() {
       }
     })
 
-    if (existingCount > 0) {
-      console.log(`⚠️  Found ${existingCount} existing Gym system catalog items`)
-      console.log("   Clearing existing Gym system catalog items...")
+    console.log(`📋 Found ${existingCount} existing Gym system catalog items`)
+    console.log("   Using upsert: existing items will be updated, new ones created.\n")
 
-      await prisma.catalogItem.deleteMany({
-        where: {
-          isSystem: true,
-          catalogType: {
-            in: ['exercise_category', 'equipment_type', 'muscle_group']
-          }
-        }
-      })
+    console.log("💪 Upserting Exercise Categories...")
+    await upsertCatalogItems("exercise_category", exerciseCategoriesStructure)
 
-      console.log("   ✓ Cleared existing Gym system catalog items")
-    }
+    console.log("\n🛠️ Upserting Equipment Types...")
+    await upsertCatalogItems("equipment_type", equipmentTypesStructure)
 
-    console.log("\n💪 Seeding Exercise Categories...")
-    await seedCatalogItems("exercise_category", exerciseCategoriesStructure)
+    console.log("\n🎯 Upserting Muscle Groups...")
+    await upsertCatalogItems("muscle_group", muscleGroupsStructure)
 
-    console.log("\n🛠️ Seeding Equipment Types...")
-    await seedCatalogItems("equipment_type", equipmentTypesStructure)
-
-    console.log("\n🎯 Seeding Muscle Groups...")
-    await seedCatalogItems("muscle_group", muscleGroupsStructure)
-
-    // Count total items created
+    // Count total items
     const totalCount = await prisma.catalogItem.count({
       where: {
         isSystem: true,

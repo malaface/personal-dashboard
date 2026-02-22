@@ -5,6 +5,17 @@ import { useForm, Controller, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { PlusIcon, TrashIcon, PencilIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Button } from '@/components/ui/button'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select'
 import SmartCombobox from '@/components/catalog/SmartCombobox'
 
 // Zod schemas
@@ -37,7 +48,16 @@ interface WorkoutTemplate {
   difficulty: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | null
   isPublic: boolean
   tags: string[]
-  exercises: any[]
+  exercises: Array<{
+    exerciseTypeId: string | null
+    muscleGroupId: string | null
+    equipmentId: string | null
+    sets: number
+    reps: number
+    weight: number | null
+    notes: string | null
+    sortOrder: number
+  }>
   user: { name: string | null } | null
   createdAt: string
   updatedAt: string
@@ -45,13 +65,14 @@ interface WorkoutTemplate {
 
 export default function WorkoutTemplateManager() {
   const [templates, setTemplates] = useState<WorkoutTemplate[]>([])
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showDialog, setShowDialog] = useState(false)
   const [editingTemplate, setEditingTemplate] = useState<WorkoutTemplate | null>(null)
   const [tagInput, setTagInput] = useState('')
 
   const form = useForm<TemplateFormData>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(templateSchema) as any,
     defaultValues: {
       name: '',
@@ -88,8 +109,8 @@ export default function WorkoutTemplateManager() {
       if (!response.ok) throw new Error('Failed to fetch templates')
       const data = await response.json()
       setTemplates(data.templates || [])
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setLoading(false)
     }
@@ -159,10 +180,15 @@ export default function WorkoutTemplateManager() {
         throw new Error(errorData.error || 'Failed to save template')
       }
 
-      await fetchTemplates()
+      const result = await response.json()
+      if (editingTemplate) {
+        setTemplates(prev => prev.map(t => t.id === editingTemplate.id ? result.template : t))
+      } else {
+        setTemplates(prev => [result.template, ...prev])
+      }
       setShowDialog(false)
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setLoading(false)
     }
@@ -179,9 +205,9 @@ export default function WorkoutTemplateManager() {
 
       if (!response.ok) throw new Error('Failed to delete template')
 
-      await fetchTemplates()
-    } catch (err: any) {
-      setError(err.message)
+      setTemplates(prev => prev.filter(t => t.id !== id))
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error desconocido')
     } finally {
       setLoading(false)
     }
@@ -205,14 +231,11 @@ export default function WorkoutTemplateManager() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Mis Templates de Workout</h2>
-        <button
-          onClick={openCreateDialog}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-        >
+        <h2 className="text-2xl font-bold">Mis Templates de Entrenamiento</h2>
+        <Button onClick={openCreateDialog}>
           <PlusIcon className="h-5 w-5" />
           Crear Template
-        </button>
+        </Button>
       </div>
 
       {/* Error message */}
@@ -236,18 +259,12 @@ export default function WorkoutTemplateManager() {
               <div className="flex justify-between items-start">
                 <h3 className="font-semibold text-lg">{template.name}</h3>
                 <div className="flex gap-2">
-                  <button
-                    onClick={() => openEditDialog(template)}
-                    className="text-blue-600 hover:text-blue-700"
-                  >
+                  <Button type="button" variant="ghost" size="icon" onClick={() => openEditDialog(template)} className="text-blue-600 hover:text-blue-700">
                     <PencilIcon className="h-5 w-5" />
-                  </button>
-                  <button
-                    onClick={() => deleteTemplate(template.id)}
-                    className="text-red-600 hover:text-red-700"
-                  >
+                  </Button>
+                  <Button type="button" variant="ghost" size="icon" onClick={() => deleteTemplate(template.id)} className="text-red-600 hover:text-red-700">
                     <TrashIcon className="h-5 w-5" />
-                  </button>
+                  </Button>
                 </div>
               </div>
 
@@ -258,7 +275,7 @@ export default function WorkoutTemplateManager() {
               <div className="flex flex-wrap gap-2">
                 {template.difficulty && (
                   <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
-                    {template.difficulty}
+                    {{ BEGINNER: 'Principiante', INTERMEDIATE: 'Intermedio', ADVANCED: 'Avanzado' }[template.difficulty]}
                   </span>
                 )}
                 {template.isPublic && (
@@ -294,21 +311,19 @@ export default function WorkoutTemplateManager() {
               <h3 className="text-xl font-semibold">
                 {editingTemplate ? 'Editar Template' : 'Crear Template'}
               </h3>
-              <button onClick={() => setShowDialog(false)} className="text-gray-400 hover:text-gray-600">
+              <Button type="button" variant="ghost" size="icon" onClick={() => setShowDialog(false)}>
                 <XMarkIcon className="h-6 w-6" />
-              </button>
+              </Button>
             </div>
 
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               {/* Name */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nombre *
-                </label>
-                <input
+                <Label>Nombre *</Label>
+                <Input
                   {...form.register('name')}
                   type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  className="mt-1"
                 />
                 {form.formState.errors.name && (
                   <p className="text-sm text-red-600 mt-1">{form.formState.errors.name.message}</p>
@@ -317,30 +332,30 @@ export default function WorkoutTemplateManager() {
 
               {/* Description */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Descripción
-                </label>
-                <textarea
+                <Label>Descripción</Label>
+                <Textarea
                   {...form.register('description')}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  className="mt-1"
                 />
               </div>
 
               {/* Difficulty */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Dificultad
-                </label>
-                <select
-                  {...form.register('difficulty')}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                <Label>Dificultad</Label>
+                <Select
+                  value={form.watch('difficulty') || ''}
+                  onValueChange={(val) => form.setValue('difficulty', val as any, { shouldValidate: true })}
                 >
-                  <option value="">Sin especificar</option>
-                  <option value="BEGINNER">Principiante</option>
-                  <option value="INTERMEDIATE">Intermedio</option>
-                  <option value="ADVANCED">Avanzado</option>
-                </select>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Sin especificar" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="BEGINNER">Principiante</SelectItem>
+                    <SelectItem value="INTERMEDIATE">Intermedio</SelectItem>
+                    <SelectItem value="ADVANCED">Avanzado</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Is Public */}
@@ -357,25 +372,19 @@ export default function WorkoutTemplateManager() {
 
               {/* Tags */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Tags
-                </label>
-                <div className="flex gap-2 mb-2">
-                  <input
+                <Label>Tags</Label>
+                <div className="flex gap-2 mb-2 mt-1">
+                  <Input
                     type="text"
                     value={tagInput}
                     onChange={(e) => setTagInput(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
                     placeholder="Agregar tag..."
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md"
+                    className="flex-1"
                   />
-                  <button
-                    type="button"
-                    onClick={addTag}
-                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
-                  >
+                  <Button type="button" variant="outline" onClick={addTag}>
                     Agregar
-                  </button>
+                  </Button>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {form.watch('tags').map((tag, idx) => (
@@ -396,11 +405,11 @@ export default function WorkoutTemplateManager() {
               {/* Exercises */}
               <div>
                 <div className="flex justify-between items-center mb-3">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Ejercicios *
-                  </label>
-                  <button
+                  <Label>Ejercicios *</Label>
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="sm"
                     onClick={() => append({
                       exerciseTypeId: null,
                       muscleGroupId: null,
@@ -411,11 +420,11 @@ export default function WorkoutTemplateManager() {
                       notes: null,
                       sortOrder: fields.length
                     })}
-                    className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700"
+                    className="text-blue-600 hover:text-blue-700"
                   >
                     <PlusIcon className="h-4 w-4" />
                     Agregar Ejercicio
-                  </button>
+                  </Button>
                 </div>
 
                 <div className="space-y-4">
@@ -424,13 +433,9 @@ export default function WorkoutTemplateManager() {
                       <div className="flex justify-between items-center">
                         <span className="font-medium text-sm">Ejercicio {index + 1}</span>
                         {fields.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => remove(index)}
-                            className="text-red-600 hover:text-red-700"
-                          >
+                          <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="text-red-600 hover:text-red-700">
                             <TrashIcon className="h-5 w-5" />
-                          </button>
+                          </Button>
                         )}
                       </div>
 
@@ -440,9 +445,9 @@ export default function WorkoutTemplateManager() {
                           control={form.control}
                           render={({ field }) => (
                             <div>
-                              <label className="block text-xs font-medium text-gray-700 mb-1">
+                              <Label className="text-xs">
                                 Tipo de Ejercicio
-                              </label>
+                              </Label>
                               <SmartCombobox
                                 catalogType="exercise_category"
                                 value={field.value || ''}
@@ -458,9 +463,9 @@ export default function WorkoutTemplateManager() {
                           control={form.control}
                           render={({ field }) => (
                             <div>
-                              <label className="block text-xs font-medium text-gray-700 mb-1">
+                              <Label className="text-xs">
                                 Grupo Muscular
-                              </label>
+                              </Label>
                               <SmartCombobox
                                 catalogType="muscle_group"
                                 value={field.value || ''}
@@ -476,9 +481,9 @@ export default function WorkoutTemplateManager() {
                           control={form.control}
                           render={({ field }) => (
                             <div>
-                              <label className="block text-xs font-medium text-gray-700 mb-1">
+                              <Label className="text-xs">
                                 Equipo
-                              </label>
+                              </Label>
                               <SmartCombobox
                                 catalogType="equipment_type"
                                 value={field.value || ''}
@@ -492,48 +497,46 @@ export default function WorkoutTemplateManager() {
 
                       <div className="grid grid-cols-3 gap-3">
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                          <Label className="text-xs">
                             Sets
-                          </label>
-                          <input
-                            {...form.register(`exercises.${index}.sets`, { valueAsNumber: true })}
+                          </Label>
+                          <Input
+                            {...form.register(`exercises.${index}.sets`, { setValueAs: (v: string) => v === '' || Number.isNaN(Number(v)) ? undefined : Number(v) })}
                             type="number"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            className="mt-1"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                          <Label className="text-xs">
                             Reps
-                          </label>
-                          <input
-                            {...form.register(`exercises.${index}.reps`, { valueAsNumber: true })}
+                          </Label>
+                          <Input
+                            {...form.register(`exercises.${index}.reps`, { setValueAs: (v: string) => v === '' || Number.isNaN(Number(v)) ? undefined : Number(v) })}
                             type="number"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            className="mt-1"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                          <Label className="text-xs">
                             Peso (kg)
-                          </label>
-                          <input
-                            {...form.register(`exercises.${index}.weight`, { valueAsNumber: true })}
+                          </Label>
+                          <Input
+                            {...form.register(`exercises.${index}.weight`, { setValueAs: (v: string) => v === '' || Number.isNaN(Number(v)) ? undefined : Number(v) })}
                             type="number"
                             step="0.5"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            className="mt-1"
                           />
                         </div>
                       </div>
 
                       <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                          Notas
-                        </label>
-                        <input
+                        <Label className="text-xs">Notas</Label>
+                        <Input
                           {...form.register(`exercises.${index}.notes`)}
                           type="text"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                          className="mt-1"
                         />
                       </div>
                     </div>
@@ -543,20 +546,12 @@ export default function WorkoutTemplateManager() {
 
               {/* Actions */}
               <div className="flex justify-end gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowDialog(false)}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
-                >
+                <Button type="button" variant="outline" onClick={() => setShowDialog(false)}>
                   Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-                >
+                </Button>
+                <Button type="submit" disabled={loading}>
                   {loading ? 'Guardando...' : editingTemplate ? 'Actualizar' : 'Crear'}
-                </button>
+                </Button>
               </div>
             </form>
           </div>

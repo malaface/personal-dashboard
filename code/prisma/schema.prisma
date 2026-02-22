@@ -42,6 +42,9 @@ model User {
   catalogItems  CatalogItem[]
   workoutTemplates WorkoutTemplate[]
   mealTemplates    MealTemplate[]
+  aiCredentials AICredential[]
+  financialAccounts FinancialAccount[]
+  creditCards       CreditCard[]
 
   @@map("users")
 }
@@ -116,20 +119,45 @@ model Profile {
 // ============================================
 
 model Workout {
-  id        String     @id @default(cuid())
-  userId    String
-  name      String
-  date      DateTime   @default(now())
-  duration  Int?       // minutes
-  notes     String?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  id             String      @id @default(cuid())
+  userId         String
+  name           String
+  type           WorkoutType @default(GYM)
+  date           DateTime    @default(now())
+  duration       Int?        // minutes
+  caloriesBurned Float?      // kcal
+  notes          String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
 
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  exercises Exercise[]
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercises      Exercise[]
+  cardioSession  CardioSession?
 
-  @@index([userId, date])
+  @@index([userId, type, date])
   @@map("workouts")
+}
+
+model CardioSession {
+  id            String      @id @default(cuid())
+  workoutId     String      @unique
+  distance      Float?      // meters for swimming, km for running/cycling
+  distanceUnit  String      @default("km") // "m" | "km"
+  pace          Float?      // min/km (running)
+  avgSpeed      Float?      // km/h (cycling)
+  maxSpeed      Float?      // km/h (cycling)
+  elevationGain Float?      // meters (running/cycling)
+  avgHeartRate  Int?        // bpm
+  laps          Int?        // swimming
+  poolSize      Int?        // 25 or 50 meters (swimming)
+  strokeType    StrokeType? // swimming
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  workout Workout @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+
+  @@index([workoutId])
+  @@map("cardio_sessions")
 }
 
 model Exercise {
@@ -147,6 +175,7 @@ model Exercise {
   sets        Int
   reps        Int
   weight      Float?   // kg
+  weightUnit  String   @default("kg") @map("weight_unit") // "kg" | "lbs"
   notes       String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -156,12 +185,28 @@ model Exercise {
   muscleGroup    CatalogItem?     @relation("MuscleGroup", fields: [muscleGroupId], references: [id], onDelete: Restrict)
   equipment      CatalogItem?     @relation("Equipment", fields: [equipmentId], references: [id], onDelete: Restrict)
   progress       WorkoutProgress[]
+  exerciseSets   ExerciseSet[]
 
   @@index([workoutId])
   @@index([exerciseTypeId])
   @@index([muscleGroupId])
   @@index([equipmentId])
   @@map("exercises")
+}
+
+model ExerciseSet {
+  id         String   @id @default(cuid())
+  exerciseId String
+  setNumber  Int      // 1, 2, 3...
+  reps       Int
+  weight     Float?
+  completed  Boolean  @default(true)
+  notes      String?
+
+  exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@index([exerciseId])
+  @@map("exercise_sets")
 }
 
 model WorkoutProgress {
@@ -236,8 +281,78 @@ enum TemplateDifficulty {
 }
 
 // ============================================
+// MULTI-MODE TRAINING ENUMS
+// ============================================
+
+enum WorkoutType {
+  GYM
+  SWIMMING
+  RUNNING
+  CYCLING
+}
+
+enum StrokeType {
+  FREESTYLE
+  BACKSTROKE
+  BREASTSTROKE
+  BUTTERFLY
+  MIXED
+}
+
+// ============================================
 // FINANCE MODULE
 // ============================================
+
+enum AccountType {
+  DEBIT_CARD
+  CASH
+  SAVINGS
+}
+
+model FinancialAccount {
+  id          String      @id @default(cuid())
+  userId      String
+  accountType AccountType
+  name        String
+  balance     Float       @default(0)
+  currency    String      @default("MXN")
+  icon        String?
+  color       String?
+  sortOrder   Int         @default(0)
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[] @relation("TransactionFromAccount")
+
+  @@index([userId, isActive])
+  @@map("financial_accounts")
+}
+
+model CreditCard {
+  id                 String  @id @default(cuid())
+  userId             String
+  name               String
+  creditLimit        Float
+  currentBalance     Float   @default(0)
+  annualInterestRate Float
+  cutoffDay          Int     // 1-31
+  paymentDay         Int     // 1-31
+  icon               String?
+  color              String?
+  sortOrder          Int     @default(0)
+  isActive           Boolean @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[] @relation("TransactionCreditCard")
+
+  @@index([userId, isActive])
+  @@index([userId, cutoffDay])
+  @@map("credit_cards")
+}
 
 model Transaction {
   id          String        @id @default(cuid())
@@ -252,20 +367,31 @@ model Transaction {
   categoryId  String?       // Reference to CatalogItem (transaction category)
 
   amount      Float
+  currency    String        @default("MXN") // "MXN" | "USD"
   description String?
   date        DateTime      @default(now())
+
+  // Financial account / credit card references
+  fromAccountId String?
+  creditCardId  String?
+  toAccountId   String?     // For transfers - logical reference only
+
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
   user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   typeItem        CatalogItem?       @relation("TransactionType", fields: [typeId], references: [id], onDelete: Restrict)
   categoryItem    CatalogItem?       @relation("TransactionCategory", fields: [categoryId], references: [id], onDelete: Restrict)
+  fromAccount     FinancialAccount?  @relation("TransactionFromAccount", fields: [fromAccountId], references: [id], onDelete: SetNull)
+  creditCard      CreditCard?        @relation("TransactionCreditCard", fields: [creditCardId], references: [id], onDelete: SetNull)
   audits          TransactionAudit[]
 
   @@index([userId, date])
   @@index([userId, category])
   @@index([userId, categoryId])
   @@index([typeId])
+  @@index([fromAccountId])
+  @@index([creditCardId])
   @@map("transactions")
 }
 
@@ -524,6 +650,8 @@ model Event {
 
   date           DateTime
   location       String?
+  isRecurring    Boolean        @default(false)
+  recurrenceType RecurrenceType?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -534,6 +662,12 @@ model Event {
   @@index([userId, date])
   @@index([categoryId])
   @@map("events")
+}
+
+enum RecurrenceType {
+  YEARLY
+  MONTHLY
+  WEEKLY
 }
 
 model Reminder {
@@ -679,4 +813,46 @@ model AuditLog {
   @@index([action, createdAt])
   @@index([ipAddress, createdAt])
   @@map("audit_logs")
+}
+
+// ============================================
+// AI CREDENTIALS (Encrypted API Keys)
+// ============================================
+
+model AICredential {
+  id        String   @id @default(cuid())
+  userId    String
+
+  // Credential Info
+  provider  AIProvider // GEMINI, OPENAI, CLAUDE, etc.
+  apiKey    String     @db.Text // Encrypted API key
+  label     String?    // Optional friendly name (e.g., "My Gemini Key")
+
+  // Status & Validation
+  isActive  Boolean    @default(true)
+  isValid   Boolean    @default(false) // Set to true after successful validation
+  lastValidated DateTime?
+
+  // Usage Tracking (optional, for future analytics)
+  usageCount Int      @default(0)
+  lastUsedAt DateTime?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Indexes
+  @@index([userId, provider])
+  @@index([userId, isActive])
+  @@map("ai_credentials")
+}
+
+enum AIProvider {
+  GEMINI
+  OPENAI
+  CLAUDE
+  HUGGINGFACE
 }

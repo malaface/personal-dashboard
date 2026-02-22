@@ -86,9 +86,10 @@ export function useComboboxSearch(
         if (enableCache) {
           cacheRef.current.set(cacheKey, data.results || [])
         }
-      } catch (err: any) {
-        if (err.name !== 'AbortError') {
-          setError(err.message || 'Search error')
+      } catch (err: unknown) {
+        if (err instanceof DOMException && err.name === 'AbortError') {
+        } else {
+          setError(err instanceof Error ? err.message : 'Search error')
           setResults([])
         }
       } finally {

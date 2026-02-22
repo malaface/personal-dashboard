@@ -3,6 +3,8 @@ import { compare } from "bcryptjs"
 import { prisma } from "@/lib/db/prisma"
 import { createAuditLog } from "@/lib/audit/logger"
 
+const APP_URL = process.env.NEXTAUTH_URL || 'http://localhost:3000'
+
 /**
  * Email Verification Endpoint
  *
@@ -48,7 +50,7 @@ export async function GET(request: NextRequest) {
       })
 
       return NextResponse.redirect(
-        new URL("/login?error=invalid_token&message=" + encodeURIComponent("Invalid or expired verification link"), request.url)
+        new URL("/login?error=invalid_token&message=" + encodeURIComponent("Invalid or expired verification link"), APP_URL)
       )
     }
 
@@ -75,7 +77,7 @@ export async function GET(request: NextRequest) {
       })
 
       return NextResponse.redirect(
-        new URL("/login?error=expired_token&message=" + encodeURIComponent("Verification link has expired. Please register again."), request.url)
+        new URL("/login?error=expired_token&message=" + encodeURIComponent("Verification link has expired. Please register again."), APP_URL)
       )
     }
 
@@ -86,7 +88,7 @@ export async function GET(request: NextRequest) {
 
     if (!user) {
       return NextResponse.redirect(
-        new URL("/login?error=user_not_found&message=" + encodeURIComponent("User not found"), request.url)
+        new URL("/login?error=user_not_found&message=" + encodeURIComponent("User not found"), APP_URL)
       )
     }
 
@@ -120,9 +122,9 @@ export async function GET(request: NextRequest) {
 
     // Redirect to login with success message
     return NextResponse.redirect(
-      new URL("/login?verified=true&message=" + encodeURIComponent("Email verified successfully! You can now login."), request.url)
+      new URL("/login?verified=true&message=" + encodeURIComponent("Email verified successfully! You can now login."), APP_URL)
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("❌ Email verification error:", error)
 
     // Audit log for error
@@ -131,12 +133,12 @@ export async function GET(request: NextRequest) {
       metadata: {
         success: false,
         reason: "server_error",
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error',
       },
     })
 
     return NextResponse.redirect(
-      new URL("/login?error=verification_failed&message=" + encodeURIComponent("Verification failed. Please try again or contact support."), request.url)
+      new URL("/login?error=verification_failed&message=" + encodeURIComponent("Verification failed. Please try again or contact support."), APP_URL)
     )
   }
 }

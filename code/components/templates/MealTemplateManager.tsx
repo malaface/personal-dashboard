@@ -5,6 +5,17 @@ import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { PlusIcon, TrashIcon, PencilIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Button } from '@/components/ui/button'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select'
 
 // Zod schemas
 const foodItemSchema = z.object({
@@ -40,7 +51,16 @@ interface MealTemplate {
   totalProtein: number
   totalCarbs: number
   totalFats: number
-  foodItems: any[]
+  foodItems: Array<{
+    name: string
+    quantity: number
+    unit: string
+    calories: number | null
+    protein: number | null
+    carbs: number | null
+    fats: number | null
+    sortOrder: number
+  }>
   user: { name: string | null } | null
   createdAt: string
   updatedAt: string
@@ -48,13 +68,14 @@ interface MealTemplate {
 
 export default function MealTemplateManager() {
   const [templates, setTemplates] = useState<MealTemplate[]>([])
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showDialog, setShowDialog] = useState(false)
   const [editingTemplate, setEditingTemplate] = useState<MealTemplate | null>(null)
   const [tagInput, setTagInput] = useState('')
 
   const form = useForm<TemplateFormData>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(templateSchema) as any,
     defaultValues: {
       name: '',
@@ -91,8 +112,8 @@ export default function MealTemplateManager() {
       if (!response.ok) throw new Error('Failed to fetch templates')
       const data = await response.json()
       setTemplates(data.templates || [])
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setLoading(false)
     }
@@ -162,10 +183,15 @@ export default function MealTemplateManager() {
         throw new Error(errorData.error || 'Failed to save template')
       }
 
-      await fetchTemplates()
+      const result = await response.json()
+      if (editingTemplate) {
+        setTemplates(prev => prev.map(t => t.id === editingTemplate.id ? result.template : t))
+      } else {
+        setTemplates(prev => [result.template, ...prev])
+      }
       setShowDialog(false)
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setLoading(false)
     }
@@ -182,9 +208,9 @@ export default function MealTemplateManager() {
 
       if (!response.ok) throw new Error('Failed to delete template')
 
-      await fetchTemplates()
-    } catch (err: any) {
-      setError(err.message)
+      setTemplates(prev => prev.filter(t => t.id !== id))
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error desconocido')
     } finally {
       setLoading(false)
     }
@@ -222,13 +248,10 @@ export default function MealTemplateManager() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Mis Templates de Comidas</h2>
-        <button
-          onClick={openCreateDialog}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-        >
+        <Button onClick={openCreateDialog}>
           <PlusIcon className="h-5 w-5" />
           Crear Template
-        </button>
+        </Button>
       </div>
 
       {/* Error message */}
@@ -252,18 +275,12 @@ export default function MealTemplateManager() {
               <div className="flex justify-between items-start">
                 <h3 className="font-semibold text-lg">{template.name}</h3>
                 <div className="flex gap-2">
-                  <button
-                    onClick={() => openEditDialog(template)}
-                    className="text-blue-600 hover:text-blue-700"
-                  >
+                  <Button type="button" variant="ghost" size="icon" onClick={() => openEditDialog(template)} className="text-blue-600 hover:text-blue-700">
                     <PencilIcon className="h-5 w-5" />
-                  </button>
-                  <button
-                    onClick={() => deleteTemplate(template.id)}
-                    className="text-red-600 hover:text-red-700"
-                  >
+                  </Button>
+                  <Button type="button" variant="ghost" size="icon" onClick={() => deleteTemplate(template.id)} className="text-red-600 hover:text-red-700">
                     <TrashIcon className="h-5 w-5" />
-                  </button>
+                  </Button>
                 </div>
               </div>
 
@@ -274,7 +291,7 @@ export default function MealTemplateManager() {
               <div className="flex flex-wrap gap-2">
                 {template.mealType && (
                   <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
-                    {template.mealType}
+                    {{ BREAKFAST: 'Desayuno', LUNCH: 'Almuerzo', DINNER: 'Cena', SNACK: 'Colación' }[template.mealType]}
                   </span>
                 )}
                 {template.isPublic && (
@@ -320,21 +337,19 @@ export default function MealTemplateManager() {
               <h3 className="text-xl font-semibold">
                 {editingTemplate ? 'Editar Template' : 'Crear Template'}
               </h3>
-              <button onClick={() => setShowDialog(false)} className="text-gray-400 hover:text-gray-600">
+              <Button type="button" variant="ghost" size="icon" onClick={() => setShowDialog(false)}>
                 <XMarkIcon className="h-6 w-6" />
-              </button>
+              </Button>
             </div>
 
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               {/* Name */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nombre *
-                </label>
-                <input
+                <Label>Nombre *</Label>
+                <Input
                   {...form.register('name')}
                   type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  className="mt-1"
                 />
                 {form.formState.errors.name && (
                   <p className="text-sm text-red-600 mt-1">{form.formState.errors.name.message}</p>
@@ -343,31 +358,31 @@ export default function MealTemplateManager() {
 
               {/* Description */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Descripción
-                </label>
-                <textarea
+                <Label>Descripción</Label>
+                <Textarea
                   {...form.register('description')}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  className="mt-1"
                 />
               </div>
 
               {/* Meal Type */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Tipo de Comida
-                </label>
-                <select
-                  {...form.register('mealType')}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                <Label>Tipo de Comida</Label>
+                <Select
+                  value={form.watch('mealType') || ''}
+                  onValueChange={(val) => form.setValue('mealType', val as any, { shouldValidate: true })}
                 >
-                  <option value="">Sin especificar</option>
-                  <option value="BREAKFAST">Desayuno</option>
-                  <option value="LUNCH">Almuerzo</option>
-                  <option value="DINNER">Cena</option>
-                  <option value="SNACK">Snack</option>
-                </select>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Sin especificar" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="BREAKFAST">Desayuno</SelectItem>
+                    <SelectItem value="LUNCH">Almuerzo</SelectItem>
+                    <SelectItem value="DINNER">Cena</SelectItem>
+                    <SelectItem value="SNACK">Colación</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Is Public */}
@@ -384,25 +399,19 @@ export default function MealTemplateManager() {
 
               {/* Tags */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Tags
-                </label>
-                <div className="flex gap-2 mb-2">
-                  <input
+                <Label>Tags</Label>
+                <div className="flex gap-2 mb-2 mt-1">
+                  <Input
                     type="text"
                     value={tagInput}
                     onChange={(e) => setTagInput(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
                     placeholder="Agregar tag..."
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md"
+                    className="flex-1"
                   />
-                  <button
-                    type="button"
-                    onClick={addTag}
-                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
-                  >
+                  <Button type="button" variant="outline" onClick={addTag}>
                     Agregar
-                  </button>
+                  </Button>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {form.watch('tags').map((tag, idx) => (
@@ -423,11 +432,11 @@ export default function MealTemplateManager() {
               {/* Food Items */}
               <div>
                 <div className="flex justify-between items-center mb-3">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Alimentos *
-                  </label>
-                  <button
+                  <Label>Alimentos *</Label>
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="sm"
                     onClick={() => append({
                       name: '',
                       quantity: 100,
@@ -438,11 +447,11 @@ export default function MealTemplateManager() {
                       fats: null,
                       sortOrder: fields.length
                     })}
-                    className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700"
+                    className="text-blue-600 hover:text-blue-700"
                   >
                     <PlusIcon className="h-4 w-4" />
                     Agregar Alimento
-                  </button>
+                  </Button>
                 </div>
 
                 <div className="space-y-4">
@@ -451,44 +460,40 @@ export default function MealTemplateManager() {
                       <div className="flex justify-between items-center">
                         <span className="font-medium text-sm">Alimento {index + 1}</span>
                         {fields.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => remove(index)}
-                            className="text-red-600 hover:text-red-700"
-                          >
+                          <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="text-red-600 hover:text-red-700">
                             <TrashIcon className="h-5 w-5" />
-                          </button>
+                          </Button>
                         )}
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div className="md:col-span-2">
-                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                          <Label className="text-xs">
                             Nombre
-                          </label>
-                          <input
+                          </Label>
+                          <Input
                             {...form.register(`foodItems.${index}.name`)}
                             type="text"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            className="mt-1"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                          <Label className="text-xs">
                             Cantidad
-                          </label>
+                          </Label>
                           <div className="flex gap-2">
-                            <input
-                              {...form.register(`foodItems.${index}.quantity`, { valueAsNumber: true })}
+                            <Input
+                              {...form.register(`foodItems.${index}.quantity`, { setValueAs: (v: string) => v === '' || Number.isNaN(Number(v)) ? undefined : Number(v) })}
                               type="number"
                               step="0.1"
-                              className="w-20 px-3 py-2 border border-gray-300 rounded-md"
+                              className="w-20"
                             />
-                            <input
+                            <Input
                               {...form.register(`foodItems.${index}.unit`)}
                               type="text"
                               placeholder="g, ml, oz"
-                              className="flex-1 px-3 py-2 border border-gray-300 rounded-md"
+                              className="flex-1"
                             />
                           </div>
                         </div>
@@ -496,50 +501,50 @@ export default function MealTemplateManager() {
 
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                          <Label className="text-xs">
                             Calorías
-                          </label>
-                          <input
-                            {...form.register(`foodItems.${index}.calories`, { valueAsNumber: true })}
+                          </Label>
+                          <Input
+                            {...form.register(`foodItems.${index}.calories`, { setValueAs: (v: string) => v === '' || Number.isNaN(Number(v)) ? undefined : Number(v) })}
                             type="number"
                             step="0.1"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            className="mt-1"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                          <Label className="text-xs">
                             Proteína (g)
-                          </label>
-                          <input
-                            {...form.register(`foodItems.${index}.protein`, { valueAsNumber: true })}
+                          </Label>
+                          <Input
+                            {...form.register(`foodItems.${index}.protein`, { setValueAs: (v: string) => v === '' || Number.isNaN(Number(v)) ? undefined : Number(v) })}
                             type="number"
                             step="0.1"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            className="mt-1"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                          <Label className="text-xs">
                             Carbos (g)
-                          </label>
-                          <input
-                            {...form.register(`foodItems.${index}.carbs`, { valueAsNumber: true })}
+                          </Label>
+                          <Input
+                            {...form.register(`foodItems.${index}.carbs`, { setValueAs: (v: string) => v === '' || Number.isNaN(Number(v)) ? undefined : Number(v) })}
                             type="number"
                             step="0.1"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            className="mt-1"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                          <Label className="text-xs">
                             Grasas (g)
-                          </label>
-                          <input
-                            {...form.register(`foodItems.${index}.fats`, { valueAsNumber: true })}
+                          </Label>
+                          <Input
+                            {...form.register(`foodItems.${index}.fats`, { setValueAs: (v: string) => v === '' || Number.isNaN(Number(v)) ? undefined : Number(v) })}
                             type="number"
                             step="0.1"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            className="mt-1"
                           />
                         </div>
                       </div>
@@ -563,20 +568,12 @@ export default function MealTemplateManager() {
 
               {/* Actions */}
               <div className="flex justify-end gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowDialog(false)}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
-                >
+                <Button type="button" variant="outline" onClick={() => setShowDialog(false)}>
                   Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-                >
+                </Button>
+                <Button type="submit" disabled={loading}>
                   {loading ? 'Guardando...' : editingTemplate ? 'Actualizar' : 'Crear'}
-                </button>
+                </Button>
               </div>
             </form>
           </div>

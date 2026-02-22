@@ -1,24 +1,48 @@
 import { requireAuth } from "@/lib/auth/utils"
 import { prisma } from "@/lib/db/prisma"
-import { notFound, redirect } from "next/navigation"
+import { notFound } from "next/navigation"
 import WorkoutForm from "@/components/workouts/WorkoutForm"
+import SwimmingForm from "@/components/workouts/cardio/SwimmingForm"
+import RunningForm from "@/components/workouts/cardio/RunningForm"
+import CyclingForm from "@/components/workouts/cardio/CyclingForm"
 import Link from "next/link"
+
+const typeToMode: Record<string, string> = {
+  GYM: "gym",
+  SWIMMING: "swimming",
+  RUNNING: "running",
+  CYCLING: "cycling",
+}
+
+const modeLabels: Record<string, string> = {
+  gym: "Gimnasio",
+  swimming: "Natacion",
+  running: "Correr",
+  cycling: "Ciclismo",
+}
 
 export default async function EditWorkoutPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
   const user = await requireAuth()
+  const { id } = await params
 
-  // Fetch workout with authorization check
   const workout = await prisma.workout.findFirst({
     where: {
-      id: params.id,
-      userId: user.id, // ← Authorization: user can only edit their own workouts
+      id,
+      userId: user.id,
     },
     include: {
-      exercises: true,
+      exercises: {
+        include: {
+          exerciseType: true,
+          muscleGroup: true,
+          equipment: true,
+        },
+      },
+      cardioSession: true,
     },
   })
 
@@ -26,22 +50,36 @@ export default async function EditWorkoutPage({
     notFound()
   }
 
-  // Transform Prisma data to WorkoutForm format
-  const workoutData = {
-    id: workout.id,
-    name: workout.name,
-    date: workout.date,
-    duration: workout.duration,
-    notes: workout.notes,
-    exercises: workout.exercises.map(exercise => ({
-      exerciseTypeId: exercise.exerciseTypeId,
-      muscleGroupId: exercise.muscleGroupId,
-      equipmentId: exercise.equipmentId,
-      sets: exercise.sets,
-      reps: exercise.reps,
-      weight: exercise.weight,
-      notes: exercise.notes,
-    }))
+  const mode = typeToMode[workout.type] || "gym"
+
+  const renderForm = () => {
+    switch (workout.type) {
+      case "SWIMMING":
+        return <SwimmingForm workout={workout} />
+      case "RUNNING":
+        return <RunningForm workout={workout} />
+      case "CYCLING":
+        return <CyclingForm workout={workout} />
+      default: {
+        const workoutData = {
+          id: workout.id,
+          name: workout.name,
+          date: workout.date,
+          duration: workout.duration,
+          notes: workout.notes,
+          exercises: workout.exercises.map(exercise => ({
+            exerciseTypeId: exercise.exerciseTypeId,
+            muscleGroupId: exercise.muscleGroupId,
+            equipmentId: exercise.equipmentId,
+            sets: exercise.sets,
+            reps: exercise.reps,
+            weight: exercise.weight,
+            notes: exercise.notes,
+          }))
+        }
+        return <WorkoutForm workout={workoutData} />
+      }
+    }
   }
 
   return (
@@ -49,16 +87,18 @@ export default async function EditWorkoutPage({
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <Link
-            href="/dashboard/workouts"
+            href={`/dashboard/workouts?mode=${mode}`}
             className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm"
           >
-            ← Volver a Entrenamientos
+            &larr; Volver a {modeLabels[mode]}
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mt-4">Editar Entrenamiento</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">Actualiza los detalles de tu entrenamiento</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mt-4">Editar Sesion</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">
+            Modifica tu sesion de {modeLabels[mode].toLowerCase()}
+          </p>
         </div>
 
-        <WorkoutForm workout={workoutData} />
+        {renderForm()}
       </div>
     </div>
   )

@@ -10,11 +10,13 @@ export async function getMealTemplates(userId: string, filters?: {
   mealType?: "BREAKFAST" | "LUNCH" | "DINNER" | "SNACK"
   tags?: string[]
   search?: string
+  take?: number
+  skip?: number
 }) {
-  const where: any = {
+  const where: Record<string, unknown> = {
     OR: [
-      { userId, isPublic: false }, // User's private templates
-      { isPublic: true }            // Public templates
+      { userId, isPublic: false },
+      { isPublic: true }
     ]
   }
 
@@ -29,8 +31,9 @@ export async function getMealTemplates(userId: string, filters?: {
   }
 
   if (filters?.search) {
+    const existingAnd = Array.isArray(where.AND) ? where.AND : []
     where.AND = [
-      ...(where.AND || []),
+      ...existingAnd,
       {
         OR: [
           { name: { contains: filters.search, mode: 'insensitive' } },
@@ -40,28 +43,36 @@ export async function getMealTemplates(userId: string, filters?: {
     ]
   }
 
-  const templates = await prisma.mealTemplate.findMany({
-    where,
-    include: {
-      foodItems: {
-        orderBy: {
-          sortOrder: 'asc'
+  const take = filters?.take ?? 50
+  const skip = filters?.skip ?? 0
+
+  const [templates, total] = await Promise.all([
+    prisma.mealTemplate.findMany({
+      where,
+      include: {
+        foodItems: {
+          orderBy: {
+            sortOrder: 'asc'
+          }
+        },
+        user: {
+          select: {
+            name: true,
+            email: true
+          }
         }
       },
-      user: {
-        select: {
-          name: true,
-          email: true
-        }
-      }
-    },
-    orderBy: [
-      { isPublic: 'desc' }, // Public first
-      { updatedAt: 'desc' }
-    ]
-  })
+      orderBy: [
+        { isPublic: 'desc' },
+        { updatedAt: 'desc' }
+      ],
+      take,
+      skip
+    }),
+    prisma.mealTemplate.count({ where })
+  ])
 
-  return templates
+  return { templates, total }
 }
 
 // ============================================

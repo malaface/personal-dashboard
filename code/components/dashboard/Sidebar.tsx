@@ -2,29 +2,13 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import {
-  HomeIcon,
-  ChartBarIcon,
-  CurrencyDollarIcon,
-  CalendarIcon,
-  UserGroupIcon,
-  ChartPieIcon
-} from "@heroicons/react/24/outline"
-
-const navigation = [
-  { name: "Inicio", href: "/dashboard", icon: HomeIcon },
-  { name: "Entrenamiento", href: "/dashboard/workouts", icon: ChartBarIcon },
-  { name: "Finanzas", href: "/dashboard/finance", icon: CurrencyDollarIcon },
-  { name: "Nutrición", href: "/dashboard/nutrition", icon: CalendarIcon },
-  { name: "Familia", href: "/dashboard/family", icon: UserGroupIcon },
-  { name: "Analítica", href: "/dashboard/analytics", icon: ChartPieIcon },
-]
+import { navigation } from "@/lib/navigation"
 
 export default function Sidebar() {
   const pathname = usePathname()
 
   return (
-    <div className="flex flex-col w-64 bg-gray-900 min-h-screen">
+    <div className="hidden md:flex flex-col w-64 bg-gray-900 min-h-screen">
       <div className="flex items-center justify-center h-16 bg-gray-800">
         <h1 className="text-white text-xl font-bold">Panel Personal</h1>
       </div>

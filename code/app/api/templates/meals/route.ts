@@ -30,22 +30,28 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Get templates with filters
-    const templates = await getMealTemplates(user.id, {
+    // Get templates with filters + pagination
+    const take = parseInt(searchParams.get("take") || "50", 10)
+    const skip = parseInt(searchParams.get("skip") || "0", 10)
+
+    const { templates, total } = await getMealTemplates(user.id, {
       mealType,
       tags,
-      search
+      search,
+      take: Math.min(take, 100),
+      skip
     })
 
     return NextResponse.json({
       templates,
-      count: templates.length
+      count: templates.length,
+      total
     })
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("GET /api/templates/meals error:", error)
 
-    if (error.message === "Unauthorized") {
+    if (error instanceof Error && error.message === "Unauthorized") {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
@@ -53,7 +59,7 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: error.message || "Failed to fetch templates" },
+      { error: error instanceof Error ? error.message : "Failed to fetch templates" },
       { status: 500 }
     )
   }
@@ -92,10 +98,10 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     )
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("POST /api/templates/meals error:", error)
 
-    if (error.message === "Unauthorized") {
+    if (error instanceof Error && error.message === "Unauthorized") {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
@@ -103,7 +109,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: error.message || "Failed to create template" },
+      { error: error instanceof Error ? error.message : "Failed to create template" },
       { status: 500 }
     )
   }

@@ -3,6 +3,10 @@
 import { useState } from "react"
 import { updateProfile } from "@/app/dashboard/settings/actions"
 import { useRouter } from "next/navigation"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
 
 interface ProfileFormProps {
   user: {
@@ -59,8 +63,8 @@ export default function ProfileForm({ user, profile }: ProfileFormProps) {
       } else {
         setError(result.error || "Algo salió mal")
       }
-    } catch (err: any) {
-      setError(err.message || "Error al actualizar el perfil")
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Error al actualizar el perfil")
     } finally {
       setLoading(false)
     }
@@ -85,128 +89,108 @@ export default function ProfileForm({ user, profile }: ProfileFormProps) {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Nombre Completo *
-            </label>
-            <input
+            <Label>Nombre Completo *</Label>
+            <Input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
               minLength={2}
               maxLength={100}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              className="mt-1"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Email (solo lectura)
-            </label>
-            <input
+            <Label>Email (solo lectura)</Label>
+            <Input
               type="email"
               value={user.email || ""}
               disabled
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400"
+              className="mt-1"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Biografía
-          </label>
-          <textarea
+          <Label>Biografía</Label>
+          <Textarea
             value={bio}
             onChange={(e) => setBio(e.target.value)}
             rows={3}
             maxLength={300}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
             placeholder="Cuéntanos sobre ti..."
+            className="mt-1"
           />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Teléfono
-            </label>
-            <input
+            <Label>Teléfono</Label>
+            <Input
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               maxLength={20}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
               placeholder="+52 55 1234 5678"
+              className="mt-1"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Fecha de Nacimiento
-            </label>
-            <input
+            <Label>Fecha de Nacimiento</Label>
+            <Input
               type="date"
               value={birthday}
               onChange={(e) => setBirthday(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              className="mt-1"
             />
           </div>
         </div>
 
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              País
-            </label>
-            <input
+            <Label>País</Label>
+            <Input
               type="text"
               value={country}
               onChange={(e) => setCountry(e.target.value)}
               maxLength={100}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
               placeholder="México"
+              className="mt-1"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Ciudad
-            </label>
-            <input
+            <Label>Ciudad</Label>
+            <Input
               type="text"
               value={city}
               onChange={(e) => setCity(e.target.value)}
               maxLength={100}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
               placeholder="Ciudad de México"
+              className="mt-1"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Zona Horaria
-            </label>
-            <input
+            <Label>Zona Horaria</Label>
+            <Input
               type="text"
               value={timezone}
               onChange={(e) => setTimezone(e.target.value)}
               maxLength={50}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
               placeholder="America/Mexico_City"
+              className="mt-1"
             />
           </div>
         </div>
       </div>
 
       <div className="flex justify-end">
-        <button
-          type="submit"
-          disabled={loading}
-          className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
+        <Button type="submit" disabled={loading}>
           {loading ? "Guardando..." : "Guardar Cambios"}
-        </button>
+        </Button>
       </div>
     </form>
   )

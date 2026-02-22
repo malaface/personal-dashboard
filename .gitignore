@@ -2,7 +2,6 @@
 node_modules/
 .pnp
 .pnp.js
-package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
@@ -75,6 +74,7 @@ temp/
 # Secrets & credentials
 secrets/
 credentials/
+!code/app/api/*/credentials/
 *.pem
 *.key
 *.cert

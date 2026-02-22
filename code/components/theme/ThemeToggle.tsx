@@ -9,6 +9,7 @@ export function ThemeToggle() {
 
   // Evitar hydration mismatch
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- standard hydration mismatch pattern
     setMounted(true)
   }, [])
 
@@ -28,18 +29,18 @@ export function ThemeToggle() {
         Selecciona el tema de la interfaz
       </p>
 
-      <div className="flex gap-3">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
         <button
           onClick={() => setTheme("light")}
-          className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
+          className={`px-3 py-3 rounded-lg border-2 transition-all ${
             theme === "light"
               ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
               : "border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500"
           }`}
         >
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2">
             <svg
-              className="w-5 h-5"
+              className="w-5 h-5 shrink-0"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -51,21 +52,21 @@ export function ThemeToggle() {
                 d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
               />
             </svg>
-            <span className="font-medium">Claro</span>
+            <span className="text-xs sm:text-sm font-medium">Claro</span>
           </div>
         </button>
 
         <button
           onClick={() => setTheme("dark")}
-          className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
+          className={`px-3 py-3 rounded-lg border-2 transition-all ${
             theme === "dark"
               ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
               : "border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500"
           }`}
         >
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2">
             <svg
-              className="w-5 h-5"
+              className="w-5 h-5 shrink-0"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -77,21 +78,21 @@ export function ThemeToggle() {
                 d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
               />
             </svg>
-            <span className="font-medium">Oscuro</span>
+            <span className="text-xs sm:text-sm font-medium">Oscuro</span>
           </div>
         </button>
 
         <button
           onClick={() => setTheme("system")}
-          className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
+          className={`px-3 py-3 rounded-lg border-2 transition-all ${
             theme === "system"
               ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
               : "border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500"
           }`}
         >
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2">
             <svg
-              className="w-5 h-5"
+              className="w-5 h-5 shrink-0"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -103,7 +104,7 @@ export function ThemeToggle() {
                 d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
               />
             </svg>
-            <span className="font-medium">Sistema</span>
+            <span className="text-xs sm:text-sm font-medium">Sistema</span>
           </div>
         </button>
       </div>

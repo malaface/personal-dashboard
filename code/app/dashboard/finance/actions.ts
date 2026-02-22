@@ -14,9 +14,13 @@ export async function createTransaction(formData: FormData) {
     const rawData = {
       typeId: formData.get("typeId"),
       amount: parseFloat(formData.get("amount") as string),
+      currency: formData.get("currency") || "MXN",
       categoryId: formData.get("categoryId"),
       description: formData.get("description") || undefined,
       date: formData.get("date"),
+      fromAccountId: formData.get("fromAccountId") || null,
+      creditCardId: formData.get("creditCardId") || null,
+      toAccountId: formData.get("toAccountId") || null,
     }
 
     const validatedData = TransactionSchema.parse(rawData)
@@ -40,9 +44,13 @@ export async function createTransaction(formData: FormData) {
         userId: user.id,
         typeId: validatedData.typeId,
         amount: validatedData.amount,
+        currency: validatedData.currency,
         categoryId: validatedData.categoryId,
         description: validatedData.description,
         date: new Date(validatedData.date),
+        fromAccountId: validatedData.fromAccountId || null,
+        creditCardId: validatedData.creditCardId || null,
+        toAccountId: validatedData.toAccountId || null,
       },
       include: {
         typeItem: true,
@@ -59,15 +67,17 @@ export async function createTransaction(formData: FormData) {
         typeId: transaction.typeId,
         amount: transaction.amount,
         categoryId: transaction.categoryId,
+        fromAccountId: transaction.fromAccountId,
+        creditCardId: transaction.creditCardId,
       },
     })
 
     revalidatePath("/dashboard/finance")
 
     return { success: true, transaction }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Create transaction error:", error)
-    return { success: false, error: error.message || "Failed to create transaction" }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to create transaction" }
   }
 }
 
@@ -104,9 +114,9 @@ export async function deleteTransaction(transactionId: string) {
     revalidatePath("/dashboard/finance")
 
     return { success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Delete transaction error:", error)
-    return { success: false, error: error.message || "Failed to delete transaction" }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to delete transaction" }
   }
 }
 
@@ -128,9 +138,13 @@ export async function updateTransaction(transactionId: string, formData: FormDat
     const rawData = {
       typeId: formData.get("typeId"),
       amount: parseFloat(formData.get("amount") as string),
+      currency: formData.get("currency") || "MXN",
       categoryId: formData.get("categoryId"),
       description: formData.get("description") || undefined,
       date: formData.get("date"),
+      fromAccountId: formData.get("fromAccountId") || null,
+      creditCardId: formData.get("creditCardId") || null,
+      toAccountId: formData.get("toAccountId") || null,
     }
 
     const validatedData = TransactionSchema.parse(rawData)
@@ -154,9 +168,13 @@ export async function updateTransaction(transactionId: string, formData: FormDat
       data: {
         typeId: validatedData.typeId,
         amount: validatedData.amount,
+        currency: validatedData.currency,
         categoryId: validatedData.categoryId,
         description: validatedData.description,
         date: new Date(validatedData.date),
+        fromAccountId: validatedData.fromAccountId || null,
+        creditCardId: validatedData.creditCardId || null,
+        toAccountId: validatedData.toAccountId || null,
       },
       include: {
         typeItem: true,
@@ -174,9 +192,9 @@ export async function updateTransaction(transactionId: string, formData: FormDat
     revalidatePath("/dashboard/finance")
 
     return { success: true, transaction }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Update transaction error:", error)
-    return { success: false, error: error.message || "Failed to update transaction" }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to update transaction" }
   }
 }
 
@@ -236,9 +254,9 @@ export async function createInvestment(formData: FormData) {
     revalidatePath("/dashboard/investments")
 
     return { success: true, investment }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Create investment error:", error)
-    return { success: false, error: error.message || "Failed to create investment" }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to create investment" }
   }
 }
 
@@ -302,9 +320,9 @@ export async function updateInvestment(investmentId: string, formData: FormData)
     revalidatePath("/dashboard/investments")
 
     return { success: true, investment }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Update investment error:", error)
-    return { success: false, error: error.message || "Failed to update investment" }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to update investment" }
   }
 }
 
@@ -341,9 +359,9 @@ export async function deleteInvestment(investmentId: string) {
     revalidatePath("/dashboard/investments")
 
     return { success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Delete investment error:", error)
-    return { success: false, error: error.message || "Failed to delete investment" }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to delete investment" }
   }
 }
 
@@ -413,9 +431,9 @@ export async function createBudget(formData: FormData) {
     revalidatePath("/dashboard/budgets")
 
     return { success: true, budget }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Create budget error:", error)
-    return { success: false, error: error.message || "Failed to create budget" }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to create budget" }
   }
 }
 
@@ -494,9 +512,9 @@ export async function updateBudget(budgetId: string, formData: FormData) {
     revalidatePath("/dashboard/budgets")
 
     return { success: true, budget }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Update budget error:", error)
-    return { success: false, error: error.message || "Failed to update budget" }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to update budget" }
   }
 }
 
@@ -533,8 +551,8 @@ export async function deleteBudget(budgetId: string) {
     revalidatePath("/dashboard/budgets")
 
     return { success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Delete budget error:", error)
-    return { success: false, error: error.message || "Failed to delete budget" }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to delete budget" }
   }
 }

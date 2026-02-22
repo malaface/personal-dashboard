@@ -4,12 +4,16 @@ import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { CatalogType } from '@/lib/catalog/types'
 import { XMarkIcon } from '@heroicons/react/24/outline'
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Button } from '@/components/ui/button'
 
 interface ComboboxCreateDialogProps {
   catalogType: CatalogType
   initialName: string
   parentId?: string | null
-  onSuccess: (item: any) => void
+  onSuccess: (item: { id: string; name: string }) => void
   onCancel: () => void
 }
 
@@ -27,6 +31,7 @@ export function ComboboxCreateDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    e.stopPropagation()
     setLoading(true)
     setError('')
 
@@ -49,8 +54,8 @@ export function ComboboxCreateDialog({
       }
 
       onSuccess(data.item)
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setLoading(false)
     }
@@ -61,37 +66,33 @@ export function ComboboxCreateDialog({
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold">Crear Nuevo Item</h3>
-          <button onClick={onCancel} className="text-gray-400 hover:text-gray-600">
+          <Button type="button" variant="ghost" size="icon" onClick={onCancel}>
             <XMarkIcon className="h-5 w-5" />
-          </button>
+          </Button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nombre *
-            </label>
-            <input
+            <Label>Nombre *</Label>
+            <Input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
               minLength={2}
               maxLength={100}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="mt-1"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Descripción
-            </label>
-            <textarea
+            <Label>Descripción</Label>
+            <Textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               maxLength={500}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="mt-1"
             />
           </div>
 
@@ -102,20 +103,12 @@ export function ComboboxCreateDialog({
           )}
 
           <div className="flex justify-end space-x-3">
-            <button
-              type="button"
-              onClick={onCancel}
-              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
-            >
+            <Button type="button" variant="outline" onClick={onCancel}>
               Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-            >
+            </Button>
+            <Button type="submit" disabled={loading}>
               {loading ? 'Creando...' : 'Crear'}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

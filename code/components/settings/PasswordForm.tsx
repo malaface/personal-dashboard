@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { changePassword } from "@/app/dashboard/settings/actions"
+import PasswordInput from "@/components/ui/PasswordInput"
 
 export default function PasswordForm() {
   const [loading, setLoading] = useState(false)
@@ -34,8 +35,8 @@ export default function PasswordForm() {
       } else {
         setError(result.error || "Algo salió mal")
       }
-    } catch (err: any) {
-      setError(err.message || "Error al cambiar la contraseña")
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Error al cambiar la contraseña")
     } finally {
       setLoading(false)
     }
@@ -62,12 +63,11 @@ export default function PasswordForm() {
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Contraseña Actual *
           </label>
-          <input
-            type="password"
+          <PasswordInput
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
             required
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            autoComplete="current-password"
           />
         </div>
 
@@ -75,14 +75,13 @@ export default function PasswordForm() {
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Nueva Contraseña *
           </label>
-          <input
-            type="password"
+          <PasswordInput
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             required
             minLength={8}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
             placeholder="Mínimo 8 caracteres"
+            autoComplete="new-password"
           />
         </div>
 
@@ -90,14 +89,13 @@ export default function PasswordForm() {
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Confirmar Nueva Contraseña *
           </label>
-          <input
-            type="password"
+          <PasswordInput
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
             minLength={8}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
             placeholder="Repite tu nueva contraseña"
+            autoComplete="new-password"
           />
         </div>
       </div>

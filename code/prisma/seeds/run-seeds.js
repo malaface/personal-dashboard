@@ -10,6 +10,7 @@
  * Diseñado para ejecutarse en el entrypoint de Docker.
  */
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { PrismaClient } = require('@prisma/client')
 
 const prisma = new PrismaClient()
