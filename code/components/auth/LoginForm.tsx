@@ -2,11 +2,9 @@
 
 import { useState } from "react"
 import { signIn } from "next-auth/react"
-import { useRouter } from "next/navigation"
 import Link from "next/link"
 
 export default function LoginForm() {
-  const router = useRouter()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
@@ -32,7 +30,7 @@ export default function LoginForm() {
         // Using window.location to ensure clean redirect after session is established
         window.location.href = "/dashboard"
       }
-    } catch (error) {
+    } catch (_error) {
       setError("Ocurrió un error. Por favor intenta de nuevo.")
       setLoading(false)
     }

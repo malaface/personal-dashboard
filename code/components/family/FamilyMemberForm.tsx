@@ -54,8 +54,8 @@ export default function FamilyMemberForm({ member }: FamilyMemberFormProps) {
       } else {
         setError(result.error || "Something went wrong")
       }
-    } catch (err: any) {
-      setError(err.message || "Failed to save family member")
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to save family member")
     } finally {
       setLoading(false)
     }

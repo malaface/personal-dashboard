@@ -47,7 +47,7 @@ async function seedPublicTemplates() {
   })
 
   // Template 1: Full Body Beginner
-  const fullBodyBeginner = await prisma.workoutTemplate.create({
+  const _fullBodyBeginner = await prisma.workoutTemplate.create({
     data: {
       userId: null,
       name: 'Full Body - Principiante',
@@ -87,7 +87,7 @@ async function seedPublicTemplates() {
   })
 
   // Template 2: Upper Body Intermediate
-  const upperBodyIntermediate = await prisma.workoutTemplate.create({
+  const _upperBodyIntermediate = await prisma.workoutTemplate.create({
     data: {
       userId: null,
       name: 'Upper Body - Intermedio',
@@ -127,7 +127,7 @@ async function seedPublicTemplates() {
   })
 
   // Template 3: Strength Focus Advanced
-  const strengthAdvanced = await prisma.workoutTemplate.create({
+  const _strengthAdvanced = await prisma.workoutTemplate.create({
     data: {
       userId: null,
       name: 'Strength - Avanzado',
@@ -173,7 +173,7 @@ async function seedPublicTemplates() {
   // ============================================
 
   // Template 1: High Protein Breakfast
-  const highProteinBreakfast = await prisma.mealTemplate.create({
+  const _highProteinBreakfast = await prisma.mealTemplate.create({
     data: {
       userId: null,
       name: 'Desayuno Alto en Proteína',
@@ -233,7 +233,7 @@ async function seedPublicTemplates() {
   })
 
   // Template 2: Post-Workout Lunch
-  const postWorkoutLunch = await prisma.mealTemplate.create({
+  const _postWorkoutLunch = await prisma.mealTemplate.create({
     data: {
       userId: null,
       name: 'Almuerzo Post-Entrenamiento',
@@ -293,7 +293,7 @@ async function seedPublicTemplates() {
   })
 
   // Template 3: Light Dinner
-  const lightDinner = await prisma.mealTemplate.create({
+  const _lightDinner = await prisma.mealTemplate.create({
     data: {
       userId: null,
       name: 'Cena Ligera',

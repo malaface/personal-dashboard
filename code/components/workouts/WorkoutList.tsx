@@ -49,7 +49,7 @@ export default function WorkoutList({ workouts }: WorkoutListProps) {
       } else {
         alert(result.error || "Failed to delete workout")
       }
-    } catch (error) {
+    } catch (_error) {
       alert("An error occurred")
     } finally {
       setDeletingId(null)

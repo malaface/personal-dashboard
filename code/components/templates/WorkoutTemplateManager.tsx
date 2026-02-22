@@ -37,7 +37,16 @@ interface WorkoutTemplate {
   difficulty: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | null
   isPublic: boolean
   tags: string[]
-  exercises: any[]
+  exercises: Array<{
+    exerciseTypeId: string | null
+    muscleGroupId: string | null
+    equipmentId: string | null
+    sets: number
+    reps: number
+    weight: number | null
+    notes: string | null
+    sortOrder: number
+  }>
   user: { name: string | null } | null
   createdAt: string
   updatedAt: string
@@ -52,6 +61,7 @@ export default function WorkoutTemplateManager() {
   const [tagInput, setTagInput] = useState('')
 
   const form = useForm<TemplateFormData>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(templateSchema) as any,
     defaultValues: {
       name: '',
@@ -88,8 +98,8 @@ export default function WorkoutTemplateManager() {
       if (!response.ok) throw new Error('Failed to fetch templates')
       const data = await response.json()
       setTemplates(data.templates || [])
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setLoading(false)
     }
@@ -161,8 +171,8 @@ export default function WorkoutTemplateManager() {
 
       await fetchTemplates()
       setShowDialog(false)
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setLoading(false)
     }
@@ -180,8 +190,8 @@ export default function WorkoutTemplateManager() {
       if (!response.ok) throw new Error('Failed to delete template')
 
       await fetchTemplates()
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setLoading(false)
     }

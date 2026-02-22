@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useSession } from "next-auth/react"
 import { createTransaction, updateTransaction } from "@/app/dashboard/finance/actions"
 import CategorySelector from "@/components/catalog/CategorySelector"
 
@@ -23,7 +22,6 @@ interface TransactionFormProps {
 
 export default function TransactionForm({ transaction, onCancel }: TransactionFormProps) {
   const router = useRouter()
-  const { data: session } = useSession()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
@@ -35,27 +33,11 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
     transaction?.date ? new Date(transaction.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
   )
 
-  // Get parent type for cascading category selection
-  const [selectedTypeItem, setSelectedTypeItem] = useState<any>(null)
-
+  // Reset category when type changes
   useEffect(() => {
-    async function fetchTypeItem() {
-      if (typeId) {
-        try {
-          const response = await fetch(`/api/catalog/${typeId}`)
-          const data = await response.json()
-          if (data.item) {
-            setSelectedTypeItem(data.item)
-          }
-        } catch (err) {
-          console.error("Failed to fetch type item:", err)
-        }
-      } else {
-        setSelectedTypeItem(null)
-        setCategoryId("") // Reset category when type changes
-      }
+    if (!typeId) {
+      setCategoryId("")
     }
-    fetchTypeItem()
   }, [typeId])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -81,8 +63,8 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
       } else {
         setError(result.error || "Something went wrong")
       }
-    } catch (err: any) {
-      setError(err.message || "Failed to save transaction")
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to save transaction")
     } finally {
       setLoading(false)
     }

@@ -38,14 +38,14 @@ export default function SmartCombobox({
   allowCreate = true,
   placeholder = 'Buscar o seleccionar...',
   emptyMessage = 'No se encontraron resultados',
-  required = false,
+  required: _required = false,
   disabled = false,
   error,
   className = ''
 }: SmartComboboxProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [showCreateDialog, setShowCreateDialog] = useState(false)
-  const [selectedItem, setSelectedItem] = useState<any>(null)
+  const [selectedItem, setSelectedItem] = useState<{ id: string; name: string } | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   const { query, setQuery, results, loading, clearCache } = useComboboxSearch(catalogType, {
@@ -54,14 +54,17 @@ export default function SmartCombobox({
     parentId
   })
 
-  // Fetch selected item details
+  // Sync selected item with external value prop
   useEffect(() => {
     if (value) {
+      let cancelled = false
       fetch(`/api/catalog/${value}`)
         .then(res => res.json())
-        .then(data => setSelectedItem(data.item))
-        .catch(() => setSelectedItem(null))
+        .then(data => { if (!cancelled) setSelectedItem(data.item) })
+        .catch(() => { if (!cancelled) setSelectedItem(null) })
+      return () => { cancelled = true }
     } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- clearing state when external value is removed
       setSelectedItem(null)
     }
   }, [value])
@@ -84,7 +87,7 @@ export default function SmartCombobox({
     setQuery('')
   }
 
-  const handleCreateSuccess = (newItem: any) => {
+  const handleCreateSuccess = (newItem: { id: string; name: string }) => {
     // Clear cache so new searches include the newly created item
     clearCache()
     handleSelect(newItem.id, newItem.name)
@@ -161,7 +164,7 @@ export default function SmartCombobox({
                   className="w-full px-3 py-2 text-left text-sm text-blue-600 hover:bg-blue-50 flex items-center border-t"
                 >
                   <PlusIcon className="h-4 w-4 mr-2" />
-                  Crear "{query}"
+                  Crear &quot;{query}&quot;
                 </button>
               )}
             </div>

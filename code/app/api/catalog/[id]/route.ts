@@ -3,6 +3,7 @@ import { requireAuth } from "@/lib/auth/utils"
 import { getCatalogItemById, getCatalogItemUsageCount } from "@/lib/catalog/queries"
 import { updateCatalogItem, deleteCatalogItem } from "@/lib/catalog/mutations"
 import { CatalogItemUpdateSchema } from "@/lib/validations/catalog"
+import { ZodError } from "zod"
 
 type RouteContext = {
   params: Promise<{
@@ -41,10 +42,10 @@ export async function GET(
 
     return NextResponse.json({ item, usage })
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("GET /api/catalog/[id] error:", error)
 
-    if (error.message === "Unauthorized") {
+    if (error instanceof Error && error.message === "Unauthorized") {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
@@ -90,19 +91,19 @@ export async function PUT(
       item: result.catalogItem
     })
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("PUT /api/catalog/[id] error:", error)
 
-    if (error.message === "Unauthorized") {
+    if (error instanceof Error && error.message === "Unauthorized") {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
       )
     }
 
-    if (error.name === "ZodError") {
+    if (error instanceof ZodError) {
       return NextResponse.json(
-        { error: "Validation error", details: error.errors },
+        { error: "Validation error", details: error.issues },
         { status: 400 }
       )
     }
@@ -138,10 +139,10 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("DELETE /api/catalog/[id] error:", error)
 
-    if (error.message === "Unauthorized") {
+    if (error instanceof Error && error.message === "Unauthorized") {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }

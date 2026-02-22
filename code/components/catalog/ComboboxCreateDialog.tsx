@@ -9,7 +9,7 @@ interface ComboboxCreateDialogProps {
   catalogType: CatalogType
   initialName: string
   parentId?: string | null
-  onSuccess: (item: any) => void
+  onSuccess: (item: { id: string; name: string }) => void
   onCancel: () => void
 }
 
@@ -49,8 +49,8 @@ export function ComboboxCreateDialog({
       }
 
       onSuccess(data.item)
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setLoading(false)
     }

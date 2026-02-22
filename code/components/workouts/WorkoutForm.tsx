@@ -128,8 +128,8 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
       } else {
         setError(result.error || "Something went wrong")
       }
-    } catch (err: any) {
-      setError(err.message || "Failed to save workout")
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to save workout")
     } finally {
       setLoading(false)
     }

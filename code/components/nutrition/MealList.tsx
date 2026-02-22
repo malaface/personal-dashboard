@@ -51,7 +51,7 @@ export default function MealList({ meals }: MealListProps) {
       } else {
         alert(result.error || "Failed to delete meal")
       }
-    } catch (error) {
+    } catch (_error) {
       alert("An error occurred")
     } finally {
       setDeletingId(null)

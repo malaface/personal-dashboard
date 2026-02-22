@@ -59,9 +59,9 @@ export default function CategorySelector({
         }
 
         setItems(data.items || [])
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Failed to fetch catalog items:", err)
-        setError(err.message || "Failed to load categories")
+        setError(err instanceof Error ? err.message : "Failed to load categories")
       } finally {
         setLoading(false)
       }

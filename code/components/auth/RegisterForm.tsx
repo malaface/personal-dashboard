@@ -1,12 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { signIn } from "next-auth/react"
-import { useRouter } from "next/navigation"
 import Link from "next/link"
 
 export default function RegisterForm() {
-  const router = useRouter()
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -62,8 +59,8 @@ export default function RegisterForm() {
 
       // Show success message instead of auto-login
       setSuccess(true)
-    } catch (error: any) {
-      setError(error.message || "Ocurrió un error durante el registro")
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : "Ocurrió un error durante el registro")
     } finally {
       setLoading(false)
     }

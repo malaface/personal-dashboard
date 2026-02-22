@@ -11,10 +11,10 @@ export async function getWorkoutTemplates(userId: string, filters?: {
   tags?: string[]
   search?: string
 }) {
-  const where: any = {
+  const where: Record<string, unknown> = {
     OR: [
-      { userId, isPublic: false }, // User's private templates
-      { isPublic: true }            // Public templates
+      { userId, isPublic: false },
+      { isPublic: true }
     ]
   }
 
@@ -29,8 +29,9 @@ export async function getWorkoutTemplates(userId: string, filters?: {
   }
 
   if (filters?.search) {
+    const existingAnd = Array.isArray(where.AND) ? where.AND : []
     where.AND = [
-      ...(where.AND || []),
+      ...existingAnd,
       {
         OR: [
           { name: { contains: filters.search, mode: 'insensitive' } },

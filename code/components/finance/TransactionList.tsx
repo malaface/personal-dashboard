@@ -37,7 +37,7 @@ export default function TransactionList({ transactions }: TransactionListProps) 
       } else {
         alert(result.error || "Failed to delete transaction")
       }
-    } catch (error) {
+    } catch (_error) {
       alert("An error occurred")
     } finally {
       setDeletingId(null)

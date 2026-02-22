@@ -122,7 +122,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(
       new URL("/login?verified=true&message=" + encodeURIComponent("Email verified successfully! You can now login."), request.url)
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("❌ Email verification error:", error)
 
     // Audit log for error
@@ -131,7 +131,7 @@ export async function GET(request: NextRequest) {
       metadata: {
         success: false,
         reason: "server_error",
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error',
       },
     })
 

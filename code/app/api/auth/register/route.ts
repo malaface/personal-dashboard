@@ -34,10 +34,10 @@ export async function POST(request: Request) {
       },
       { status: 201 }
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Registration error:", error)
 
-    if (error.message === "User already exists") {
+    if (error instanceof Error && error.message === "User already exists") {
       return NextResponse.json(
         { error: "User already exists" },
         { status: 409 }

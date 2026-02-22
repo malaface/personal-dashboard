@@ -110,9 +110,9 @@ export async function sendVerificationEmail(email: string, token: string) {
 
     console.log('✅ Verification email sent to:', email)
     return { success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Send verification email error:', error)
-    return { success: false, error: error.message }
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
   }
 }
 
@@ -169,8 +169,8 @@ export async function sendPasswordResetEmail(email: string, token: string) {
 
     console.log('✅ Password reset email sent to:', email)
     return { success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Send password reset email error:', error)
-    return { success: false, error: error.message }
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
   }
 }

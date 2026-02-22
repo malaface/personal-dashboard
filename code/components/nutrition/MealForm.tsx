@@ -50,7 +50,7 @@ export default function MealForm({ meal }: MealFormProps) {
     }
   }
 
-  const updateFoodItem = (index: number, field: string, value: any) => {
+  const updateFoodItem = (index: number, field: string, value: string | number) => {
     const updated = [...foodItems]
     updated[index] = { ...updated[index], [field]: value }
     setFoodItems(updated)
@@ -79,8 +79,8 @@ export default function MealForm({ meal }: MealFormProps) {
       } else {
         setError(result.error || "Something went wrong")
       }
-    } catch (err: any) {
-      setError(err.message || "Failed to save meal")
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to save meal")
     } finally {
       setLoading(false)
     }

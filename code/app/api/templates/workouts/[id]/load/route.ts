@@ -30,25 +30,26 @@ export async function GET(
       message: "Template loaded successfully"
     })
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("GET /api/templates/workouts/[id]/load error:", error)
+    const message = error instanceof Error ? error.message : 'Unknown error'
 
-    if (error.message === "Unauthorized") {
+    if (message === "Unauthorized") {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
       )
     }
 
-    if (error.message.includes("not found") || error.message.includes("access denied")) {
+    if (message.includes("not found") || message.includes("access denied")) {
       return NextResponse.json(
-        { error: error.message },
+        { error: message },
         { status: 404 }
       )
     }
 
     return NextResponse.json(
-      { error: error.message || "Failed to load template" },
+      { error: message || "Failed to load template" },
       { status: 500 }
     )
   }

@@ -54,9 +54,9 @@ export async function createMeal(formData: FormData) {
     revalidatePath("/dashboard/nutrition")
 
     return { success: true, meal }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Create meal error:", error)
-    return { success: false, error: error.message || "Failed to create meal" }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to create meal" }
   }
 }
 
@@ -89,9 +89,9 @@ export async function deleteMeal(mealId: string) {
     revalidatePath("/dashboard/nutrition")
 
     return { success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Delete meal error:", error)
-    return { success: false, error: error.message || "Failed to delete meal" }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to delete meal" }
   }
 }
 
@@ -160,8 +160,8 @@ export async function updateMeal(mealId: string, formData: FormData) {
     revalidatePath("/dashboard/nutrition")
 
     return { success: true, meal }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Update meal error:", error)
-    return { success: false, error: error.message || "Failed to update meal" }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to update meal" }
   }
 }

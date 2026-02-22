@@ -9,6 +9,7 @@ export function ThemeToggle() {
 
   // Evitar hydration mismatch
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- standard hydration mismatch pattern
     setMounted(true)
   }, [])
 

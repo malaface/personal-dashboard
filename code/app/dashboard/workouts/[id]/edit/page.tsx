@@ -1,6 +1,6 @@
 import { requireAuth } from "@/lib/auth/utils"
 import { prisma } from "@/lib/db/prisma"
-import { notFound, redirect } from "next/navigation"
+import { notFound } from "next/navigation"
 import WorkoutForm from "@/components/workouts/WorkoutForm"
 import Link from "next/link"
 

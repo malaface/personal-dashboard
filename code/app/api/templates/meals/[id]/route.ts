@@ -30,25 +30,26 @@ export async function GET(
 
     return NextResponse.json({ template })
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("GET /api/templates/meals/[id] error:", error)
+    const message = error instanceof Error ? error.message : 'Unknown error'
 
-    if (error.message === "Unauthorized") {
+    if (message === "Unauthorized") {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
       )
     }
 
-    if (error.message.includes("not found") || error.message.includes("access denied")) {
+    if (message.includes("not found") || message.includes("access denied")) {
       return NextResponse.json(
-        { error: error.message },
+        { error: message },
         { status: 404 }
       )
     }
 
     return NextResponse.json(
-      { error: error.message || "Failed to fetch template" },
+      { error: message || "Failed to fetch template" },
       { status: 500 }
     )
   }
@@ -96,25 +97,26 @@ export async function PUT(
       message: "Meal template updated successfully"
     })
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("PUT /api/templates/meals/[id] error:", error)
+    const message = error instanceof Error ? error.message : 'Unknown error'
 
-    if (error.message === "Unauthorized") {
+    if (message === "Unauthorized") {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
       )
     }
 
-    if (error.message.includes("not found") || error.message.includes("access denied")) {
+    if (message.includes("not found") || message.includes("access denied")) {
       return NextResponse.json(
-        { error: error.message },
+        { error: message },
         { status: 404 }
       )
     }
 
     return NextResponse.json(
-      { error: error.message || "Failed to update template" },
+      { error: message || "Failed to update template" },
       { status: 500 }
     )
   }
@@ -146,25 +148,26 @@ export async function DELETE(
       message: "Meal template deleted successfully"
     })
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("DELETE /api/templates/meals/[id] error:", error)
+    const message = error instanceof Error ? error.message : 'Unknown error'
 
-    if (error.message === "Unauthorized") {
+    if (message === "Unauthorized") {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
       )
     }
 
-    if (error.message.includes("not found") || error.message.includes("access denied")) {
+    if (message.includes("not found") || message.includes("access denied")) {
       return NextResponse.json(
-        { error: error.message },
+        { error: message },
         { status: 404 }
       )
     }
 
     return NextResponse.json(
-      { error: error.message || "Failed to delete template" },
+      { error: message || "Failed to delete template" },
       { status: 500 }
     )
   }

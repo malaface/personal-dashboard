@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db/prisma"
+import { Prisma } from "@prisma/client"
 import { headers } from "next/headers"
 
 /**
@@ -40,7 +41,7 @@ export type AuditAction =
 interface AuditLogData {
   userId?: string
   action: AuditAction
-  metadata?: Record<string, any>
+  metadata?: Prisma.InputJsonValue
 }
 
 /**
