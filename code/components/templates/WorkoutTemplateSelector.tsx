@@ -113,9 +113,15 @@ export default function WorkoutTemplateSelector({
       ADVANCED: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
     }
 
+    const labels = {
+      BEGINNER: 'Principiante',
+      INTERMEDIATE: 'Intermedio',
+      ADVANCED: 'Avanzado'
+    }
+
     return (
       <span className={`px-2 py-0.5 text-xs rounded-full ${colors[diff as keyof typeof colors]}`}>
-        {diff}
+        {labels[diff as keyof typeof labels] || diff}
       </span>
     )
   }

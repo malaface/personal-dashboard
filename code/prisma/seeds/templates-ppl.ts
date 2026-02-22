@@ -82,7 +82,7 @@ async function seedPPLTemplates() {
       description: 'Rutina de empuje enfocada en pecho y tríceps. Variante 1 con press inclinado, crossover y press francés.',
       isPublic: true,
       difficulty: 'INTERMEDIATE',
-      tags: ['ppl', 'push', 'chest', 'triceps', 'hypertrophy'],
+      tags: ['ppl', 'empuje', 'pecho', 'triceps', 'hipertrofia'],
       exercises: {
         create: [
           {
@@ -190,7 +190,7 @@ async function seedPPLTemplates() {
       description: 'Rutina de tracción enfocada en espalda y bíceps. Variante 1 con remo sentado, jalón estrecho y curl estricto.',
       isPublic: true,
       difficulty: 'INTERMEDIATE',
-      tags: ['ppl', 'pull', 'back', 'biceps', 'hypertrophy'],
+      tags: ['ppl', 'traccion', 'espalda', 'biceps', 'hipertrofia'],
       exercises: {
         create: [
           {
@@ -298,7 +298,7 @@ async function seedPPLTemplates() {
       description: 'Rutina combinada de pierna y hombro. Variante 1 con peso muerto, sentadilla frontal y press militar.',
       isPublic: true,
       difficulty: 'INTERMEDIATE',
-      tags: ['ppl', 'legs', 'shoulders', 'compound', 'hypertrophy'],
+      tags: ['ppl', 'pierna', 'hombros', 'compuesto', 'hipertrofia'],
       exercises: {
         create: [
           {
@@ -406,7 +406,7 @@ async function seedPPLTemplates() {
       description: 'Rutina de empuje enfocada en pecho y tríceps. Variante 2 con press plano, crossover alto-bajo y press agarre cerrado.',
       isPublic: true,
       difficulty: 'INTERMEDIATE',
-      tags: ['ppl', 'push', 'chest', 'triceps', 'hypertrophy'],
+      tags: ['ppl', 'empuje', 'pecho', 'triceps', 'hipertrofia'],
       exercises: {
         create: [
           {
@@ -514,7 +514,7 @@ async function seedPPLTemplates() {
       description: 'Rutina de tracción enfocada en espalda y bíceps. Variante 2 con remo con barra, jalón amplio y curl araña.',
       isPublic: true,
       difficulty: 'INTERMEDIATE',
-      tags: ['ppl', 'pull', 'back', 'biceps', 'hypertrophy'],
+      tags: ['ppl', 'traccion', 'espalda', 'biceps', 'hipertrofia'],
       exercises: {
         create: [
           {
@@ -622,7 +622,7 @@ async function seedPPLTemplates() {
       description: 'Rutina combinada de pierna y hombro. Variante 2 con sentadilla con barra, hip thrust y press Arnold.',
       isPublic: true,
       difficulty: 'INTERMEDIATE',
-      tags: ['ppl', 'legs', 'shoulders', 'compound', 'hypertrophy'],
+      tags: ['ppl', 'pierna', 'hombros', 'compuesto', 'hipertrofia'],
       exercises: {
         create: [
           {

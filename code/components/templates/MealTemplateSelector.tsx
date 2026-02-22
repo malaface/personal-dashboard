@@ -132,7 +132,7 @@ export default function MealTemplateSelector({
       BREAKFAST: 'Desayuno',
       LUNCH: 'Almuerzo',
       DINNER: 'Cena',
-      SNACK: 'Snack'
+      SNACK: 'Colación'
     }
 
     return (

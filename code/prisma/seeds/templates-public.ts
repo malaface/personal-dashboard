@@ -54,7 +54,7 @@ async function seedPublicTemplates() {
       description: 'Rutina completa para principiantes que trabaja todos los grupos musculares principales',
       isPublic: true,
       difficulty: 'BEGINNER',
-      tags: ['full-body', 'beginner', 'strength'],
+      tags: ['cuerpo-completo', 'principiante', 'fuerza'],
       exercises: {
         create: [
           {
@@ -94,7 +94,7 @@ async function seedPublicTemplates() {
       description: 'Rutina enfocada en tren superior con mayor volumen e intensidad',
       isPublic: true,
       difficulty: 'INTERMEDIATE',
-      tags: ['upper-body', 'intermediate', 'hypertrophy'],
+      tags: ['tren-superior', 'intermedio', 'hipertrofia'],
       exercises: {
         create: [
           {
@@ -134,7 +134,7 @@ async function seedPublicTemplates() {
       description: 'Rutina de fuerza con los 3 grandes: sentadilla, press banca y peso muerto',
       isPublic: true,
       difficulty: 'ADVANCED',
-      tags: ['strength', 'advanced', 'powerlifting'],
+      tags: ['fuerza', 'avanzado', 'powerlifting'],
       exercises: {
         create: [
           {
@@ -180,7 +180,7 @@ async function seedPublicTemplates() {
       description: 'Desayuno balanceado con alto contenido proteico para iniciar el día',
       mealType: 'BREAKFAST',
       isPublic: true,
-      tags: ['high-protein', 'breakfast', 'muscle-gain'],
+      tags: ['alto-proteina', 'desayuno', 'ganancia-muscular'],
       totalCalories: 520,
       totalProtein: 45,
       totalCarbs: 35,
@@ -240,7 +240,7 @@ async function seedPublicTemplates() {
       description: 'Comida completa para recuperación muscular después del entrenamiento',
       mealType: 'LUNCH',
       isPublic: true,
-      tags: ['post-workout', 'lunch', 'recovery'],
+      tags: ['post-entreno', 'almuerzo', 'recuperacion'],
       totalCalories: 650,
       totalProtein: 50,
       totalCarbs: 65,
@@ -300,7 +300,7 @@ async function seedPublicTemplates() {
       description: 'Cena balanceada y ligera para terminar el día',
       mealType: 'DINNER',
       isPublic: true,
-      tags: ['light', 'dinner', 'balanced'],
+      tags: ['ligera', 'cena', 'balanceada'],
       totalCalories: 420,
       totalProtein: 35,
       totalCarbs: 30,

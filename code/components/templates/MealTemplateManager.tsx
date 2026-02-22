@@ -281,7 +281,7 @@ export default function MealTemplateManager() {
               <div className="flex flex-wrap gap-2">
                 {template.mealType && (
                   <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
-                    {template.mealType}
+                    {{ BREAKFAST: 'Desayuno', LUNCH: 'Almuerzo', DINNER: 'Cena', SNACK: 'Colación' }[template.mealType]}
                   </span>
                 )}
                 {template.isPublic && (
@@ -370,7 +370,7 @@ export default function MealTemplateManager() {
                     <SelectItem value="BREAKFAST">Desayuno</SelectItem>
                     <SelectItem value="LUNCH">Almuerzo</SelectItem>
                     <SelectItem value="DINNER">Cena</SelectItem>
-                    <SelectItem value="SNACK">Snack</SelectItem>
+                    <SelectItem value="SNACK">Colación</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -221,7 +221,7 @@ export default function WorkoutTemplateManager() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Mis Templates de Workout</h2>
+        <h2 className="text-2xl font-bold">Mis Templates de Entrenamiento</h2>
         <Button onClick={openCreateDialog}>
           <PlusIcon className="h-5 w-5" />
           Crear Template
@@ -265,7 +265,7 @@ export default function WorkoutTemplateManager() {
               <div className="flex flex-wrap gap-2">
                 {template.difficulty && (
                   <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
-                    {template.difficulty}
+                    {{ BEGINNER: 'Principiante', INTERMEDIATE: 'Intermedio', ADVANCED: 'Avanzado' }[template.difficulty]}
                   </span>
                 )}
                 {template.isPublic && (
