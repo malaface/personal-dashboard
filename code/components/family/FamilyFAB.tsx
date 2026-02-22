@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { PlusIcon, UserPlusIcon, CalendarDaysIcon, XMarkIcon } from "@heroicons/react/24/outline"
+import { useKeyboardVisible } from "@/lib/hooks/useKeyboardVisible"
 
 interface FamilyFABProps {
   onAddMember: () => void
@@ -10,6 +11,9 @@ interface FamilyFABProps {
 
 export default function FamilyFAB({ onAddMember, onAddEvent }: FamilyFABProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const isKeyboardVisible = useKeyboardVisible()
+
+  if (isKeyboardVisible) return null
 
   return (
     <div className="fixed bottom-24 right-4 sm:bottom-6 sm:right-6 z-40 flex flex-col-reverse items-end gap-3">

@@ -9,6 +9,7 @@ import QuickCategoryBar from "@/components/finance/QuickCategoryBar"
 import AccountSelector from "@/components/finance/accounts/AccountSelector"
 import CreditCardSelector from "@/components/finance/cards/CreditCardSelector"
 import { CheckIcon } from "@heroicons/react/24/outline"
+import { useKeyboardVisible } from "@/lib/hooks/useKeyboardVisible"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -61,6 +62,7 @@ interface CreditCardData {
 export default function TransactionForm({ transaction, onCancel }: TransactionFormProps) {
   const router = useRouter()
   const { data: session } = useSession()
+  const isKeyboardVisible = useKeyboardVisible()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
@@ -371,25 +373,27 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
       </div>
 
       {/* Floating Action Button - Submit */}
-      <button
-        type="submit"
-        disabled={loading}
-        className="
-          fixed bottom-20 right-6 sm:bottom-10 sm:right-10
-          z-50 flex h-14 w-14 sm:h-16 sm:w-16
-          items-center justify-center
-          rounded-full bg-green-600 text-white
-          shadow-[0_8px_30px_rgb(0,0,0,0.12)]
-          transition-all
-          hover:bg-green-700 hover:scale-110
-          active:scale-95
-          focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2
-          disabled:opacity-50 disabled:cursor-not-allowed
-        "
-        title={transaction ? "Actualizar transaccion" : "Guardar transaccion"}
-      >
-        <CheckIcon className="h-8 w-8 sm:h-9 sm:w-9 stroke-[2.5]" />
-      </button>
+      {!isKeyboardVisible && (
+        <button
+          type="submit"
+          disabled={loading}
+          className="
+            fixed bottom-20 right-6 sm:bottom-10 sm:right-10
+            z-50 flex h-14 w-14 sm:h-16 sm:w-16
+            items-center justify-center
+            rounded-full bg-green-600 text-white
+            shadow-[0_8px_30px_rgb(0,0,0,0.12)]
+            transition-all
+            hover:bg-green-700 hover:scale-110
+            active:scale-95
+            focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2
+            disabled:opacity-50 disabled:cursor-not-allowed
+          "
+          title={transaction ? "Actualizar transaccion" : "Guardar transaccion"}
+        >
+          <CheckIcon className="h-8 w-8 sm:h-9 sm:w-9 stroke-[2.5]" />
+        </button>
+      )}
     </form>
   )
 }

@@ -7,6 +7,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { createMeal, updateMeal } from "@/app/dashboard/nutrition/actions"
 import { PlusIcon } from "@heroicons/react/24/outline"
+import { useKeyboardVisible } from "@/lib/hooks/useKeyboardVisible"
 import CollapsibleFoodCard from "@/components/nutrition/CollapsibleFoodCard"
 import QuickMealBar from "@/components/nutrition/QuickMealBar"
 import { Input } from "@/components/ui/input"
@@ -74,6 +75,7 @@ const emptyFoodItem = {
 
 export default function MealForm({ meal }: MealFormProps) {
   const router = useRouter()
+  const isKeyboardVisible = useKeyboardVisible()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const isEditing = !!meal
@@ -330,24 +332,26 @@ export default function MealForm({ meal }: MealFormProps) {
       </div>
 
       {/* Floating Action Button */}
-      <button
-        type="button"
-        onClick={addFoodItem}
-        className="
-          fixed bottom-20 right-6 sm:bottom-10 sm:right-10
-          z-50 flex h-14 w-14 sm:h-16 sm:w-16
-          items-center justify-center
-          rounded-full bg-orange-600 text-white
-          shadow-[0_8px_30px_rgb(0,0,0,0.12)]
-          transition-all
-          hover:bg-orange-700 hover:scale-110
-          active:scale-95
-          focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2
-        "
-        title="Agregar nuevo alimento"
-      >
-        <PlusIcon className="h-8 w-8 sm:h-9 sm:w-9 stroke-[2.5]" />
-      </button>
+      {!isKeyboardVisible && (
+        <button
+          type="button"
+          onClick={addFoodItem}
+          className="
+            fixed bottom-20 right-6 sm:bottom-10 sm:right-10
+            z-50 flex h-14 w-14 sm:h-16 sm:w-16
+            items-center justify-center
+            rounded-full bg-orange-600 text-white
+            shadow-[0_8px_30px_rgb(0,0,0,0.12)]
+            transition-all
+            hover:bg-orange-700 hover:scale-110
+            active:scale-95
+            focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2
+          "
+          title="Agregar nuevo alimento"
+        >
+          <PlusIcon className="h-8 w-8 sm:h-9 sm:w-9 stroke-[2.5]" />
+        </button>
+      )}
     </form>
   )
 }

@@ -137,6 +137,26 @@ export default function CollapsibleExerciseCard({
     if (!currentEquipmentId && data.equipmentId) {
       form.setValue(`exercises.${index}.equipmentId`, data.equipmentId)
     }
+
+    // Auto-fill sets/reps/weight if user hasn't modified defaults
+    const currentSets = form.getValues(`exercises.${index}.sets`)
+    const currentReps = form.getValues(`exercises.${index}.reps`)
+    const currentWeight = form.getValues(`exercises.${index}.weight`)
+
+    const isDefaults = currentSets === 3 && currentReps === 10 && (currentWeight === null || currentWeight === undefined)
+    if (isDefaults && data.sets && data.reps) {
+      form.setValue(`exercises.${index}.sets`, data.sets)
+      form.setValue(`exercises.${index}.reps`, data.reps)
+      form.setValue(`exercises.${index}.weight`, data.weight)
+      form.setValue(`exercises.${index}.setDetails`,
+        Array.from({ length: data.sets }, (_, i) => ({
+          setNumber: i + 1,
+          reps: data.reps,
+          weight: data.weight,
+          completed: true,
+        }))
+      )
+    }
   }
 
   const getSummaryText = () => {
@@ -244,6 +264,14 @@ export default function CollapsibleExerciseCard({
                 form.setValue(`exercises.${index}.sets`, s)
                 form.setValue(`exercises.${index}.reps`, r)
                 form.setValue(`exercises.${index}.weight`, w)
+                form.setValue(`exercises.${index}.setDetails`,
+                  Array.from({ length: s }, (_, i) => ({
+                    setNumber: i + 1,
+                    reps: r,
+                    weight: w,
+                    completed: true,
+                  }))
+                )
               }}
               onLastPerformanceLoaded={handleAutoFill}
             />

@@ -2,6 +2,7 @@ import { requireAuth } from "@/lib/auth/utils"
 import { prisma } from "@/lib/db/prisma"
 import Link from "next/link"
 import MealList from "@/components/nutrition/MealList"
+import FloatingActionButton from "@/components/ui/FloatingActionButton"
 
 export default async function NutritionPage() {
   const user = await requireAuth()
@@ -37,15 +38,7 @@ export default async function NutritionPage() {
         <MealList meals={meals} />
 
         {/* FAB */}
-        <Link
-          href="/dashboard/nutrition/new"
-          className="fixed bottom-24 right-4 sm:bottom-6 sm:right-6 z-50 w-14 h-14 bg-orange-600 hover:bg-orange-700 text-white rounded-full shadow-lg flex items-center justify-center transition-colors"
-          title="Registrar Comida"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-7 h-7">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
-        </Link>
+        <FloatingActionButton href="/dashboard/nutrition/new" title="Registrar Comida" color="bg-orange-600 hover:bg-orange-700" />
       </div>
     </div>
   )

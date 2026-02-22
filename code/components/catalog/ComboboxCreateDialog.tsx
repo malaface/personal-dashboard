@@ -31,6 +31,7 @@ export function ComboboxCreateDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    e.stopPropagation()
     setLoading(true)
     setError('')
 

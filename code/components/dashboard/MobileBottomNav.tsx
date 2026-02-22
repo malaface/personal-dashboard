@@ -1,29 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { EllipsisHorizontalIcon } from "@heroicons/react/24/outline"
 import { bottomNavItems } from "@/lib/navigation"
-
-function useKeyboardVisible() {
-  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false)
-
-  useEffect(() => {
-    if (typeof window === 'undefined' || !window.visualViewport) return
-
-    const viewport = window.visualViewport
-    const handleResize = () => {
-      const isKeyboard = viewport.height < window.innerHeight * 0.75
-      setIsKeyboardVisible(isKeyboard)
-    }
-
-    viewport.addEventListener('resize', handleResize)
-    return () => viewport.removeEventListener('resize', handleResize)
-  }, [])
-
-  return isKeyboardVisible
-}
+import { useKeyboardVisible } from "@/lib/hooks/useKeyboardVisible"
 
 interface MobileBottomNavProps {
   onMoreClick: () => void

@@ -7,6 +7,7 @@ import WorkoutList from "@/components/workouts/WorkoutList"
 import GeneralOverview from "@/components/workouts/GeneralOverview"
 import CardioWorkoutList from "@/components/workouts/cardio/CardioWorkoutList"
 import { WorkoutType } from "@prisma/client"
+import FloatingActionButton from "@/components/ui/FloatingActionButton"
 
 const modeToType: Record<string, WorkoutType> = {
   gym: "GYM",
@@ -109,15 +110,7 @@ export default async function WorkoutsPage({
 
           <WorkoutList workouts={workouts} />
 
-          <Link
-            href="/dashboard/workouts/new?mode=gym"
-            className="fixed bottom-24 right-4 sm:bottom-6 sm:right-6 z-50 w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg flex items-center justify-center transition-colors"
-            title="Nuevo Entrenamiento"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-7 h-7">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-          </Link>
+          <FloatingActionButton href="/dashboard/workouts/new?mode=gym" title="Nuevo Entrenamiento" />
         </div>
       </div>
     )
@@ -165,15 +158,7 @@ export default async function WorkoutsPage({
 
         <CardioWorkoutList workouts={workouts} mode={cardioMode} />
 
-        <Link
-          href={`/dashboard/workouts/new?mode=${mode}`}
-          className="fixed bottom-24 right-4 sm:bottom-6 sm:right-6 z-50 w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg flex items-center justify-center transition-colors"
-          title="Nueva Sesion"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-7 h-7">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
-        </Link>
+        <FloatingActionButton href={`/dashboard/workouts/new?mode=${mode}`} title="Nueva Sesion" />
       </div>
     </div>
   )

@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
+import { useKeyboardVisible } from "@/lib/hooks/useKeyboardVisible"
 
 // Zod Schemas
 const setDetailSchema = z.object({
@@ -80,6 +81,7 @@ const emptyExercise = {
 
 export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
   const router = useRouter()
+  const isKeyboardVisible = useKeyboardVisible()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const isEditing = !!workout
@@ -397,24 +399,26 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
         </div>
 
         {/* Floating Action Button */}
-        <button
-          type="button"
-          onClick={addExercise}
-          className="
-            fixed bottom-20 right-6 sm:bottom-10 sm:right-10
-            z-50 flex h-14 w-14 sm:h-16 sm:w-16
-            items-center justify-center
-            rounded-full bg-blue-600 text-white
-            shadow-[0_8px_30px_rgb(0,0,0,0.12)]
-            transition-all
-            hover:bg-blue-700 hover:scale-110
-            active:scale-95
-            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-          "
-          title="Agregar nuevo ejercicio"
-        >
-          <PlusIcon className="h-8 w-8 sm:h-9 sm:w-9 stroke-[2.5]" />
-        </button>
+        {!isKeyboardVisible && (
+          <button
+            type="button"
+            onClick={addExercise}
+            className="
+              fixed bottom-20 right-6 sm:bottom-10 sm:right-10
+              z-50 flex h-14 w-14 sm:h-16 sm:w-16
+              items-center justify-center
+              rounded-full bg-blue-600 text-white
+              shadow-[0_8px_30px_rgb(0,0,0,0.12)]
+              transition-all
+              hover:bg-blue-700 hover:scale-110
+              active:scale-95
+              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+            "
+            title="Agregar nuevo ejercicio"
+          >
+            <PlusIcon className="h-8 w-8 sm:h-9 sm:w-9 stroke-[2.5]" />
+          </button>
+        )}
       </form>
     </Form> // Cerramos Form al final
   )

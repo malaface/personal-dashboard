@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { createFinancialAccount, updateFinancialAccount } from "@/app/dashboard/finance/accounts/actions"
 import { CheckIcon } from "@heroicons/react/24/outline"
+import { useKeyboardVisible } from "@/lib/hooks/useKeyboardVisible"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -36,6 +37,7 @@ interface FinancialAccountFormProps {
 
 export default function FinancialAccountForm({ account, onCancel }: FinancialAccountFormProps) {
   const router = useRouter()
+  const isKeyboardVisible = useKeyboardVisible()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
@@ -166,14 +168,16 @@ export default function FinancialAccountForm({ account, onCancel }: FinancialAcc
         </Button>
       </div>
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="fixed bottom-20 right-6 sm:bottom-10 sm:right-10 z-50 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-blue-600 text-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all hover:bg-blue-700 hover:scale-110 active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-        title={isEditing ? "Actualizar cuenta" : "Guardar cuenta"}
-      >
-        <CheckIcon className="h-8 w-8 sm:h-9 sm:w-9 stroke-[2.5]" />
-      </button>
+      {!isKeyboardVisible && (
+        <button
+          type="submit"
+          disabled={loading}
+          className="fixed bottom-20 right-6 sm:bottom-10 sm:right-10 z-50 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-blue-600 text-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all hover:bg-blue-700 hover:scale-110 active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          title={isEditing ? "Actualizar cuenta" : "Guardar cuenta"}
+        >
+          <CheckIcon className="h-8 w-8 sm:h-9 sm:w-9 stroke-[2.5]" />
+        </button>
+      )}
     </form>
   )
 }
