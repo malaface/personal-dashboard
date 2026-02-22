@@ -51,7 +51,16 @@ interface MealTemplate {
   totalProtein: number
   totalCarbs: number
   totalFats: number
-  foodItems: any[]
+  foodItems: Array<{
+    name: string
+    quantity: number
+    unit: string
+    calories: number | null
+    protein: number | null
+    carbs: number | null
+    fats: number | null
+    sortOrder: number
+  }>
   user: { name: string | null } | null
   createdAt: string
   updatedAt: string
@@ -66,6 +75,7 @@ export default function MealTemplateManager() {
   const [tagInput, setTagInput] = useState('')
 
   const form = useForm<TemplateFormData>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(templateSchema) as any,
     defaultValues: {
       name: '',
@@ -102,8 +112,8 @@ export default function MealTemplateManager() {
       if (!response.ok) throw new Error('Failed to fetch templates')
       const data = await response.json()
       setTemplates(data.templates || [])
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setLoading(false)
     }
@@ -180,8 +190,8 @@ export default function MealTemplateManager() {
         setTemplates(prev => [result.template, ...prev])
       }
       setShowDialog(false)
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setLoading(false)
     }
@@ -199,8 +209,8 @@ export default function MealTemplateManager() {
       if (!response.ok) throw new Error('Failed to delete template')
 
       setTemplates(prev => prev.filter(t => t.id !== id))
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error desconocido')
     } finally {
       setLoading(false)
     }

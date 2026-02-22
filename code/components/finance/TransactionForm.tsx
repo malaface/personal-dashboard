@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useSession } from "next-auth/react"
 import { createTransaction, updateTransaction } from "@/app/dashboard/finance/actions"
 import CategorySelector from "@/components/catalog/CategorySelector"
 import QuickCategoryBar from "@/components/finance/QuickCategoryBar"
@@ -61,7 +60,6 @@ interface CreditCardData {
 
 export default function TransactionForm({ transaction, onCancel }: TransactionFormProps) {
   const router = useRouter()
-  const { data: session } = useSession()
   const isKeyboardVisible = useKeyboardVisible()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -142,7 +140,6 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
         setCategoryId("")
       }
     }
-    fetchTypeItem()
   }, [typeId])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -180,8 +177,8 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
       } else {
         setError(result.error || "Algo salio mal")
       }
-    } catch (err: any) {
-      setError(err.message || "Error al guardar la transaccion")
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Error al guardar la transaccion")
     } finally {
       setLoading(false)
     }

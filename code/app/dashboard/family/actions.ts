@@ -47,9 +47,9 @@ export async function createFamilyMember(formData: FormData) {
     revalidatePath("/dashboard/family")
 
     return { success: true, familyMember }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Create family member error:", error)
-    return { success: false, error: error.message || "Failed to create family member" }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to create family member" }
   }
 }
 
@@ -85,9 +85,9 @@ export async function deleteFamilyMember(familyMemberId: string) {
     revalidatePath("/dashboard/family")
 
     return { success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Delete family member error:", error)
-    return { success: false, error: error.message || "Failed to delete family member" }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to delete family member" }
   }
 }
 
@@ -142,9 +142,9 @@ export async function updateFamilyMember(familyMemberId: string, formData: FormD
     await syncBirthdayEvent(user.id, familyMember.id, validatedData.name, validatedData.birthday ? new Date(validatedData.birthday) : null)
 
     return { success: true, familyMember }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Update family member error:", error)
-    return { success: false, error: error.message || "Failed to update family member" }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to update family member" }
   }
 }
 

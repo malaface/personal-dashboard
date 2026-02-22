@@ -54,9 +54,9 @@ export async function updateProfile(formData: FormData) {
     revalidatePath("/dashboard/settings")
 
     return { success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Update profile error:", error)
-    return { success: false, error: error.message || "Failed to update profile" }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to update profile" }
   }
 }
 
@@ -109,8 +109,8 @@ export async function changePassword(formData: FormData) {
     })
 
     return { success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Change password error:", error)
-    return { success: false, error: error.message || "Failed to change password" }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to change password" }
   }
 }

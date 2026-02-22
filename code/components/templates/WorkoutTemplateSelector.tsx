@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect, useRef } from 'react'
-import { ChevronUpDownIcon, CheckIcon } from '@heroicons/react/24/outline'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { ChevronUpDownIcon } from '@heroicons/react/24/outline'
 
 interface WorkoutTemplate {
   id: string
@@ -9,7 +9,15 @@ interface WorkoutTemplate {
   description: string | null
   difficulty: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | null
   isPublic: boolean
-  exercises: any[]
+  exercises: Array<{
+    exerciseTypeId: string | null
+    muscleGroupId: string | null
+    equipmentId: string | null
+    sets: number
+    reps: number
+    weight: number | null
+    notes: string | null
+  }>
   user: {
     name: string | null
     email: string
@@ -47,23 +55,7 @@ export default function WorkoutTemplateSelector({
   const [error, setError] = useState<string | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  // Fetch templates on mount
-  useEffect(() => {
-    fetchTemplates()
-  }, [difficulty])
-
-  // Close dropdown on outside click
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setIsOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
-
-  const fetchTemplates = async () => {
+  const fetchTemplates = useCallback(async () => {
     setLoading(true)
     setError(null)
 
@@ -79,13 +71,29 @@ export default function WorkoutTemplateSelector({
 
       const data = await response.json()
       setTemplates(data.templates || [])
-    } catch (err: any) {
-      setError(err.message || 'Error loading templates')
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error loading templates')
       setTemplates([])
     } finally {
       setLoading(false)
     }
-  }
+  }, [difficulty])
+
+  // Fetch templates on mount
+  useEffect(() => {
+    fetchTemplates()
+  }, [fetchTemplates])
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   const handleSelect = (template: WorkoutTemplate) => {
     setSelectedTemplate(template)

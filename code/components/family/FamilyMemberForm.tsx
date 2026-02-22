@@ -58,8 +58,8 @@ export default function FamilyMemberForm({ member }: FamilyMemberFormProps) {
       } else {
         setError(result.error || "Algo salió mal")
       }
-    } catch (err: any) {
-      setError(err.message || "Error al guardar el miembro de la familia")
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Error al guardar el miembro de la familia")
     } finally {
       setLoading(false)
     }

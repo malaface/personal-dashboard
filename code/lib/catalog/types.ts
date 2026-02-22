@@ -39,7 +39,7 @@ export interface CatalogItem {
   icon?: string | null
   color?: string | null
   sortOrder: number
-  metadata?: any
+  metadata?: Record<string, unknown>
   isActive: boolean
   createdAt: Date
   updatedAt: Date

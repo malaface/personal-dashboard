@@ -63,8 +63,8 @@ export default function ProfileForm({ user, profile }: ProfileFormProps) {
       } else {
         setError(result.error || "Algo salió mal")
       }
-    } catch (err: any) {
-      setError(err.message || "Error al actualizar el perfil")
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Error al actualizar el perfil")
     } finally {
       setLoading(false)
     }

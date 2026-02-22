@@ -17,16 +17,27 @@ import {
   SelectItem,
 } from "@/components/ui/select"
 
+interface CategoryItem {
+  id: string
+  name: string
+  description?: string | null
+  icon?: string | null
+  color?: string | null
+  parentId?: string | null
+  level: number
+  isSystem: boolean
+}
+
 interface CategoryManagerProps {
-  transactionCategories: any[]
+  transactionCategories: CategoryItem[]
   transactionTree: CatalogTreeNode[]
-  investmentTypes: any[]
+  investmentTypes: CategoryItem[]
   investmentTree: CatalogTreeNode[]
-  exerciseCategories?: any[]
+  exerciseCategories?: CategoryItem[]
   exerciseTree?: CatalogTreeNode[]
-  equipmentTypes?: any[]
+  equipmentTypes?: CategoryItem[]
   equipmentTree?: CatalogTreeNode[]
-  muscleGroups?: any[]
+  muscleGroups?: CategoryItem[]
   muscleGroupTree?: CatalogTreeNode[]
 }
 
@@ -47,7 +58,7 @@ export default function CategoryManager({
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<TabType>("transactions")
   const [showModal, setShowModal] = useState(false)
-  const [editingItem, setEditingItem] = useState<any>(null)
+  const [editingItem, setEditingItem] = useState<CategoryItem | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
@@ -102,8 +113,8 @@ export default function CategoryManager({
       } else {
         setError(result.error || "Failed to delete category")
       }
-    } catch (err: any) {
-      setError(err.message || "Failed to delete category")
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to delete category")
     } finally {
       setLoading(false)
     }
@@ -156,8 +167,8 @@ export default function CategoryManager({
       } else {
         setError(result.error || "Failed to save category")
       }
-    } catch (err: any) {
-      setError(err.message || "Failed to save category")
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to save category")
     } finally {
       setLoading(false)
     }

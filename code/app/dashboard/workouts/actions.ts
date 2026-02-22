@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { requireAuth } from "@/lib/auth/utils"
 import { prisma } from "@/lib/db/prisma"
-import { WorkoutSchema, ExerciseSchema, WorkoutWithExercisesSchema, CardioWorkoutSchema } from "@/lib/validations/workouts"
+import { WorkoutWithExercisesSchema, CardioWorkoutSchema } from "@/lib/validations/workouts"
 import { WorkoutType } from "@prisma/client"
 import { createAuditLog } from "@/lib/audit/logger"
 import { getCatalogItemById } from "@/lib/catalog/queries"
@@ -104,11 +104,11 @@ export async function createWorkout(formData: FormData) {
     revalidatePath("/dashboard/workouts")
 
     return { success: true, workout }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Create workout error:", error)
     return {
       success: false,
-      error: error.message || "Failed to create workout"
+      error: error instanceof Error ? error.message : "Failed to create workout"
     }
   }
 }
@@ -147,9 +147,9 @@ export async function deleteWorkout(workoutId: string) {
     revalidatePath("/dashboard/workouts")
 
     return { success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Delete workout error:", error)
-    return { success: false, error: error.message || "Failed to delete workout" }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to delete workout" }
   }
 }
 
@@ -267,9 +267,9 @@ export async function updateWorkout(workoutId: string, formData: FormData) {
     revalidatePath("/dashboard/workouts")
 
     return { success: true, workout }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Update workout error:", error)
-    return { success: false, error: error.message || "Failed to update workout" }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to update workout" }
   }
 }
 

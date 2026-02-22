@@ -60,7 +60,7 @@ export default function WorkoutList({ workouts }: WorkoutListProps) {
       } else {
         alert(result.error || "Error al eliminar entrenamiento")
       }
-    } catch (error) {
+    } catch {
       alert("Ocurrió un error")
     } finally {
       setDeletingId(null)

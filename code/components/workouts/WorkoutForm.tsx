@@ -253,8 +253,8 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
       } else {
         setError(result.error || "Algo salio mal")
       }
-    } catch (err: any) {
-      setError(err.message || "Error al guardar el entrenamiento")
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Error al guardar el entrenamiento")
     } finally {
       setLoading(false)
     }

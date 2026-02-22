@@ -36,7 +36,7 @@ export default function FamilyMemberList({ members }: FamilyMemberListProps) {
       } else {
         alert(result.error || "Failed to delete family member")
       }
-    } catch (error) {
+    } catch (_error) {
       alert("An error occurred")
     } finally {
       setDeletingId(null)

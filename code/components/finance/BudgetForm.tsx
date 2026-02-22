@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { useSession } from "next-auth/react"
 import { createBudget, updateBudget } from "@/app/dashboard/finance/actions"
 import CategorySelector from "@/components/catalog/CategorySelector"
 import { Label } from "@/components/ui/label"
@@ -24,7 +23,6 @@ interface BudgetFormProps {
 
 export default function BudgetForm({ budget, onCancel }: BudgetFormProps) {
   const router = useRouter()
-  const { data: session } = useSession()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
@@ -57,8 +55,8 @@ export default function BudgetForm({ budget, onCancel }: BudgetFormProps) {
       } else {
         setError(result.error || "Something went wrong")
       }
-    } catch (err: any) {
-      setError(err.message || "Failed to save budget")
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to save budget")
     } finally {
       setLoading(false)
     }

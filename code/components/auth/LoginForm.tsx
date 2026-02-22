@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { signIn } from "next-auth/react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import PasswordInput from "@/components/ui/PasswordInput"
 import { Input } from "@/components/ui/input"
@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 
 export default function LoginForm() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -60,7 +59,7 @@ export default function LoginForm() {
       } else if (result?.ok) {
         window.location.href = "/dashboard"
       }
-    } catch (error) {
+    } catch (_error) {
       setError("Ocurrió un error. Por favor intenta de nuevo.")
       setLoading(false)
     }

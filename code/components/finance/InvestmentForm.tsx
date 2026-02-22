@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { useSession } from "next-auth/react"
 import { createInvestment, updateInvestment } from "@/app/dashboard/finance/actions"
 import CategorySelector from "@/components/catalog/CategorySelector"
 import { Label } from "@/components/ui/label"
@@ -27,7 +26,6 @@ interface InvestmentFormProps {
 
 export default function InvestmentForm({ investment, onCancel }: InvestmentFormProps) {
   const router = useRouter()
-  const { data: session } = useSession()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
@@ -66,8 +64,8 @@ export default function InvestmentForm({ investment, onCancel }: InvestmentFormP
       } else {
         setError(result.error || "Something went wrong")
       }
-    } catch (err: any) {
-      setError(err.message || "Failed to save investment")
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to save investment")
     } finally {
       setLoading(false)
     }
