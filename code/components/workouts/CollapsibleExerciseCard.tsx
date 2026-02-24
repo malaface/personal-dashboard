@@ -12,6 +12,7 @@ import {
 } from "@heroicons/react/24/outline"
 import SmartCombobox from "@/components/catalog/SmartCombobox"
 import ExerciseHistory from "@/components/workouts/ExerciseHistory"
+import NativeNumberSelect from "@/components/ui/native-number-select"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
@@ -324,19 +325,13 @@ export default function CollapsibleExerciseCard({
           <div className="flex flex-wrap items-end gap-3">
             <div className="w-20">
               <Label className="text-xs text-gray-600 dark:text-gray-400">Series *</Label>
-              <Select
-                value={String(sets || "")}
+              <NativeNumberSelect
+                value={sets || ""}
                 onValueChange={(v) => form.setValue(`exercises.${index}.sets`, Number(v))}
-              >
-                <SelectTrigger className="h-8 text-sm">
-                  <SelectValue placeholder="-" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
-                    <SelectItem key={n} value={String(n)}>{n}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                min={1}
+                max={10}
+                placeholder="-"
+              />
               {form.formState.errors.exercises?.[index]?.sets && (
                 <p className="mt-1 text-xs text-red-600">
                   {form.formState.errors.exercises[index]?.sets?.message}
@@ -345,19 +340,13 @@ export default function CollapsibleExerciseCard({
             </div>
             <div className="w-20">
               <Label className="text-xs text-gray-600 dark:text-gray-400">Reps *</Label>
-              <Select
-                value={String(reps || "")}
+              <NativeNumberSelect
+                value={reps || ""}
                 onValueChange={(v) => form.setValue(`exercises.${index}.reps`, Number(v))}
-              >
-                <SelectTrigger className="h-8 text-sm">
-                  <SelectValue placeholder="-" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.from({ length: 30 }, (_, i) => i + 1).map((n) => (
-                    <SelectItem key={n} value={String(n)}>{n}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                min={1}
+                max={30}
+                placeholder="-"
+              />
               {form.formState.errors.exercises?.[index]?.reps && (
                 <p className="mt-1 text-xs text-red-600">
                   {form.formState.errors.exercises[index]?.reps?.message}
@@ -415,23 +404,17 @@ export default function CollapsibleExerciseCard({
                   <span className="text-xs font-medium text-gray-500 dark:text-gray-400 w-6 text-center">
                     S{setIdx + 1}
                   </span>
-                  <Select
-                    value={String(detail.reps)}
+                  <NativeNumberSelect
+                    value={detail.reps}
                     onValueChange={(v) => {
                       const updated = [...setDetails]
                       updated[setIdx] = { ...updated[setIdx], reps: Number(v) }
                       form.setValue(`exercises.${index}.setDetails`, updated)
                     }}
-                  >
-                    <SelectTrigger className="h-7 text-sm">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Array.from({ length: 30 }, (_, i) => i + 1).map((n) => (
-                        <SelectItem key={n} value={String(n)}>{n}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    min={1}
+                    max={30}
+                    triggerClassName="h-7"
+                  />
                   <Input
                     type="number"
                     value={detail.weight ?? ""}
