@@ -203,55 +203,87 @@ export default function ExerciseProgressChart({
     )
   }
 
+  // Calculate minimum chart width based on data points for mobile scroll
+  const minChartWidth = Math.max(chartData.length * 60, 400)
+  const needsScroll = !isSingleExercise && exerciseNames.length > 3
+
   return (
     <div className="w-full">
       <h3 className="text-lg font-semibold mb-4">
         Progreso - {METRIC_LABELS[filters.metric]}
       </h3>
 
-      <div className="min-h-[300px]">
-      <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="date" tick={{ fontSize: 12 }} interval="preserveStartEnd" />
-          <YAxis
-            tick={{ fontSize: 12 }}
-            label={{
-              value: METRIC_LABELS[filters.metric],
-              angle: -90,
-              position: "insideLeft",
-            }}
-          />
-          <Tooltip />
-          <Legend />
-          {isSingleExercise ? (
-            <Line
-              type="monotone"
-              dataKey={filters.metric}
-              stroke="#8884d8"
-              strokeWidth={2}
-              dot={{ r: 4 }}
-              activeDot={{ r: 6 }}
-              name={METRIC_LABELS[filters.metric]}
-            />
-          ) : (
-            exerciseNames.map((name, index) => (
-              <Line
-                key={name}
-                type="monotone"
-                dataKey={name}
-                stroke={MULTI_LINE_COLORS[index % MULTI_LINE_COLORS.length]}
-                strokeWidth={2}
-                dot={{ r: 3 }}
-                activeDot={{ r: 5 }}
-                connectNulls
-                name={name}
+      <div className="overflow-x-auto -mx-2 px-2 pb-2">
+        <div style={{ minWidth: needsScroll ? `${minChartWidth}px` : undefined }} className="min-h-[300px]">
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis
+                dataKey="date"
+                tick={{ fontSize: 11 }}
+                interval="preserveStartEnd"
+                angle={chartData.length > 10 ? -45 : 0}
+                textAnchor={chartData.length > 10 ? "end" : "middle"}
+                height={chartData.length > 10 ? 60 : 30}
               />
-            ))
-          )}
-        </LineChart>
-      </ResponsiveContainer>
+              <YAxis
+                tick={{ fontSize: 11 }}
+                width={45}
+                label={{
+                  value: METRIC_LABELS[filters.metric],
+                  angle: -90,
+                  position: "insideLeft",
+                  style: { fontSize: 11 },
+                }}
+              />
+              <Tooltip />
+              {!needsScroll && <Legend />}
+              {isSingleExercise ? (
+                <Line
+                  type="monotone"
+                  dataKey={filters.metric}
+                  stroke="#8884d8"
+                  strokeWidth={2}
+                  dot={{ r: 4 }}
+                  activeDot={{ r: 6 }}
+                  name={METRIC_LABELS[filters.metric]}
+                />
+              ) : (
+                exerciseNames.map((name, index) => (
+                  <Line
+                    key={name}
+                    type="monotone"
+                    dataKey={name}
+                    stroke={MULTI_LINE_COLORS[index % MULTI_LINE_COLORS.length]}
+                    strokeWidth={2}
+                    dot={{ r: 3 }}
+                    activeDot={{ r: 5 }}
+                    connectNulls
+                    name={name}
+                  />
+                ))
+              )}
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       </div>
+
+      {/* Scrollable legend for mobile when many exercises */}
+      {needsScroll && (
+        <div className="mt-2 max-h-24 overflow-y-auto border rounded-md p-2 bg-gray-50 dark:bg-gray-900">
+          <div className="flex flex-wrap gap-x-4 gap-y-1">
+            {exerciseNames.map((name, index) => (
+              <div key={name} className="flex items-center gap-1.5 text-xs whitespace-nowrap">
+                <span
+                  className="inline-block w-3 h-3 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: MULTI_LINE_COLORS[index % MULTI_LINE_COLORS.length] }}
+                />
+                <span className="text-gray-700 dark:text-gray-300">{name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Summary stats */}
       {stats && (

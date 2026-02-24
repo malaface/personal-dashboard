@@ -35,11 +35,11 @@
 |---------|---------|
 | Next.js | 16.0.8 |
 | React | 19.2.1 |
-| TypeScript | ^5 |
-| TailwindCSS | ^3.4.19 |
-| react-hook-form | ^7.68.0 |
-| Zod | ^4.1.13 |
-| recharts | ^3.6.0 |
+| TypeScript | ^5.9.3 |
+| TailwindCSS | ^4.2.0 |
+| react-hook-form | ^7.71.1 |
+| Zod | ^4.3.6 |
+| recharts | ^3.7.0 |
 
 ---
 
