@@ -66,6 +66,7 @@ export default async function EditWorkoutPage({
           name: workout.name,
           date: workout.date,
           duration: workout.duration,
+          caloriesBurned: workout.caloriesBurned,
           notes: workout.notes,
           exercises: workout.exercises.map(exercise => ({
             exerciseTypeId: exercise.exerciseTypeId,

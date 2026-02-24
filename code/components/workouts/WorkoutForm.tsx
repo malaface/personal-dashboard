@@ -41,6 +41,7 @@ const workoutFormSchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters").max(100, "Name too long"),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format"),
   duration: z.number().int().min(1).optional(),
+  caloriesBurned: z.number().min(0).optional(),
   notes: z.string().max(500).optional(),
   exercises: z.array(exerciseSchema).min(1, "At least one exercise required")
 })
@@ -53,6 +54,7 @@ interface WorkoutFormProps {
     name: string
     date: Date
     duration?: number | null
+    caloriesBurned?: number | null
     notes?: string | null
     exercises: Array<{
       exerciseTypeId?: string | null
@@ -97,6 +99,7 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
         ? new Date(workout.date).toISOString().split('T')[0]
         : new Date().toISOString().split('T')[0],
       duration: workout?.duration || undefined,
+      caloriesBurned: workout?.caloriesBurned || undefined,
       notes: workout?.notes || "",
       exercises: workout?.exercises.map(ex => ({
         exerciseTypeId: ex.exerciseTypeId || "",
@@ -240,6 +243,7 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
       formData.append("name", data.name)
       formData.append("date", data.date)
       if (data.duration) formData.append("duration", data.duration.toString())
+      if (data.caloriesBurned != null) formData.append("caloriesBurned", data.caloriesBurned.toString())
       if (data.notes) formData.append("notes", data.notes)
       formData.append("exercises", JSON.stringify(data.exercises))
 
@@ -314,6 +318,21 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
                 <p className="mt-1 text-sm text-red-600">{form.formState.errors.duration.message}</p>
               )}
             </div>
+          </div>
+
+          <div>
+            <Label>Calorias quemadas (kcal)</Label>
+            <Input
+              type="number"
+              {...form.register("caloriesBurned", { setValueAs: (v) => v === '' || Number.isNaN(Number(v)) ? undefined : Number(v) })}
+              min="0"
+              step="1"
+              placeholder="ej. 350"
+              className="mt-1"
+            />
+            {form.formState.errors.caloriesBurned && (
+              <p className="mt-1 text-sm text-red-600">{form.formState.errors.caloriesBurned.message}</p>
+            )}
           </div>
 
           <div>
