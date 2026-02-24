@@ -21,12 +21,9 @@ interface NativeNumberSelectProps {
 }
 
 /**
- * Hybrid number selector:
- * - Mobile: native <select> (OS picker wheel on iOS / bottom sheet on Android)
- * - Desktop: Radix UI Select (custom styled dropdown)
- *
- * Solves the touch-scroll bug where Radix dropdowns with many items
- * cannot be scrolled on mobile devices.
+ * Number selector using Radix UI Select.
+ * Mobile scroll is handled by the base Select component
+ * (touch-pan-y + overscroll-contain + max-h fallback).
  */
 export default function NativeNumberSelect({
   value,
@@ -44,45 +41,21 @@ export default function NativeNumberSelect({
 
   return (
     <div className={cn("relative", className)}>
-      {/* Native select: visible on mobile, hidden on md+ */}
-      <select
+      <Select
         value={String(value || "")}
-        onChange={(e) => onValueChange(e.target.value)}
-        className={cn(
-          "block md:hidden w-full h-8 rounded-md border border-input bg-background px-2 py-1 text-sm",
-          "ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-          "appearance-auto",
-          triggerClassName
-        )}
+        onValueChange={onValueChange}
       >
-        <option value="" disabled>
-          {placeholder}
-        </option>
-        {options.map((n) => (
-          <option key={n} value={String(n)}>
-            {n}
-          </option>
-        ))}
-      </select>
-
-      {/* Radix Select: hidden on mobile, visible on md+ */}
-      <div className="hidden md:block">
-        <Select
-          value={String(value || "")}
-          onValueChange={onValueChange}
-        >
-          <SelectTrigger className={cn("h-8 text-sm", triggerClassName)}>
-            <SelectValue placeholder={placeholder} />
-          </SelectTrigger>
-          <SelectContent>
-            {options.map((n) => (
-              <SelectItem key={n} value={String(n)}>
-                {n}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+        <SelectTrigger className={cn("h-8 text-sm", triggerClassName)}>
+          <SelectValue placeholder={placeholder} />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((n) => (
+            <SelectItem key={n} value={String(n)}>
+              {n}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   )
 }
