@@ -55,11 +55,14 @@ coverage/
 .jest/
 *.test.js.snap
 
-# Claude Code
-.claude/plans/
-.claude/settings.local.json
-.claude/.cache/
+# Claude Code (solo local)
+.claude/
+CLAUDE.md
+CLAUDE.md.backup-*
 *.plan.md
+
+# GitHub workflows (solo local)
+.github/
 
 # Temporary files
 tmp/
