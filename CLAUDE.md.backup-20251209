@@ -1,0 +1,414 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+**Personal Dashboard** - Multi-user management system for tracking gym training, finances & investments, nutrition, and family CRM with AI integration.
+
+**Technology Stack:**
+- **Frontend:** Next.js 15 (App Router) + React 18 + TypeScript
+- **UI:** TailwindCSS + shadcn/ui components
+- **Backend:** Supabase (Auth, PostgreSQL, Realtime, Storage)
+- **AI Services:** n8n workflows + Flowise chatflows + Qdrant vector search
+- **Monitoring:** Prometheus + Grafana integration
+- **Deployment:** Docker Compose (port 3003)
+
+## Current Status
+
+**Phase 0:** ✅ COMPLETED (Security Hardening & Infrastructure)
+**Phase 1:** 📋 PENDING (Foundation - Next.js setup, auth, database schema)
+
+See `fases/fase0-completado.md` for completed work and security improvements.
+
+## Project Structure
+
+```
+projects/personal-dashboard-project/
+├── CLAUDE.md                    # This file
+├── README.md                    # Project overview and status
+├── fases/                       # Phase-by-phase implementation guides
+│   ├── fase0-completado.md      # ✅ Security & infrastructure (DONE)
+│   ├── fase1-foundation.md      # 📋 Next.js setup & auth (PENDING)
+│   ├── fase2-core-modules.md    # Module implementation
+│   ├── fase3-ai-integration.md  # AI features integration
+│   ├── fase4-polish-deploy.md   # Testing & deployment
+│   └── fase5-post-launch.md     # Post-launch enhancements
+├── code/                        # Next.js application source (created in Phase 1)
+│   ├── app/                     # Next.js app directory
+│   ├── lib/                     # Utilities & Supabase clients
+│   ├── components/              # React components
+│   └── supabase/migrations/     # Database migrations
+├── docs/                        # Technical documentation
+└── backups/                     # Dashboard-specific backups
+```
+
+## Development Workflow
+
+### Starting a New Phase
+
+**ALWAYS follow this workflow when starting any phase:**
+
+1. **Read the phase guide** in `fases/faseN-*.md`
+2. **Validate all pre-requisites** using the provided commands
+3. **Create backup** before making changes (if required)
+4. **Follow the checklist** step-by-step in the phase document
+5. **Run validation commands** at the end of each major task
+6. **Commit using git workflow** (see parent CLAUDE.md in `/home/badfaceserverlap/docker/contenedores/CLAUDE.md`)
+
+### Phase Documentation Structure
+
+Each phase file contains:
+- **Pre-Requisitos:** Commands to validate infrastructure state
+- **Prompt de Inicio:** Context for new conversation sessions
+- **Task-by-task implementation:** Detailed steps with code examples
+- **Validation commands:** How to verify each task
+- **Rollback procedures:** How to revert if needed
+- **Final checklist:** Comprehensive completion criteria
+
+### Common Commands
+
+**Check infrastructure status:**
+```bash
+# Navigate to main infrastructure directory
+cd /home/badfaceserverlap/docker/contenedores
+
+# Run health check (ALWAYS run before making changes)
+bash shared/scripts/health-check.sh
+
+# Check AI Platform services
+docker ps | grep -E "(postgres|redis|kong|qdrant|n8n|flowise)"
+```
+
+**Working with the dashboard application (Phase 1+):**
+```bash
+# Navigate to dashboard code
+cd /home/badfaceserverlap/docker/contenedores/projects/personal-dashboard-project/code
+
+# Install dependencies (Phase 1)
+npm install
+
+# Development mode (runs on port 3000)
+npm run dev
+
+# Build for production
+npm run build
+
+# Start production server
+npm start
+
+# Run type checking
+npx tsc --noEmit
+
+# Lint code
+npm run lint
+```
+
+**Database operations:**
+```bash
+# Connect to PostgreSQL
+docker exec -it supabase-db psql -U postgres
+
+# Run migration
+docker exec -i supabase-db psql -U postgres < supabase/migrations/XXX_migration.sql
+
+# Check tables
+docker exec -i supabase-db psql -U postgres -c "\dt public.*"
+
+# Verify RLS policies
+docker exec -i supabase-db psql -U postgres -c "
+  SELECT tablename, rowsecurity
+  FROM pg_tables
+  WHERE schemaname = 'public';
+"
+```
+
+**Test user credentials (created in Phase 0):**
+```bash
+Email: malacaram807@gmail.com
+Password: My_badface27
+```
+
+## Service Integration
+
+**Port Mapping:**
+- Dashboard: `3003` (external) → `3000` (internal Next.js)
+- Supabase Kong: `8000` (Auth, Database, Realtime, Storage)
+- n8n: `5678` (Automation workflows)
+- Flowise: `3001` (AI Chatflows)
+- Qdrant: `6333` (Vector search API), `6334` (gRPC)
+- Redis: `6379` (Cache & rate limiting)
+- PostgreSQL: `5432` (Direct database access)
+
+**Docker Networks:**
+- `localai_default` - Connect to AI Platform services
+- `monitoring` - Prometheus/Grafana integration
+
+**Environment Variables:**
+
+All service credentials are in `../ai-platform/.env`:
+- `NEXT_PUBLIC_SUPABASE_URL` - Supabase API URL
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Public anonymous key
+- `SUPABASE_SERVICE_ROLE_KEY` - Admin key (server-side only)
+- `N8N_API_TOKEN` - n8n webhook authentication
+- `FLOWISE_USERNAME`, `FLOWISE_PASSWORD` - Flowise credentials
+- `QDRANT_API_KEY` - Vector database authentication
+- `REDIS_URL` - Redis connection string
+
+## Database Schema
+
+**Core Modules:**
+
+1. **Gym Training Module:**
+   - `workouts` - Workout sessions
+   - `exercises` - Individual exercises in workouts
+   - `workout_progress` - Progress tracking over time
+
+2. **Finance Module:**
+   - `transactions` - Income/expense tracking with audit
+   - `investments` - Investment portfolio
+   - `budgets` - Monthly budget limits
+   - `transaction_audit` - Audit trail for all changes
+
+3. **Nutrition Module:**
+   - `meals` - Meal entries (breakfast/lunch/dinner/snack)
+   - `food_items` - Individual food items in meals
+   - `nutrition_goals` - Daily nutrition targets
+
+4. **Family CRM Module:**
+   - `family_members` - Family member profiles
+   - `time_logs` - Time spent with family members
+   - `events` - Important dates and occasions
+   - `reminders` - Task reminders
+
+5. **Shared Tables:**
+   - `profiles` - Extended user profiles
+   - `notifications` - In-app notifications
+
+**All tables have RLS (Row Level Security) enabled** - Users can only access their own data.
+
+## Key Implementation Details
+
+### Authentication
+
+**Supabase Auth is HARDENED** (Phase 0):
+- Public signup: DISABLED
+- Email verification: REQUIRED
+- Phone verification: REQUIRED
+- JWT validation: ENABLED in edge functions
+
+**Next.js auth pattern (Phase 1):**
+- Server-side: `lib/supabase/server.ts` (Server Components, API Routes)
+- Client-side: `lib/supabase/client.ts` (Client Components)
+- Middleware: `middleware.ts` (Route protection, redirects)
+
+### Security Best Practices
+
+**NEVER commit:**
+- `.env` or `.env.local` files
+- API keys or tokens
+- User passwords or credentials
+
+**ALWAYS:**
+- Use environment variables for secrets
+- Implement RLS policies on all tables
+- Validate user input with Zod schemas
+- Rate limit API endpoints using Redis
+- Log important operations with Winston
+- Test authentication flows before committing
+
+### AI Integration (Phase 3)
+
+**n8n Workflows:**
+- Webhook endpoint: `http://n8n:5678/webhook/...`
+- Authentication: `Authorization: Bearer ${N8N_API_TOKEN}`
+- Use cases: Automated reminders, data analysis, report generation
+
+**Flowise Chatflows:**
+- API endpoint: `http://flowise:3001/api/v1/prediction/...`
+- Authentication: Basic auth with FLOWISE_USERNAME/PASSWORD
+- Use cases: Workout suggestions, meal planning, financial advice
+
+**Qdrant Vector Search:**
+- API endpoint: `http://qdrant:6333`
+- Authentication: `api-key: ${QDRANT_API_KEY}`
+- Use cases: Semantic search in notes, similar workout finding
+
+## Testing & Validation
+
+**Before every commit:**
+
+1. **Run health check:**
+   ```bash
+   cd /home/badfaceserverlap/docker/contenedores
+   bash shared/scripts/health-check.sh
+   ```
+
+2. **Test the application:**
+   ```bash
+   cd projects/personal-dashboard-project/code
+   npm run build  # Should complete without errors
+   ```
+
+3. **Verify authentication:**
+   ```bash
+   # Test Supabase auth endpoint
+   curl -X POST http://localhost:8000/auth/v1/token?grant_type=password \
+     -H "Content-Type: application/json" \
+     -H "apikey: ${ANON_KEY}" \
+     -d '{"email":"malacaram807@gmail.com","password":"My_badface27"}'
+   ```
+
+4. **Check database connectivity:**
+   ```bash
+   docker exec -i supabase-db psql -U postgres -c "SELECT COUNT(*) FROM auth.users;"
+   ```
+
+## Git Workflow
+
+**This project follows the parent repository's git workflow.**
+
+See: `/home/badfaceserverlap/docker/contenedores/CLAUDE.md` for complete git instructions.
+
+**Quick reference:**
+```bash
+# Always work from submodule
+cd /home/badfaceserverlap/docker/contenedores
+
+# Configure git identity
+git config user.name "Claude Code"
+git config user.email "noreply@anthropic.com"
+
+# Stage specific files (NEVER use 'git add .')
+git add projects/personal-dashboard-project/[specific-files]
+
+# Commit with detailed message
+git commit -m "Stable solution: [description]
+
+Technical Details:
+- [What was changed]
+- [Why it was changed]
+- [Impact/results]
+
+🤖 Generated with [Claude Code](https://claude.ai/code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+
+# Push to GitHub
+git push origin develop
+```
+
+## Troubleshooting
+
+**Port conflicts:**
+```bash
+# Check if port 3003 is in use
+netstat -tuln | grep 3003
+
+# Kill process using port 3003
+lsof -ti:3003 | xargs kill -9
+```
+
+**Database connection issues:**
+```bash
+# Verify Supabase is running
+docker ps | grep supabase-db
+
+# Check PostgreSQL logs
+docker logs supabase-db --tail 50
+
+# Restart Supabase if needed
+cd /home/badfaceserverlap/docker/contenedores/projects/ai-platform
+docker-compose restart supabase-db kong
+```
+
+**Module import errors in Next.js:**
+```bash
+# Clear Next.js cache
+rm -rf .next
+
+# Reinstall dependencies
+rm -rf node_modules package-lock.json
+npm install
+```
+
+**RLS policy errors:**
+```bash
+# Check if RLS is enabled on table
+docker exec -i supabase-db psql -U postgres -c "
+  SELECT tablename, rowsecurity
+  FROM pg_tables
+  WHERE schemaname = 'public' AND tablename = 'YOUR_TABLE';
+"
+
+# Disable RLS temporarily for debugging (NEVER in production)
+docker exec -i supabase-db psql -U postgres -c "
+  ALTER TABLE public.YOUR_TABLE DISABLE ROW LEVEL SECURITY;
+"
+```
+
+## Important Files & References
+
+**Planning & Documentation:**
+- Complete project plan: `/home/badfaceserverlap/.claude/plans/quizzical-knitting-knuth.md`
+- Implementation guide: `/home/badfaceserverlap/docker/contenedores/docs/guia-implementacion-dashboard.md`
+- Phase 0 report: `/home/badfaceserverlap/docker/contenedores/docs/phase0-security-hardening-report.md`
+
+**Infrastructure:**
+- Main infrastructure: `/home/badfaceserverlap/docker/contenedores/`
+- AI Platform: `../ai-platform/`
+- Monitoring: `../../shared/monitoring/`
+- Backup scripts: `../../shared/scripts/backup-ai-platform.sh`
+
+**Environment Variables:**
+- AI Platform env: `../ai-platform/.env` (master configuration)
+- Dashboard env: `code/.env.local` (references AI Platform values)
+
+## Phase-Specific Notes
+
+### Phase 0 (COMPLETED) ✅
+- Supabase security hardened
+- API keys generated (Qdrant, n8n)
+- Vault encryption key rotated
+- Admin user created and verified
+- Infrastructure ready for development
+
+### Phase 1 (PENDING) 📋
+- Initialize Next.js 15 project
+- Install all dependencies
+- Configure Supabase SSR clients
+- Create database schema (16 tables)
+- Implement RLS policies
+- Build authentication pages
+- Setup validation, logging, rate limiting
+
+**Start Phase 1 by reading:** `fases/fase1-foundation.md`
+
+### Phases 2-5
+See respective files in `fases/` directory for detailed implementation guides.
+
+## Critical Reminders
+
+1. **ALWAYS validate pre-requisites** before starting a phase
+2. **NEVER skip health checks** before committing
+3. **ALWAYS use specific file staging** (never `git add .`)
+4. **READ the phase guide completely** before starting work
+5. **TEST authentication flows** after any auth-related changes
+6. **BACKUP before major changes** (use `bash shared/scripts/backup-ai-platform.sh manual-[name]`)
+7. **Follow the parent repo's git workflow** for all commits
+
+## Success Criteria
+
+**The dashboard is considered "working" when:**
+- Next.js runs without errors on port 3000 (locally) or 3003 (Docker)
+- User can login with test credentials
+- All 4 modules (Gym, Finance, Nutrition, Family) are functional
+- CRUD operations work for all entities
+- RLS policies prevent unauthorized access
+- AI features provide useful suggestions
+- Prometheus metrics are exposed
+- All health checks pass
+
+---
+
+**For detailed implementation instructions, ALWAYS refer to the phase files in `fases/`**
