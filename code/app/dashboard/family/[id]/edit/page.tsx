@@ -19,6 +19,14 @@ export default async function EditFamilyMemberPage({ params }: EditFamilyMemberP
       id,
       userId: user.id,
     },
+    include: {
+      events: {
+        where: {
+          title: { not: { startsWith: "Cumpleaños de " } },
+        },
+        orderBy: { date: "asc" },
+      },
+    },
   })
 
   if (!member) {

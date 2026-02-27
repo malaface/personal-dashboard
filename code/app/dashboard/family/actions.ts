@@ -44,6 +44,9 @@ export async function createFamilyMember(formData: FormData) {
     // Auto-create birthday event if birthday is provided
     await syncBirthdayEvent(user.id, familyMember.id, validatedData.name, validatedData.birthday ? new Date(validatedData.birthday) : null)
 
+    // Create important dates as events
+    await syncImportantDates(user.id, familyMember.id, formData)
+
     revalidatePath("/dashboard/family")
 
     return { success: true, familyMember }
@@ -136,10 +139,13 @@ export async function updateFamilyMember(familyMemberId: string, formData: FormD
       metadata: { familyMemberId, name: validatedData.name },
     })
 
-    revalidatePath("/dashboard/family")
-
     // Auto-sync birthday event
     await syncBirthdayEvent(user.id, familyMember.id, validatedData.name, validatedData.birthday ? new Date(validatedData.birthday) : null)
+
+    // Sync important dates
+    await syncImportantDates(user.id, familyMember.id, formData)
+
+    revalidatePath("/dashboard/family")
 
     return { success: true, familyMember }
   } catch (error: unknown) {
@@ -186,6 +192,97 @@ async function syncBirthdayEvent(userId: string, familyMemberId: string, memberN
     }
   } else if (existingBirthdayEvent) {
     await prisma.event.delete({ where: { id: existingBirthdayEvent.id } })
+  }
+}
+
+// ============================================
+// IMPORTANT DATES SYNC
+// ============================================
+
+interface ImportantDateInput {
+  id?: string
+  title: string
+  date: string
+  isRecurring: boolean
+  recurrenceType: "YEARLY" | "MONTHLY" | "WEEKLY"
+}
+
+async function syncImportantDates(userId: string, familyMemberId: string, formData: FormData) {
+  const importantDatesRaw = formData.get("importantDates")
+  if (!importantDatesRaw) {
+    // No dates field means delete all non-birthday events for this member
+    await prisma.event.deleteMany({
+      where: {
+        userId,
+        familyMemberId,
+        NOT: {
+          AND: [
+            { title: { startsWith: "Cumpleaños de " } },
+            { isRecurring: true },
+            { recurrenceType: "YEARLY" },
+          ],
+        },
+      },
+    })
+    return
+  }
+
+  let dates: ImportantDateInput[]
+  try {
+    dates = JSON.parse(importantDatesRaw as string)
+  } catch {
+    return
+  }
+
+  // Get existing non-birthday events
+  const existingEvents = await prisma.event.findMany({
+    where: {
+      userId,
+      familyMemberId,
+      NOT: {
+        AND: [
+          { title: { startsWith: "Cumpleaños de " } },
+          { isRecurring: true },
+          { recurrenceType: "YEARLY" },
+        ],
+      },
+    },
+  })
+
+  const existingIds = new Set(existingEvents.map((e) => e.id))
+  const incomingIds = new Set(dates.filter((d) => d.id).map((d) => d.id!))
+
+  // Delete events that were removed
+  const toDelete = [...existingIds].filter((id) => !incomingIds.has(id))
+  if (toDelete.length > 0) {
+    await prisma.event.deleteMany({
+      where: { id: { in: toDelete }, userId },
+    })
+  }
+
+  // Upsert events
+  for (const dateItem of dates) {
+    const eventData = {
+      title: dateItem.title,
+      date: new Date(dateItem.date),
+      isRecurring: dateItem.isRecurring,
+      recurrenceType: dateItem.isRecurring ? dateItem.recurrenceType : null,
+    }
+
+    if (dateItem.id && existingIds.has(dateItem.id)) {
+      await prisma.event.update({
+        where: { id: dateItem.id },
+        data: eventData,
+      })
+    } else {
+      await prisma.event.create({
+        data: {
+          userId,
+          familyMemberId,
+          ...eventData,
+        },
+      })
+    }
   }
 }
 

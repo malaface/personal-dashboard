@@ -59,6 +59,15 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Hide scrollbar for horizontal scroll tabs */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* Safe area for devices with notch (iPhone X+) */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   .safe-area-bottom {

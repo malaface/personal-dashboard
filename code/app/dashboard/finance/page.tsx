@@ -1,9 +1,9 @@
 import { requireAuth } from "@/lib/auth/utils"
 import { prisma } from "@/lib/db/prisma"
-import Link from "next/link"
 import TransactionList from "@/components/finance/TransactionList"
 import FloatingActionButton from "@/components/ui/FloatingActionButton"
 import Top3CardsWidget from "@/components/finance/cards/Top3CardsWidget"
+import FinanceModeTabs from "@/components/finance/FinanceModeTabs"
 
 export default async function FinancePage() {
   const user = await requireAuth()
@@ -39,41 +39,9 @@ export default async function FinancePage() {
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Finanzas</h1>
             <p className="text-gray-600 dark:text-gray-400 mt-2">Administra tus transacciones, cuentas e inversiones</p>
           </div>
-          <Link
-            href="/dashboard/finance/progress"
-            className="px-4 py-2 border border-green-600 text-green-600 dark:text-green-400 dark:border-green-400 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition"
-          >
-            Ver Progreso
-          </Link>
         </div>
 
-        {/* Navigation Tabs */}
-        <div className="flex gap-1 mb-6 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
-          <Link
-            href="/dashboard/finance"
-            className="flex-1 px-4 py-2 text-center text-sm font-medium rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
-          >
-            Transacciones
-          </Link>
-          <Link
-            href="/dashboard/finance/accounts"
-            className="flex-1 px-4 py-2 text-center text-sm font-medium rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition"
-          >
-            Cuentas {accountCount > 0 && <span className="text-xs opacity-60">({accountCount})</span>}
-          </Link>
-          <Link
-            href="/dashboard/finance/cards"
-            className="flex-1 px-4 py-2 text-center text-sm font-medium rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition"
-          >
-            Tarjetas {cardCount > 0 && <span className="text-xs opacity-60">({cardCount})</span>}
-          </Link>
-          <Link
-            href="/dashboard/finance/progress"
-            className="flex-1 px-4 py-2 text-center text-sm font-medium rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition"
-          >
-            Progreso
-          </Link>
-        </div>
+        <FinanceModeTabs accountCount={accountCount} cardCount={cardCount} />
 
         {/* Summary Widgets */}
         {(accountCount > 0 || cardCount > 0) && (
