@@ -1,0 +1,88 @@
+name: Bug Report
+description: Reportar un bug o error en el dashboard
+title: "[BUG] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gracias por reportar este bug. Completa la información para ayudarnos a resolverlo.
+
+  - type: dropdown
+    id: module
+    attributes:
+      label: Modulo afectado
+      description: Selecciona el modulo donde ocurre el bug
+      options:
+        - Dashboard (general)
+        - Gym
+        - Finance
+        - Nutrition
+        - Family CRM
+        - Auth (login/register)
+        - API
+        - Docker/Infra
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Descripcion del bug
+      description: Describe claramente que esta pasando
+      placeholder: Cuando hago X, pasa Y en lugar de Z...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Pasos para reproducir
+      description: Lista los pasos para reproducir el bug
+      placeholder: |
+        1. Ir a '...'
+        2. Click en '...'
+        3. Llenar campo '...'
+        4. Ver error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Comportamiento esperado
+      description: Que deberia pasar?
+      placeholder: Deberia...
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots / Logs
+      description: Agrega capturas de pantalla o logs relevantes
+      placeholder: Pega aqui imagenes o logs de la consola...
+    validations:
+      required: false
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Entorno
+      options:
+        - Desarrollo (localhost:3000)
+        - Produccion (Docker :3003)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severidad
+      options:
+        - Critico (app no funciona)
+        - Alto (funcionalidad rota)
+        - Medio (funciona parcialmente)
+        - Bajo (cosmetico/menor)
+    validations:
+      required: true

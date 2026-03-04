@@ -1,0 +1,71 @@
+name: Task
+description: Tarea tecnica, refactor o mantenimiento
+title: "[TASK] "
+labels: ["task"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Registra una tarea tecnica o de mantenimiento del proyecto.
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Tipo de tarea
+      options:
+        - Refactor
+        - Migracion de datos
+        - Actualizacion de dependencias
+        - Configuracion/Infra
+        - Performance
+        - Seguridad
+        - Documentacion
+        - Testing
+    validations:
+      required: true
+
+  - type: dropdown
+    id: module
+    attributes:
+      label: Modulo afectado
+      options:
+        - Dashboard (general)
+        - Gym
+        - Finance
+        - Nutrition
+        - Family CRM
+        - Auth
+        - Prisma/DB
+        - Docker/Infra
+        - CI/CD
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Descripcion
+      description: Que hay que hacer y por que?
+      placeholder: Necesitamos... porque...
+    validations:
+      required: true
+
+  - type: textarea
+    id: checklist
+    attributes:
+      label: Checklist de tareas
+      description: Desglose de sub-tareas
+      placeholder: |
+        - [ ] Paso 1
+        - [ ] Paso 2
+        - [ ] Verificar que funciona
+    validations:
+      required: false
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notas adicionales
+      description: Archivos relevantes, dependencias, riesgos, etc.
+    validations:
+      required: false

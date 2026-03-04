@@ -1,0 +1,67 @@
+name: Feature Request
+description: Solicitar una nueva funcionalidad o mejora
+title: "[FEATURE] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe la funcionalidad que te gustaria agregar al dashboard.
+
+  - type: dropdown
+    id: module
+    attributes:
+      label: Modulo relacionado
+      description: A que modulo pertenece esta funcionalidad?
+      options:
+        - Dashboard (general)
+        - Gym
+        - Finance
+        - Nutrition
+        - Family CRM
+        - Auth
+        - AI (n8n/Flowise/Qdrant)
+        - Nuevo modulo
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Descripcion de la funcionalidad
+      description: Describe que quieres lograr y por que es util
+      placeholder: Como usuario quiero poder... para...
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Criterios de aceptacion
+      description: Como sabemos que esta completo?
+      placeholder: |
+        - [ ] Se puede hacer X
+        - [ ] Se muestra Y
+        - [ ] Los datos se guardan correctamente
+    validations:
+      required: false
+
+  - type: textarea
+    id: mockup
+    attributes:
+      label: Mockup / Referencia visual
+      description: Si tienes alguna idea visual, agregala aqui
+      placeholder: Pega imagenes o describe el diseño esperado...
+    validations:
+      required: false
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Prioridad
+      options:
+        - Alta (necesario pronto)
+        - Media (seria bueno tenerlo)
+        - Baja (nice to have)
+    validations:
+      required: true
