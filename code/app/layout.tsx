@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const viewport: Viewport = {
-  interactiveWidget: 'resizes-content',
+  interactiveWidget: 'overlays-content',
 };
 
 export const metadata: Metadata = {
