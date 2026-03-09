@@ -1,6 +1,6 @@
 # Personal Dashboard
 
-Sistema de gestión personal multi-usuario: entrenamiento gym, finanzas, nutrición y CRM familiar con integración de IA.
+Sistema de gestión personal multi-usuario: entrenamiento gym, finanzas (+ tracker fiscal on-chain), nutrición y CRM familiar con integración de IA.
 
 **Repo:** https://github.com/malaface/personal-dashboard (privado)
 
@@ -17,7 +17,8 @@ Sistema de gestión personal multi-usuario: entrenamiento gym, finanzas, nutrici
 ## Módulos
 
 - **Gym** — Seguimiento de entrenamientos, ejercicios, templates
-- **Finance** — Gestión financiera, cuentas, tarjetas
+- **Finance** — Gestión financiera, cuentas, tarjetas, presupuestos
+- **On-Chain Fiscal Tracker** — Tracker DeFi automatizado (Arbitrum/Hyperliquid), clasificación de swaps (Uniswap V3), cálculo fiscal SAT México (Costo Promedio), reportes en USD/MXN
 - **Nutrition** — Control nutricional, registro de comidas, templates
 - **Family CRM** — Contactos familiares, eventos, calendario
 
@@ -62,6 +63,7 @@ DATABASE_URL="postgresql://dashboard_user:PASSWORD@localhost:5434/dashboard"
 NEXTAUTH_URL="http://localhost:3000"
 NEXTAUTH_SECRET="..."
 REDIS_URL="redis://:PASSWORD@localhost:6379"
+CRON_SECRET="..."              # Para /api/cron/onchain
 ```
 
 ### 2. Levantar servicios (desarrollo)
@@ -183,15 +185,16 @@ personal-dashboard/
 │   ├── components/
 │   │   ├── ui/                  # shadcn/ui (editables)
 │   │   ├── layout/              # Shell, Sidebar, MobileBottomNav
-│   │   ├── gym/ finance/ nutrition/ family/
+│   │   ├── gym/ finance/ finance/onchain/ nutrition/ family/
 │   │   └── templates/           # MealTemplateManager, WorkoutTemplateManager
 │   ├── lib/
 │   │   ├── db/prisma.ts         # Prisma singleton
 │   │   ├── auth/                # requireAuth(), verifyOwnership()
 │   │   ├── audit/logger.ts      # logAudit()
+│   │   ├── finance/onchain/     # Covalent, Hyperliquid, parser, sync, fiscal engine
 │   │   └── validations/         # Zod schemas
 │   ├── prisma/
-│   │   ├── schema.prisma        # 31 tablas
+│   │   ├── schema.prisma        # 35 tablas
 │   │   └── migrations/          # Migraciones aplicadas
 │   └── Dockerfile               # Build de producción
 ├── docs/                        # Reportes y documentación

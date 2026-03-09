@@ -45,6 +45,7 @@ model User {
   aiCredentials AICredential[]
   financialAccounts FinancialAccount[]
   creditCards       CreditCard[]
+  onchainWallets    OnchainWallet[]
 
   @@map("users")
 }
@@ -855,4 +856,147 @@ enum AIProvider {
   OPENAI
   CLAUDE
   HUGGINGFACE
+  COVALENT
+}
+
+// ============================================
+// ON-CHAIN FISCAL TRACKER
+// ============================================
+
+enum OnchainNetwork {
+  ARBITRUM
+  ETHEREUM
+}
+
+enum OnchainTxType {
+  SWAP
+  LP_ADD
+  LP_REMOVE
+  TRANSFER_IN
+  TRANSFER_OUT
+  APPROVAL
+  BRIDGE
+  UNKNOWN
+}
+
+enum OnchainTxStatus {
+  RAW
+  CLASSIFIED
+  FISCAL_PROCESSED
+  MANUALLY_OVERRIDDEN
+}
+
+enum FiscalMethod {
+  AVERAGE_COST
+}
+
+enum OnchainDataSource {
+  COVALENT
+  HYPERLIQUID
+}
+
+// ============================================
+// ON-CHAIN FISCAL TRACKER
+// ============================================
+
+model OnchainWallet {
+  id          String         @id @default(cuid())
+  userId      String
+  address     String         // 0x... Ethereum address
+  label       String         // User-friendly name
+  network     OnchainNetwork @default(ARBITRUM)
+  isActive    Boolean        @default(true)
+  lastSyncAt  DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  user         User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions OnchainTransaction[]
+  inventory    OnchainTokenInventory[]
+
+  @@unique([userId, address, network])
+  @@index([userId, isActive])
+  @@map("onchain_wallets")
+}
+
+model OnchainTransaction {
+  id            String            @id @default(cuid())
+  walletId      String
+  txHash        String
+  blockNumber   Int
+  timestamp     DateTime
+  type          OnchainTxType     @default(UNKNOWN)
+  status        OnchainTxStatus   @default(RAW)
+  dataSource    OnchainDataSource
+
+  // Token sold (outgoing)
+  tokenSoldAddress  String?
+  tokenSoldSymbol   String?
+  tokenSoldAmount   Float?
+  tokenSoldPriceUSD Float?
+
+  // Token bought (incoming)
+  tokenBoughtAddress  String?
+  tokenBoughtSymbol   String?
+  tokenBoughtAmount   Float?
+  tokenBoughtPriceUSD Float?
+
+  // Gas
+  gasFeeETH     Float?
+  gasFeeUSD     Float?
+
+  // Raw data from API
+  rawData       Json?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  wallet      OnchainWallet       @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  fiscalEvent OnchainFiscalEvent?
+
+  @@unique([walletId, txHash])
+  @@index([walletId, timestamp])
+  @@index([walletId, type])
+  @@index([txHash])
+  @@map("onchain_transactions")
+}
+
+model OnchainTokenInventory {
+  id              String @id @default(cuid())
+  walletId        String
+  tokenAddress    String
+  tokenSymbol     String
+  totalAmount     Float  @default(0)
+  avgCostBasisUSD Float  @default(0)
+  avgCostBasisMXN Float  @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  wallet OnchainWallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@unique([walletId, tokenAddress])
+  @@index([walletId])
+  @@map("onchain_token_inventory")
+}
+
+model OnchainFiscalEvent {
+  id              String      @id @default(cuid())
+  transactionId   String      @unique
+  method          FiscalMethod @default(AVERAGE_COST)
+  costBasisUSD    Float
+  costBasisMXN    Float
+  proceedsUSD     Float
+  proceedsMXN     Float
+  gainLossUSD     Float
+  gainLossMXN     Float
+  gasFeeDeduction Float       @default(0)
+  fiscalPeriod    String      // "2026-Q1", "2026-03", etc.
+  exchangeRate    Float       // USD/MXN rate at time of calculation
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  transaction OnchainTransaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+
+  @@index([fiscalPeriod])
+  @@map("onchain_fiscal_events")
 }

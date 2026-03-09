@@ -11,7 +11,7 @@ Multi-user personal management system: gym training, finances, nutrition, and fa
 - **AI:** n8n + Flowise + Qdrant + Redis
 - **Deployment:** Docker Compose con profiles (dev: DB+Redis, prod: stack completo en port 3003)
 
-**Estado actual:** App construida y funcional. Módulos activos: Gym, Finance, Nutrition, Family CRM.
+**Estado actual:** App construida y funcional. Módulos activos: Gym, Finance (+ On-Chain Fiscal Tracker), Nutrition, Family CRM.
 
 ---
 
@@ -22,6 +22,7 @@ Multi-user personal management system: gym training, finances, nutrition, and fa
 | `frontend` | `'use client'`, `page.tsx`, `layout.tsx`, `Server Component`, `Client Component`, `shadcn`, `form`, `Tailwind`, `component`, `middleware`, `useForm` |
 | `backend` | `prisma`, `migration`, `Server Action`, `API route`, `NextAuth`, `requireAuth`, `DATABASE_URL`, `schema.prisma`, `userId`, `audit log`, `n8n`, `Flowise`, `Qdrant`, `Redis`, `backup` |
 | `git-workflow` | `commit`, `branch`, `PR`, `push`, `merge`, `git`, `github`, `tag`, `release` |
+| `onchain-fiscal` | `onchain`, `wallet`, `arbitrum`, `covalent`, `hyperliquid`, `fiscal`, `SAT`, `costo promedio`, `swap`, `uniswap`, `DeFi`, `blockchain` |
 
 ---
 
@@ -51,15 +52,16 @@ personal-dashboard/
 │   ├── components/
 │   │   ├── ui/                  # shadcn/ui components (editables)
 │   │   ├── layout/              # DashboardShell, Sidebar, MobileBottomNav
-│   │   ├── gym/ finance/ nutrition/ family/
+│   │   ├── gym/ finance/ finance/onchain/ nutrition/ family/
 │   ├── lib/
 │   │   ├── db/prisma.ts         # Prisma singleton (siempre importar de aquí)
 │   │   ├── auth/                # requireAuth(), verifyOwnership()
 │   │   ├── audit/logger.ts      # logAudit()
+│   │   ├── finance/onchain/      # Covalent client, Hyperliquid client, parser, sync, fiscal engine
 │   │   └── validations/         # Zod schemas
 │   └── prisma/
-│       ├── schema.prisma        # 31 tablas
-│       ├── migrations/          # 13 migrations aplicadas
+│       ├── schema.prisma        # 35 tablas
+│       ├── migrations/          # 14 migrations aplicadas
 │       └── seeds/               # Catalog items
 ├── docs/                        # Reportes y documentación
 └── backups/                     # DB backups
@@ -167,6 +169,7 @@ N8N_BASE_URL="http://localhost:5678"
 FLOWISE_BASE_URL="http://localhost:3001"
 QDRANT_URL="http://localhost:6333"
 QDRANT_API_KEY="..."
+CRON_SECRET="..."                           # Proteger /api/cron/onchain
 
 # code/.env.production
 DATABASE_URL="postgresql://dashboard_user:PASSWORD@dashboard-postgres:5432/dashboard"
@@ -175,7 +178,7 @@ NEXTAUTH_URL="https://dashboard.malacaran8n.uk"
 
 ---
 
-**Last Updated:** 2026-02-19
-**Skills:** 3 consolidadas (frontend, backend, git-workflow)
-**DB:** 31 tablas, 13 migrations, Prisma 5.22.0 + PostgreSQL 15
+**Last Updated:** 2026-03-09
+**Skills:** 4 consolidadas (frontend, backend, git-workflow, onchain-fiscal)
+**DB:** 35 tablas, 14 migrations, Prisma 5.22.0 + PostgreSQL 15
 **shadcn/ui:** instalado — Button, Input, Label, Select, Dialog, Card, Badge, Tabs, Sheet en `components/ui/`
