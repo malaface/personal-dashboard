@@ -328,9 +328,9 @@ export async function createEvent(formData: FormData) {
     revalidatePath("/dashboard/family")
 
     return { success: true, event }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Create event error:", error)
-    return { success: false, error: error.message || "Failed to create event" }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to create event" }
   }
 }
 
@@ -380,9 +380,9 @@ export async function updateEvent(eventId: string, formData: FormData) {
     revalidatePath("/dashboard/family")
 
     return { success: true, event }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Update event error:", error)
-    return { success: false, error: error.message || "Failed to update event" }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to update event" }
   }
 }
 
@@ -409,8 +409,8 @@ export async function deleteEvent(eventId: string) {
     revalidatePath("/dashboard/family")
 
     return { success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Delete event error:", error)
-    return { success: false, error: error.message || "Failed to delete event" }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to delete event" }
   }
 }

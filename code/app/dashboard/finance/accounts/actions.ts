@@ -48,9 +48,9 @@ export async function createFinancialAccount(formData: FormData) {
     revalidatePath("/dashboard/finance/accounts")
 
     return { success: true, account }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Create financial account error:", error)
-    return { success: false, error: error.message || "Error al crear la cuenta" }
+    return { success: false, error: error instanceof Error ? error.message : "Error al crear la cuenta" }
   }
 }
 
@@ -103,9 +103,9 @@ export async function updateFinancialAccount(accountId: string, formData: FormDa
     revalidatePath("/dashboard/finance/accounts")
 
     return { success: true, account }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Update financial account error:", error)
-    return { success: false, error: error.message || "Error al actualizar la cuenta" }
+    return { success: false, error: error instanceof Error ? error.message : "Error al actualizar la cuenta" }
   }
 }
 
@@ -153,8 +153,8 @@ export async function deleteFinancialAccount(accountId: string) {
     revalidatePath("/dashboard/finance/accounts")
 
     return { success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Delete financial account error:", error)
-    return { success: false, error: error.message || "Error al eliminar la cuenta" }
+    return { success: false, error: error instanceof Error ? error.message : "Error al eliminar la cuenta" }
   }
 }

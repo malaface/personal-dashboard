@@ -84,7 +84,7 @@ export async function GET(request: NextRequest) {
         bestSpeed,
       },
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Cardio progress error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }

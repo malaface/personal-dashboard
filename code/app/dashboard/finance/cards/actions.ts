@@ -51,9 +51,9 @@ export async function createCreditCard(formData: FormData) {
     revalidatePath("/dashboard/finance/cards")
 
     return { success: true, card }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Create credit card error:", error)
-    return { success: false, error: error.message || "Error al crear la tarjeta" }
+    return { success: false, error: error instanceof Error ? error.message : "Error al crear la tarjeta" }
   }
 }
 
@@ -110,9 +110,9 @@ export async function updateCreditCard(cardId: string, formData: FormData) {
     revalidatePath("/dashboard/finance/cards")
 
     return { success: true, card }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Update credit card error:", error)
-    return { success: false, error: error.message || "Error al actualizar la tarjeta" }
+    return { success: false, error: error instanceof Error ? error.message : "Error al actualizar la tarjeta" }
   }
 }
 
@@ -158,8 +158,8 @@ export async function deleteCreditCard(cardId: string) {
     revalidatePath("/dashboard/finance/cards")
 
     return { success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Delete credit card error:", error)
-    return { success: false, error: error.message || "Error al eliminar la tarjeta" }
+    return { success: false, error: error instanceof Error ? error.message : "Error al eliminar la tarjeta" }
   }
 }

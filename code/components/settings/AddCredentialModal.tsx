@@ -63,9 +63,9 @@ export default function AddCredentialModal({
       setApiKey('')
       setLabel('')
       setError(null)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error creating credential:', err)
-      setError(err.message)
+      setError(err instanceof Error ? err.message : 'Error al crear credencial')
     } finally {
       setIsLoading(false)
     }

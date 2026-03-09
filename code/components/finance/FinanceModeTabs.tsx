@@ -7,11 +7,13 @@ import {
   WalletIcon,
   CreditCardIcon,
   ChartBarIcon,
+  LinkIcon,
 } from "@heroicons/react/24/outline"
 
 interface FinanceModeTabsProps {
   accountCount?: number
   cardCount?: number
+  walletCount?: number
 }
 
 const tabs = [
@@ -19,12 +21,13 @@ const tabs = [
   { href: "/dashboard/finance/accounts", label: "Cuentas", countKey: "accountCount" as const, icon: WalletIcon },
   { href: "/dashboard/finance/cards", label: "Tarjetas", countKey: "cardCount" as const, icon: CreditCardIcon },
   { href: "/dashboard/finance/progress", label: "Progreso", icon: ChartBarIcon },
+  { href: "/dashboard/finance/onchain", label: "On-Chain", countKey: "walletCount" as const, icon: LinkIcon },
 ]
 
-export default function FinanceModeTabs({ accountCount, cardCount }: FinanceModeTabsProps) {
+export default function FinanceModeTabs({ accountCount, cardCount, walletCount }: FinanceModeTabsProps) {
   const pathname = usePathname()
 
-  const counts: Record<string, number | undefined> = { accountCount, cardCount }
+  const counts: Record<string, number | undefined> = { accountCount, cardCount, walletCount }
 
   return (
     <div className="flex overflow-x-auto scrollbar-hide gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1 mb-6">
