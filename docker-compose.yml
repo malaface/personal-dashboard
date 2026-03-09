@@ -91,6 +91,8 @@ services:
       # Email service
       RESEND_API_KEY: ${RESEND_API_KEY}
       RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL}
+      # Cron
+      CRON_SECRET: ${CRON_SECRET}
       # AI Platform integration
       N8N_BASE_URL: http://n8n:5678
       FLOWISE_BASE_URL: http://flowise:3001

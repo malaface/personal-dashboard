@@ -6,7 +6,7 @@ import { processBatchFiscalEvents } from "@/lib/finance/onchain/fiscal-engine"
 /**
  * POST /api/cron/onchain
  * Protected with CRON_SECRET - trigger via n8n or crontab
- * Syncs all active wallets for all users with Covalent credentials
+ * Syncs all active wallets for all users with Arbiscan or Covalent credentials
  */
 export async function POST(request: NextRequest) {
   // Verify cron secret
@@ -18,10 +18,10 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    // Find all users with active Covalent credentials
+    // Find all users with active blockchain API credentials (Arbiscan or Covalent)
     const credentials = await prisma.aICredential.findMany({
       where: {
-        provider: "COVALENT",
+        provider: { in: ["ARBISCAN", "COVALENT"] },
         isActive: true,
       },
       select: {
