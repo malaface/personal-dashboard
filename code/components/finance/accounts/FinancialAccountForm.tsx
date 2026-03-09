@@ -76,8 +76,8 @@ export default function FinancialAccountForm({ account, onCancel }: FinancialAcc
       } else {
         setError(result.error || "Algo salio mal")
       }
-    } catch (err: any) {
-      setError(err.message || "Error al guardar la cuenta")
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Error al guardar la cuenta")
     } finally {
       setLoading(false)
     }

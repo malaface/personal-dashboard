@@ -89,7 +89,7 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
   const isEditing = !!transaction
 
   // Get parent type for cascading category selection
-  const [selectedTypeItem, setSelectedTypeItem] = useState<any>(null)
+  const [selectedTypeItem, setSelectedTypeItem] = useState<{ slug?: string; name?: string } | null>(null)
 
   // Check if current type is "Transferencia"
   const isTransfer = selectedTypeItem?.slug === "transferencia" || selectedTypeItem?.name?.toLowerCase().includes("transferencia")
@@ -124,8 +124,8 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
   }, [])
 
   useEffect(() => {
-    async function fetchTypeItem() {
-      if (typeId) {
+    if (typeId) {
+      (async () => {
         try {
           const response = await fetch(`/api/catalog/${typeId}`)
           const data = await response.json()
@@ -135,10 +135,10 @@ export default function TransactionForm({ transaction, onCancel }: TransactionFo
         } catch (err) {
           console.error("Failed to fetch type item:", err)
         }
-      } else {
-        setSelectedTypeItem(null)
-        setCategoryId("")
-      }
+      })()
+    } else {
+      setSelectedTypeItem(null)
+      setCategoryId("")
     }
   }, [typeId])
 

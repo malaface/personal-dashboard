@@ -83,9 +83,9 @@ export async function checkRateLimit(
         `RATE_LIMIT_EXCEEDED:${secondsRemaining}:${config.maxRequests}`
       )
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Re-throw rate limit errors
-    if (error.message.startsWith('RATE_LIMIT_EXCEEDED')) {
+    if (error instanceof Error && error.message.startsWith('RATE_LIMIT_EXCEEDED')) {
       throw error
     }
 

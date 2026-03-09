@@ -77,8 +77,8 @@ export default function CreditCardForm({ card, onCancel }: CreditCardFormProps) 
       } else {
         setError(result.error || "Algo salio mal")
       }
-    } catch (err: any) {
-      setError(err.message || "Error al guardar la tarjeta")
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Error al guardar la tarjeta")
     } finally {
       setLoading(false)
     }

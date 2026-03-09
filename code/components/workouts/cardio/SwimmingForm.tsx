@@ -114,8 +114,8 @@ export default function SwimmingForm({ workout }: SwimmingFormProps) {
       } else {
         setError(result.error || "Error al guardar")
       }
-    } catch (err: any) {
-      setError(err.message || "Error al guardar la sesion")
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Error al guardar la sesion")
     } finally {
       setLoading(false)
     }

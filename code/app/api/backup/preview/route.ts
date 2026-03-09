@@ -39,10 +39,10 @@ export async function POST(request: NextRequest) {
     const preview = await previewImport(backupData)
 
     return NextResponse.json(preview)
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("POST /api/backup/preview error:", error)
 
-    if (error.message === "Unauthorized" || error.digest?.includes("NEXT_REDIRECT")) {
+    if (error instanceof Error && (error.message === "Unauthorized" || (error as { digest?: string }).digest?.includes("NEXT_REDIRECT"))) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }

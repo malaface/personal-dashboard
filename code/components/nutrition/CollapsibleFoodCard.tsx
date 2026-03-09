@@ -49,7 +49,7 @@ export default function CollapsibleFoodCard({
   index,
   totalCount,
   form,
-  field,
+  field: _field,
   onRemove,
   onMoveUp,
   onMoveDown,

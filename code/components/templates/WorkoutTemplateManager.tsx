@@ -345,7 +345,7 @@ export default function WorkoutTemplateManager() {
                 <Label>Dificultad</Label>
                 <Select
                   value={form.watch('difficulty') || ''}
-                  onValueChange={(val) => form.setValue('difficulty', val as any, { shouldValidate: true })}
+                  onValueChange={(val) => form.setValue('difficulty', val as "BEGINNER" | "INTERMEDIATE" | "ADVANCED", { shouldValidate: true })}
                 >
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Sin especificar" />

@@ -61,10 +61,10 @@ export async function GET(request: NextRequest) {
       })),
       count: history.length,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("GET /api/exercises/history error:", error)
 
-    if (error.message === "Unauthorized" || error.digest?.includes("NEXT_REDIRECT")) {
+    if (error instanceof Error && (error.message === "Unauthorized" || (error as { digest?: string }).digest?.includes("NEXT_REDIRECT"))) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 

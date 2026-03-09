@@ -7,7 +7,7 @@
 // AI PROVIDERS
 // ============================================
 
-export type AIProvider = 'GEMINI' | 'OPENAI' | 'CLAUDE' | 'HUGGINGFACE'
+export type AIProvider = 'GEMINI' | 'OPENAI' | 'CLAUDE' | 'HUGGINGFACE' | 'COVALENT'
 
 export interface AIProviderInfo {
   name: string
@@ -55,6 +55,15 @@ export const AI_PROVIDERS: Record<AIProvider, AIProviderInfo> = {
     docsUrl: 'https://huggingface.co/docs',
     iconColor: '#FFD21E',
     keyPrefix: 'hf_',
+  },
+  COVALENT: {
+    name: 'COVALENT',
+    displayName: 'Covalent (GoldRush)',
+    description: 'Unified blockchain data API for on-chain transaction history',
+    website: 'https://www.covalenthq.com',
+    docsUrl: 'https://www.covalenthq.com/docs/api/',
+    iconColor: '#FF4C8B',
+    keyPrefix: 'cqt_',
   },
 }
 
@@ -164,7 +173,7 @@ export interface PrepareDataParams {
 }
 
 export interface WorkoutsData {
-  workouts: any[]
+  workouts: Record<string, unknown>[]
   totalVolume: number
   avgVolume: number
   muscleGroups: Record<string, number>
@@ -176,12 +185,12 @@ export interface WorkoutsData {
 }
 
 export interface FinanceData {
-  transactions: any[]
+  transactions: Record<string, unknown>[]
   totalIncome: number
   totalExpenses: number
   netCashFlow: number
   categorySpending: Record<string, number>
-  budgetAdherence: any[]
+  budgetAdherence: Record<string, unknown>[]
   portfolioValue: number
   spendingTrend: 'increasing' | 'decreasing' | 'stable'
   periodDays: number
@@ -189,26 +198,26 @@ export interface FinanceData {
 }
 
 export interface NutritionData {
-  meals: any[]
-  dailyTotals: Record<string, any>
+  meals: Record<string, unknown>[]
+  dailyTotals: Record<string, Record<string, unknown>>
   avgCalories: number
   avgProtein: number
   avgCarbs: number
   avgFats: number
-  goalAdherence: any | null
+  goalAdherence: Record<string, unknown> | null
   mealTypes: Record<string, number>
   periodDays: number
   dataPoints: number
 }
 
 export interface FamilyData {
-  familyMembers: any[]
-  timeLogs: any[]
+  familyMembers: Record<string, unknown>[]
+  timeLogs: Record<string, unknown>[]
   timePerMember: Record<string, number>
   activities: Record<string, number>
   totalTime: number
-  upcomingEvents: any[]
-  reminders: any[]
+  upcomingEvents: Record<string, unknown>[]
+  reminders: Record<string, unknown>[]
   periodDays: number
   dataPoints: number
 }

@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     await sendVerificationEmail(email, token)
 
     return NextResponse.json({ success: true })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Resend verification error:", error)
     return NextResponse.json(
       { error: "Error al reenviar verificación" },

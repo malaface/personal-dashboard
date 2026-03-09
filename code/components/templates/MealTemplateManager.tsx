@@ -371,7 +371,7 @@ export default function MealTemplateManager() {
                 <Label>Tipo de Comida</Label>
                 <Select
                   value={form.watch('mealType') || ''}
-                  onValueChange={(val) => form.setValue('mealType', val as any, { shouldValidate: true })}
+                  onValueChange={(val) => form.setValue('mealType', val as "BREAKFAST" | "LUNCH" | "DINNER" | "SNACK", { shouldValidate: true })}
                 >
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Sin especificar" />

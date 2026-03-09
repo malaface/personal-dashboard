@@ -5,7 +5,6 @@
 import { prisma } from "@/lib/db/prisma"
 import { createId } from "@paralleldrive/cuid2"
 import type {
-  BackupExport,
   ImportMode,
   ImportPreview,
   ImportResult,

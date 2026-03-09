@@ -99,7 +99,7 @@ export default function ExerciseProgressChart({
     }
 
     fetchProgress()
-  }, [filters.exerciseTypeId, filters.muscleGroupId, filters.range, filters.startDate, filters.endDate])
+  }, [filters.exerciseTypeId, filters.muscleGroupId, filters.range, filters.startDate, filters.endDate, onPersonalRecords])
 
   // Determine if single or multi exercise mode
   const isSingleExercise = !!filters.exerciseTypeId

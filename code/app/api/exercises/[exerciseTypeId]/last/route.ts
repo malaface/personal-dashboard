@@ -57,10 +57,10 @@ export async function GET(request: NextRequest, context: RouteParams) {
         maxRepsDate: personalRecord.maxReps.date?.toISOString() || null,
       },
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("GET /api/exercises/[exerciseTypeId]/last error:", error)
 
-    if (error.message === "Unauthorized" || error.digest?.includes("NEXT_REDIRECT")) {
+    if (error instanceof Error && (error.message === "Unauthorized" || (error as { digest?: string }).digest?.includes("NEXT_REDIRECT"))) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 

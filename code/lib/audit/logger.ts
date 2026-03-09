@@ -40,6 +40,9 @@ export type AuditAction =
   | "EVENT_CREATED"
   | "EVENT_UPDATED"
   | "EVENT_DELETED"
+  // AI Module
+  | "AI_CHAT_REQUEST"
+  | "AI_CHAT_ERROR"
   // Backup Operations
   | "DATA_EXPORTED"
   | "DATA_IMPORTED"

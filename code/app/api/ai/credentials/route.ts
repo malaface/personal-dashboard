@@ -3,13 +3,13 @@ import { requireAuth } from '@/lib/auth/utils'
 import { prisma } from '@/lib/db/prisma'
 import { CreateCredentialSchema } from '@/lib/ai/schemas'
 import { encryptAPIKey, maskAPIKey, validateAPIKeyFormat } from '@/lib/ai/encryption'
-import { CredentialResponse } from '@/lib/ai/types'
+import { CredentialResponse, AIProvider } from '@/lib/ai/types'
 
 /**
  * GET /api/ai/credentials
  * List all AI credentials for the current user
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Auth check
     const user = await requireAuth()
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     // Map to response format (mask API keys)
     const response: CredentialResponse[] = credentials.map(cred => ({
       id: cred.id,
-      provider: cred.provider as any,
+      provider: cred.provider as AIProvider,
       label: cred.label,
       maskedApiKey: maskAPIKey(cred.apiKey),
       isActive: cred.isActive,
@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(response)
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching credentials:', error)
 
     return NextResponse.json(
@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
     // Return response (masked API key)
     const response: CredentialResponse = {
       id: credential.id,
-      provider: credential.provider as any,
+      provider: credential.provider as AIProvider,
       label: credential.label,
       maskedApiKey: maskAPIKey(validatedData.apiKey),
       isActive: credential.isActive,
@@ -116,12 +116,12 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(response, { status: 201 })
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error creating credential:', error)
 
-    if (error.name === 'ZodError') {
+    if (error instanceof Error && error.name === 'ZodError') {
       return NextResponse.json(
-        { error: 'Datos inválidos', details: error.errors },
+        { error: 'Datos inválidos', details: 'errors' in error ? (error as { errors: unknown }).errors : undefined },
         { status: 400 }
       )
     }

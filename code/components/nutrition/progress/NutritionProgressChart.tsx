@@ -94,7 +94,7 @@ export default function NutritionProgressChart({
     }
 
     fetchProgress()
-  }, [filters.mealType, filters.range, filters.startDate, filters.endDate])
+  }, [filters.mealType, filters.range, filters.startDate, filters.endDate, onRecords])
 
   const chartData = useMemo(() => {
     if (rawData.length === 0) return []

@@ -92,7 +92,7 @@ export default function FinanceProgressChart({
     }
 
     fetchProgress()
-  }, [filters.categoryId, filters.typeId, filters.range, filters.startDate, filters.endDate])
+  }, [filters.categoryId, filters.typeId, filters.range, filters.startDate, filters.endDate, onRecords])
 
   // Transform data based on selected metric
   const chartData = useMemo(() => {

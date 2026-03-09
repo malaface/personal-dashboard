@@ -3,7 +3,7 @@ import { requireAuth } from '@/lib/auth/utils'
 import { prisma } from '@/lib/db/prisma'
 import { UpdateCredentialSchema } from '@/lib/ai/schemas'
 import { maskAPIKey } from '@/lib/ai/encryption'
-import { CredentialResponse } from '@/lib/ai/types'
+import { CredentialResponse, AIProvider } from '@/lib/ai/types'
 
 interface RouteContext {
   params: Promise<{ id: string }>
@@ -55,7 +55,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     // Return response
     const response: CredentialResponse = {
       id: updated.id,
-      provider: updated.provider as any,
+      provider: updated.provider as AIProvider,
       label: updated.label,
       maskedApiKey: maskAPIKey(updated.apiKey),
       isActive: updated.isActive,
@@ -69,12 +69,12 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 
     return NextResponse.json(response)
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error updating credential:', error)
 
-    if (error.name === 'ZodError') {
+    if (error instanceof Error && error.name === 'ZodError') {
       return NextResponse.json(
-        { error: 'Datos invalidos', details: error.errors },
+        { error: 'Datos invalidos', details: 'errors' in error ? (error as { errors: unknown }).errors : undefined },
         { status: 400 }
       )
     }
@@ -126,7 +126,7 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
       message: 'Credencial eliminada exitosamente',
     })
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error deleting credential:', error)
 
     return NextResponse.json(

@@ -32,7 +32,7 @@ export async function triggerN8nWorkflow(
     console.log(`Triggering n8n workflow for ${params.module}...`, {
       userId: params.userId,
       provider: params.provider,
-      dataPoints: (params.data as any).dataPoints || 'unknown',
+      dataPoints: 'dataPoints' in params.data ? params.data.dataPoints : 'unknown',
       queryLength: params.query.length,
     })
 
@@ -69,28 +69,29 @@ export async function triggerN8nWorkflow(
 
     return response.data as N8nWorkflowResponse
 
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const axiosError = error as { message?: string; code?: string; response?: { status?: number; data?: { error?: string } } }
     console.error('n8n workflow trigger error:', {
       module: params.module,
-      error: error.message,
-      status: error.response?.status,
-      data: error.response?.data,
+      error: axiosError.message,
+      status: axiosError.response?.status,
+      data: axiosError.response?.data,
     })
 
     // Handle specific error cases
-    if (error.code === 'ECONNREFUSED') {
+    if (axiosError.code === 'ECONNREFUSED') {
       throw new Error('n8n service is not available. Please try again later.')
     }
 
-    if (error.response?.status === 401) {
+    if (axiosError.response?.status === 401) {
       throw new Error('Authentication failed with n8n service.')
     }
 
-    if (error.response?.status === 400) {
-      throw new Error(error.response.data?.error || 'Invalid request to n8n workflow.')
+    if (axiosError.response?.status === 400) {
+      throw new Error(axiosError.response.data?.error || 'Invalid request to n8n workflow.')
     }
 
-    if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+    if (axiosError.code === 'ECONNABORTED' || axiosError.message?.includes('timeout')) {
       throw new Error('AI request timed out. Please try again.')
     }
 

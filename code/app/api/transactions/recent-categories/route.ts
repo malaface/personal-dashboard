@@ -63,10 +63,10 @@ export async function GET() {
     return NextResponse.json({
       categories: categories.filter(Boolean),
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("GET /api/transactions/recent-categories error:", error)
 
-    if (error.digest?.includes("NEXT_REDIRECT")) {
+    if (error instanceof Error && (error as { digest?: string }).digest?.includes("NEXT_REDIRECT")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 

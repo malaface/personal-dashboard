@@ -167,7 +167,7 @@ export default function WorkoutForm({ workout, onCancel }: WorkoutFormProps) {
     }
   }
 
-  const handleQuickAdd = async (exerciseTypeId: string, exerciseName: string) => {
+  const handleQuickAdd = async (exerciseTypeId: string, _exerciseName: string) => {
     try {
       const response = await fetch(`/api/exercises/${exerciseTypeId}/last`)
       if (response.ok) {

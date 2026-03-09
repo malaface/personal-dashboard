@@ -60,7 +60,7 @@ export async function createWorkout(formData: FormData) {
         caloriesBurned: caloriesBurned || undefined,
         notes: validatedData.notes,
         exercises: {
-          create: validatedData.exercises.map((exercise: any) => ({
+          create: validatedData.exercises.map((exercise) => ({
             exerciseTypeId: exercise.exerciseTypeId,
             muscleGroupId: exercise.muscleGroupId,
             equipmentId: exercise.equipmentId,
@@ -69,9 +69,9 @@ export async function createWorkout(formData: FormData) {
             weight: exercise.weight,
             weightUnit: exercise.weightUnit || "kg",
             notes: exercise.notes,
-            ...(exercise.setDetails?.length > 0 && {
+            ...(exercise.setDetails && exercise.setDetails.length > 0 && {
               exerciseSets: {
-                create: exercise.setDetails.map((sd: any) => ({
+                create: exercise.setDetails.map((sd) => ({
                   setNumber: sd.setNumber,
                   reps: sd.reps,
                   weight: sd.weight ?? null,
@@ -222,7 +222,7 @@ export async function updateWorkout(workoutId: string, formData: FormData) {
           caloriesBurned: caloriesBurnedUpdate || undefined,
           notes: validatedData.notes,
           exercises: {
-            create: validatedData.exercises.map((exercise: any) => ({
+            create: validatedData.exercises.map((exercise) => ({
               exerciseTypeId: exercise.exerciseTypeId,
               muscleGroupId: exercise.muscleGroupId,
               equipmentId: exercise.equipmentId,
@@ -231,9 +231,9 @@ export async function updateWorkout(workoutId: string, formData: FormData) {
               weight: exercise.weight,
               weightUnit: exercise.weightUnit || "kg",
               notes: exercise.notes,
-              ...(exercise.setDetails?.length > 0 && {
+              ...(exercise.setDetails && exercise.setDetails.length > 0 && {
                 exerciseSets: {
-                  create: exercise.setDetails.map((sd: any) => ({
+                  create: exercise.setDetails.map((sd) => ({
                     setNumber: sd.setNumber,
                     reps: sd.reps,
                     weight: sd.weight ?? null,
@@ -337,9 +337,9 @@ export async function createCardioWorkout(formData: FormData) {
     revalidatePath("/dashboard/workouts")
 
     return { success: true, workout }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Create cardio workout error:", error)
-    return { success: false, error: error.message || "Failed to create cardio workout" }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to create cardio workout" }
   }
 }
 
@@ -424,8 +424,8 @@ export async function updateCardioWorkout(workoutId: string, formData: FormData)
     revalidatePath("/dashboard/workouts")
 
     return { success: true, workout }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Update cardio workout error:", error)
-    return { success: false, error: error.message || "Failed to update cardio workout" }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to update cardio workout" }
   }
 }

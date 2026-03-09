@@ -43,8 +43,8 @@ export async function POST(request: NextRequest) {
     try {
       await checkRateLimit(user.id, 'ai_chat')
       await checkRateLimit(user.id, 'ai_chat_daily')
-    } catch (error: any) {
-      const rateLimitInfo = parseRateLimitError(error)
+    } catch (error: unknown) {
+      const rateLimitInfo = parseRateLimitError(error instanceof Error ? error : new Error(String(error)))
 
       if (rateLimitInfo.isRateLimit) {
         return NextResponse.json(
@@ -90,16 +90,16 @@ export async function POST(request: NextRequest) {
 
       console.log('Module data prepared:', {
         module: validatedData.module,
-        dataPoints: (moduleData as any).dataPoints || 0,
+        dataPoints: 'dataPoints' in moduleData ? moduleData.dataPoints : 0,
         period: validatedData.period,
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error preparing module data:', error)
 
       return NextResponse.json(
         {
           error: 'Error al preparar datos',
-          message: error.message || 'No se pudieron cargar tus datos',
+          message: error instanceof Error ? error.message : 'No se pudieron cargar tus datos',
         },
         { status: 500 }
       )
@@ -121,17 +121,19 @@ export async function POST(request: NextRequest) {
       // 7. Update credential usage (successful)
       await updateCredentialUsage(credential.credentialId, true)
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('n8n workflow error:', error)
+
+      const errorMessage = error instanceof Error ? error.message : ''
 
       // Check if it's an API key issue
       if (
-        error.message.includes('API key') ||
-        error.message.includes('authentication') ||
-        error.message.includes('unauthorized')
+        errorMessage.includes('API key') ||
+        errorMessage.includes('authentication') ||
+        errorMessage.includes('unauthorized')
       ) {
         // Mark credential as invalid
-        await markCredentialInvalid(credential.credentialId, error.message)
+        await markCredentialInvalid(credential.credentialId, errorMessage)
 
         return NextResponse.json(
           {
@@ -146,7 +148,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: 'Error al procesar solicitud',
-          message: error.message || 'Ocurrió un error al generar los insights',
+          message: errorMessage || 'Ocurrió un error al generar los insights',
         },
         { status: 500 }
       )
@@ -156,12 +158,12 @@ export async function POST(request: NextRequest) {
     const duration = Date.now() - startTime
     await createAuditLog({
       userId: user.id,
-      action: 'AI_CHAT_REQUEST' as any, // Will need to add to AuditAction enum
+      action: 'AI_CHAT_REQUEST',
       metadata: {
         module: validatedData.module,
         period: validatedData.period,
         queryLength: validatedData.query.length,
-        dataPoints: (moduleData as any).dataPoints || 0,
+        dataPoints: 'dataPoints' in moduleData ? moduleData.dataPoints : 0,
         provider: credential.provider,
         duration,
         success: true,
@@ -178,7 +180,7 @@ export async function POST(request: NextRequest) {
     // 9. Return response
     return NextResponse.json(n8nResponse)
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('AI chat API error:', error)
 
     // Audit log for errors
@@ -186,9 +188,9 @@ export async function POST(request: NextRequest) {
       const user = await requireAuth()
       await createAuditLog({
         userId: user.id,
-        action: 'AI_CHAT_ERROR' as any,
+        action: 'AI_CHAT_ERROR',
         metadata: {
-          error: error.message,
+          error: error instanceof Error ? error.message : 'Unknown error',
           duration: Date.now() - startTime,
         },
       })
@@ -197,11 +199,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Handle Zod validation errors
-    if (error.name === 'ZodError') {
+    if (error instanceof Error && error.name === 'ZodError') {
       return NextResponse.json(
         {
           error: 'Datos de solicitud inválidos',
-          details: error.errors,
+          details: 'errors' in error ? (error as { errors: unknown }).errors : undefined,
         },
         { status: 400 }
       )

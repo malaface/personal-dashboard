@@ -10,7 +10,7 @@ interface AICredentialsManagerProps {
   userId: string
 }
 
-export default function AICredentialsManager({ userId }: AICredentialsManagerProps) {
+export default function AICredentialsManager({ userId: _userId }: AICredentialsManagerProps) {
   const [credentials, setCredentials] = useState<CredentialResponse[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -29,9 +29,9 @@ export default function AICredentialsManager({ userId }: AICredentialsManagerPro
       const data = await response.json()
       setCredentials(data)
       setError(null)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error fetching credentials:', err)
-      setError(err.message)
+      setError(err instanceof Error ? err.message : 'Error desconocido')
     } finally {
       setIsLoading(false)
     }
@@ -58,9 +58,9 @@ export default function AICredentialsManager({ userId }: AICredentialsManagerPro
 
       // Remove from list
       setCredentials(prev => prev.filter(c => c.id !== id))
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error deleting credential:', err)
-      alert(err.message)
+      alert(err instanceof Error ? err.message : 'Error desconocido')
     }
   }
 
@@ -83,9 +83,9 @@ export default function AICredentialsManager({ userId }: AICredentialsManagerPro
       setCredentials(prev =>
         prev.map(c => (c.id === id ? updated : c))
       )
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error toggling credential:', err)
-      alert(err.message)
+      alert(err instanceof Error ? err.message : 'Error desconocido')
     }
   }
 

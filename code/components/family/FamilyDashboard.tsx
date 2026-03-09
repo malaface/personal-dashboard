@@ -77,10 +77,9 @@ export default function FamilyDashboard({ members, events }: FamilyDashboardProp
   ]
 
   // Stats
-  const upcomingCount = events.filter((e) => {
+  const _upcomingCount = events.filter((e) => {
     const d = new Date(e.date)
     const now = new Date()
-    const monthFromNow = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate())
     return d >= now || e.isRecurring
   }).length
 

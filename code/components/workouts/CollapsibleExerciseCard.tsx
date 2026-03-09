@@ -77,7 +77,7 @@ export default function CollapsibleExerciseCard({
   index,
   totalCount,
   form,
-  field,
+  field: _field,
   onRemove,
   onMoveUp,
   onMoveDown,

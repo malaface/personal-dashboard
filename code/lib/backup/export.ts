@@ -77,8 +77,8 @@ export async function exportUserData(
           },
         },
         orderBy: { date: "desc" },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       }).then(workouts => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         data.workouts = serializeDates(workouts) as any
       })
     )

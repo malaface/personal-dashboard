@@ -88,7 +88,7 @@ export default function ExerciseHistory({
     }
 
     fetchData()
-  }, [exerciseTypeId])
+  }, [exerciseTypeId, onLastPerformanceLoaded])
 
   if (!exerciseTypeId || loading) {
     return null

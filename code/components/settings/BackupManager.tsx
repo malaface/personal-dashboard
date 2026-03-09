@@ -90,8 +90,8 @@ export default function BackupManager({ exportCounts }: BackupManagerProps) {
       a.click()
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
-    } catch (err: any) {
-      setError(err.message || "Error al exportar datos")
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Error al exportar datos")
     } finally {
       setExportLoading(false)
     }
@@ -121,7 +121,7 @@ export default function BackupManager({ exportCounts }: BackupManagerProps) {
       const previewResult = await response.json()
       setPreview(previewResult)
       setShowImportModal(true)
-    } catch (err: any) {
+    } catch (_err: unknown) {
       setError("Archivo JSON inválido")
       setSelectedFile(null)
     }
@@ -161,8 +161,8 @@ export default function BackupManager({ exportCounts }: BackupManagerProps) {
       } else {
         setError(result.error || "Error al importar datos")
       }
-    } catch (err: any) {
-      setError(err.message || "Error al importar datos")
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Error al importar datos")
     } finally {
       setImportLoading(false)
     }

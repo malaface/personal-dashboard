@@ -66,11 +66,6 @@ export default function TransactionList({ transactions }: TransactionListProps) 
     return t.categoryItem?.name || t.category || "Sin categoría"
   }
 
-  // Helper to get display name for type
-  const getTypeName = (t: Transaction) => {
-    return t.typeItem?.name || t.type || "Sin tipo"
-  }
-
   if (transactions.length === 0) {
     return (
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-12 text-center">
