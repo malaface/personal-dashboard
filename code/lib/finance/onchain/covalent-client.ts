@@ -13,6 +13,10 @@ const CHAIN_NAME_MAP: Record<string, string> = {
 
 const DEFAULT_CHAIN_NAME = "arbitrum-mainnet"
 
+// ERC-20 Transfer event signature
+const TRANSFER_EVENT_SIGNATURE =
+  "Transfer(address indexed from, address indexed to, uint256 value)"
+
 interface CovalentTxItem {
   tx_hash: string
   block_height: number
@@ -31,6 +35,8 @@ interface CovalentTxItem {
 interface CovalentLogEvent {
   sender_address: string
   sender_name: string | null
+  sender_contract_decimals: number | null
+  sender_contract_ticker_symbol: string | null
   decoded: {
     name: string
     signature: string
@@ -109,6 +115,7 @@ async function fetchWithRetry(
   retries = MAX_RETRIES
 ): Promise<Response> {
   for (let attempt = 0; attempt <= retries; attempt++) {
+    console.log(`[Covalent] Fetching: ${url}`)
     const response = await fetch(url, {
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -117,6 +124,10 @@ async function fetchWithRetry(
     })
 
     if (response.ok) return response
+
+    // Log response body for debugging
+    const errorBody = await response.text()
+    console.error(`[Covalent] Error ${response.status}: ${errorBody}`)
 
     // Rate limited - retry with backoff
     if (response.status === 429 && attempt < retries) {
@@ -134,7 +145,7 @@ async function fetchWithRetry(
 }
 
 /**
- * Fetch transaction history for a wallet
+ * Fetch transaction history for a wallet using transactions_v3
  */
 export async function fetchTransactionHistory(
   apiKey: string,
@@ -156,32 +167,58 @@ export async function fetchTransactionHistory(
 }
 
 /**
- * Fetch ERC-20 token transfers for a wallet
+ * Extract ERC-20 transfers from transaction log events
  */
-export async function fetchERC20Transfers(
-  apiKey: string,
-  walletAddress: string,
-  chainName: string = DEFAULT_CHAIN_NAME,
-  startDate?: string,
-  endDate?: string
-): Promise<CovalentERC20Transfer[]> {
-  let url = `${BASE_URL}/${chainName}/address/${walletAddress}/transfers_v2/?page-size=1000`
+function extractTransfersFromTx(
+  tx: CovalentTxItem,
+  walletAddress: string
+): CovalentERC20Transfer[] {
+  const transfers: CovalentERC20Transfer[] = []
+  const wallet = walletAddress.toLowerCase()
 
-  if (startDate) url += `&starting-block=${startDate}`
-  if (endDate) url += `&ending-block=${endDate}`
+  for (const log of tx.log_events) {
+    if (!log.decoded) continue
+    if (
+      log.decoded.name !== "Transfer" ||
+      log.decoded.signature !== TRANSFER_EVENT_SIGNATURE
+    )
+      continue
 
-  const response = await fetchWithRetry(url, apiKey)
-  const data: CovalentResponse<CovalentERC20Transfer> = await response.json()
+    const fromParam = log.decoded.params.find((p) => p.name === "from")
+    const toParam = log.decoded.params.find((p) => p.name === "to")
+    const valueParam = log.decoded.params.find((p) => p.name === "value")
 
-  if (data.error) {
-    throw new Error(`Covalent error: ${data.error_message}`)
+    if (!fromParam || !toParam || !valueParam) continue
+
+    const from = fromParam.value.toLowerCase()
+    const to = toParam.value.toLowerCase()
+
+    // Only include transfers involving the wallet
+    if (from !== wallet && to !== wallet) continue
+
+    transfers.push({
+      block_signed_at: tx.block_signed_at,
+      tx_hash: tx.tx_hash,
+      from_address: fromParam.value,
+      to_address: toParam.value,
+      contract_decimals: log.sender_contract_decimals ?? 18,
+      contract_name: log.sender_name ?? "",
+      contract_ticker_symbol: log.sender_contract_ticker_symbol ?? "",
+      contract_address: log.sender_address,
+      logo_url: null,
+      transfer_type: from === wallet ? "OUT" : "IN",
+      delta: valueParam.value,
+      balance: null,
+      quote_rate: null,
+      delta_quote: null,
+    })
   }
 
-  return data.data.items
+  return transfers
 }
 
 /**
- * Fetch all transfers with pagination
+ * Fetch all ERC-20 transfers by using transactions_v3 and extracting Transfer events
  */
 export async function fetchAllERC20Transfers(
   apiKey: string,
@@ -193,21 +230,31 @@ export async function fetchAllERC20Transfers(
   let hasMore = true
 
   while (hasMore) {
-    const url = `${BASE_URL}/${chainName}/address/${walletAddress}/transfers_v2/?page-size=1000&page-number=${pageNumber}`
+    const url = `${BASE_URL}/${chainName}/address/${walletAddress}/transactions_v3/?page-size=100&page-number=${pageNumber}`
     const response = await fetchWithRetry(url, apiKey)
-    const data: CovalentResponse<CovalentERC20Transfer> = await response.json()
+    const data: CovalentResponse<CovalentTxItem> = await response.json()
 
     if (data.error) {
       throw new Error(`Covalent error: ${data.error_message}`)
     }
 
-    allTransfers.push(...data.data.items)
+    // Extract ERC-20 transfers from each transaction's log events
+    for (const tx of data.data.items) {
+      if (!tx.successful) continue
+      const transfers = extractTransfersFromTx(tx, walletAddress)
+      allTransfers.push(...transfers)
+    }
+
     hasMore = data.data.pagination?.has_more ?? false
     pageNumber++
 
     // Safety limit
     if (pageNumber > 50) break
   }
+
+  console.log(
+    `[Covalent] Extracted ${allTransfers.length} ERC-20 transfers from ${pageNumber} pages of transactions`
+  )
 
   return allTransfers
 }
