@@ -176,6 +176,8 @@ function extractTransfersFromTx(
   const transfers: CovalentERC20Transfer[] = []
   const wallet = walletAddress.toLowerCase()
 
+  if (!tx.log_events) return transfers
+
   for (const log of tx.log_events) {
     if (!log.decoded) continue
     if (
