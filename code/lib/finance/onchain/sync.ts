@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db/prisma"
-import { getCovalentApiKey, fetchAllERC20Transfers } from "./covalent-client"
+import { getCovalentApiKey, fetchAllERC20Transfers, getChainName } from "./covalent-client"
 import {
   fetchHyperliquidTrades,
   normalizeHyperliquidTrade,
@@ -52,7 +52,8 @@ export async function syncWallet(
     let newTxCount = 0
 
     // 3. Fetch ERC-20 transfers from Covalent
-    const transfers = await fetchAllERC20Transfers(apiKey, wallet.address)
+    const chainName = getChainName(wallet.network)
+    const transfers = await fetchAllERC20Transfers(apiKey, wallet.address, chainName)
 
     // 4. Parse and classify
     const parsedTxs = parseAllTransfers(transfers, wallet.address)

@@ -1,10 +1,17 @@
 import { prisma } from "@/lib/db/prisma"
 import { decryptAPIKey } from "@/lib/ai/encryption"
 
-const ARBITRUM_CHAIN_ID = 42161
 const BASE_URL = "https://api.covalenthq.com/v1"
 const MAX_RETRIES = 3
 const BASE_DELAY_MS = 1000
+
+// GoldRush API uses chain names instead of numeric IDs
+const CHAIN_NAME_MAP: Record<string, string> = {
+  ARBITRUM: "arbitrum-mainnet",
+  ETHEREUM: "eth-mainnet",
+}
+
+const DEFAULT_CHAIN_NAME = "arbitrum-mainnet"
 
 interface CovalentTxItem {
   tx_hash: string
@@ -69,6 +76,14 @@ interface CovalentResponse<T> {
 export type { CovalentTxItem, CovalentERC20Transfer, CovalentLogEvent }
 
 /**
+ * Resolve network name to GoldRush chain name
+ */
+export function getChainName(network?: string): string {
+  if (!network) return DEFAULT_CHAIN_NAME
+  return CHAIN_NAME_MAP[network.toUpperCase()] ?? DEFAULT_CHAIN_NAME
+}
+
+/**
  * Get and decrypt Covalent API key for a user
  */
 export async function getCovalentApiKey(userId: string): Promise<string | null> {
@@ -119,16 +134,16 @@ async function fetchWithRetry(
 }
 
 /**
- * Fetch transaction history for a wallet on Arbitrum
+ * Fetch transaction history for a wallet
  */
 export async function fetchTransactionHistory(
   apiKey: string,
   walletAddress: string,
-  chainId: number = ARBITRUM_CHAIN_ID,
+  chainName: string = DEFAULT_CHAIN_NAME,
   pageSize: number = 100,
   pageNumber: number = 0
 ): Promise<CovalentTxItem[]> {
-  const url = `${BASE_URL}/${chainId}/address/${walletAddress}/transactions_v3/?page-size=${pageSize}&page-number=${pageNumber}`
+  const url = `${BASE_URL}/${chainName}/address/${walletAddress}/transactions_v3/?page-size=${pageSize}&page-number=${pageNumber}`
 
   const response = await fetchWithRetry(url, apiKey)
   const data: CovalentResponse<CovalentTxItem> = await response.json()
@@ -146,11 +161,11 @@ export async function fetchTransactionHistory(
 export async function fetchERC20Transfers(
   apiKey: string,
   walletAddress: string,
-  chainId: number = ARBITRUM_CHAIN_ID,
+  chainName: string = DEFAULT_CHAIN_NAME,
   startDate?: string,
   endDate?: string
 ): Promise<CovalentERC20Transfer[]> {
-  let url = `${BASE_URL}/${chainId}/address/${walletAddress}/transfers_v2/?page-size=1000`
+  let url = `${BASE_URL}/${chainName}/address/${walletAddress}/transfers_v2/?page-size=1000`
 
   if (startDate) url += `&starting-block=${startDate}`
   if (endDate) url += `&ending-block=${endDate}`
@@ -171,14 +186,14 @@ export async function fetchERC20Transfers(
 export async function fetchAllERC20Transfers(
   apiKey: string,
   walletAddress: string,
-  chainId: number = ARBITRUM_CHAIN_ID
+  chainName: string = DEFAULT_CHAIN_NAME
 ): Promise<CovalentERC20Transfer[]> {
   const allTransfers: CovalentERC20Transfer[] = []
   let pageNumber = 0
   let hasMore = true
 
   while (hasMore) {
-    const url = `${BASE_URL}/${chainId}/address/${walletAddress}/transfers_v2/?page-size=1000&page-number=${pageNumber}`
+    const url = `${BASE_URL}/${chainName}/address/${walletAddress}/transfers_v2/?page-size=1000&page-number=${pageNumber}`
     const response = await fetchWithRetry(url, apiKey)
     const data: CovalentResponse<CovalentERC20Transfer> = await response.json()
 
