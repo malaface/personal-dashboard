@@ -7,7 +7,6 @@ import {
 import { parseAllTransfers } from "./parser"
 import type { Prisma } from "@prisma/client"
 
-const SIX_MONTHS_MS = 6 * 30 * 24 * 60 * 60 * 1000
 
 interface SyncResult {
   success: boolean
@@ -58,10 +57,20 @@ export async function syncWallet(
     // 4. Parse and classify
     const parsedTxs = parseAllTransfers(transfers, wallet.address)
 
-    // 5. Filter by date range (last sync or 6 months)
+    // 5. Filter by date range (last sync or all history for first sync)
     const sinceDate = wallet.lastSyncAt
       ? wallet.lastSyncAt
-      : new Date(Date.now() - SIX_MONTHS_MS)
+      : new Date(0) // First sync: import all history
+
+    // Log date range for debugging
+    if (parsedTxs.length > 0) {
+      const dates = parsedTxs.map((tx) => tx.timestamp)
+      const oldest = new Date(Math.min(...dates.map((d) => d.getTime())))
+      const newest = new Date(Math.max(...dates.map((d) => d.getTime())))
+      console.log(
+        `[Sync] ${parsedTxs.length} parsed txs, range: ${oldest.toISOString()} to ${newest.toISOString()}, sinceDate: ${sinceDate.toISOString()}`
+      )
+    }
 
     const filteredTxs = parsedTxs.filter((tx) => tx.timestamp >= sinceDate)
 

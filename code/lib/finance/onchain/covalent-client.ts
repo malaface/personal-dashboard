@@ -13,9 +13,6 @@ const CHAIN_NAME_MAP: Record<string, string> = {
 
 const DEFAULT_CHAIN_NAME = "arbitrum-mainnet"
 
-// ERC-20 Transfer event signature
-const TRANSFER_EVENT_SIGNATURE =
-  "Transfer(address indexed from, address indexed to, uint256 value)"
 
 interface CovalentTxItem {
   tx_hash: string
@@ -178,13 +175,19 @@ function extractTransfersFromTx(
 
   if (!tx.log_events) return transfers
 
+  // Debug: log all decoded event names for this tx
+  const decodedEvents = tx.log_events
+    .filter((l) => l.decoded)
+    .map((l) => `${l.decoded!.name}:${l.decoded!.signature}`)
+  if (decodedEvents.length > 0) {
+    console.log(`[Covalent] TX ${tx.tx_hash} events:`, decodedEvents)
+  } else {
+    console.log(`[Covalent] TX ${tx.tx_hash} has ${tx.log_events.length} log_events, 0 decoded`)
+  }
+
   for (const log of tx.log_events) {
     if (!log.decoded) continue
-    if (
-      log.decoded.name !== "Transfer" ||
-      log.decoded.signature !== TRANSFER_EVENT_SIGNATURE
-    )
-      continue
+    if (log.decoded.name !== "Transfer") continue
 
     const fromParam = log.decoded.params.find((p) => p.name === "from")
     const toParam = log.decoded.params.find((p) => p.name === "to")
