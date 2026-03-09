@@ -244,7 +244,11 @@ export async function generateFiscalSummary(
       transaction: {
         select: {
           tokenSoldSymbol: true,
+          tokenSoldAmount: true,
+          tokenSoldPriceUSD: true,
           tokenBoughtSymbol: true,
+          tokenBoughtAmount: true,
+          tokenBoughtPriceUSD: true,
           timestamp: true,
           dataSource: true,
         },
