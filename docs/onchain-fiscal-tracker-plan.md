@@ -115,7 +115,8 @@
 
 ### 2.4 UI — Detalle de Transacción
 
-- [ ] Página `/dashboard/finance/onchain/[txHash]/page.tsx` con raw data y reclasificación manual
+- [x] Página `/dashboard/finance/onchain/tx/[txId]/page.tsx` con raw data, evento fiscal y reclasificación manual
+- [x] `TransactionReclassify.tsx` — componente client para reclasificar tipo de transacción
 
 ### Verificación Fase 2
 
@@ -152,8 +153,8 @@
 - [x] Página de reportes `/dashboard/finance/onchain/reports/page.tsx`
 - [x] `FiscalSummaryCard.tsx` — resumen ganancia/pérdida
 - [x] `FiscalReportTable.tsx` — tabla detallada de eventos fiscales
-- [ ] `OnchainPortfolioChart.tsx` — pie chart de holdings (recharts)
-- [ ] `GainLossChart.tsx` — bar chart mensual (recharts)
+- [x] `OnchainPortfolioChart.tsx` — pie chart de holdings por costo base (recharts)
+- [x] `GainLossChart.tsx` — bar chart mensual ganancia/pérdida por periodo (recharts)
 
 ### 3.4 Server Actions Fase 3
 
@@ -197,14 +198,18 @@
 | `code/components/finance/onchain/CovalentKeyForm.tsx` | Nuevo | 1 |
 | `code/components/finance/onchain/FiscalSummaryCard.tsx` | Nuevo | 3 |
 | `code/components/finance/onchain/FiscalReportTable.tsx` | Nuevo | 3 |
+| `code/components/finance/onchain/GainLossChart.tsx` | Nuevo | 3 |
+| `code/components/finance/onchain/OnchainPortfolioChart.tsx` | Nuevo | 3 |
+| `code/components/finance/onchain/TransactionReclassify.tsx` | Nuevo | 2 |
+| `code/app/dashboard/finance/onchain/tx/[txId]/page.tsx` | Nuevo | 2 |
 
 ---
 
 ## Pendientes Globales
 
 - [ ] Instalar `viem` para ABI decoding avanzado
-- [ ] Página detalle de transacción individual (`[txHash]/page.tsx`)
-- [ ] Gráficos recharts (portfolio pie chart + gain/loss bar chart)
+- [x] Página detalle de transacción individual (`tx/[txId]/page.tsx`)
+- [x] Gráficos recharts (portfolio pie chart + gain/loss bar chart)
 - [ ] Agregar `CRON_SECRET` a `.env.local`
 - [ ] Configurar n8n webhook para cron diario
 - [ ] Tests funcionales end-to-end con wallet real

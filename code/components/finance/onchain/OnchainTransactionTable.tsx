@@ -96,7 +96,8 @@ export default function OnchainTransactionTable({ transactions }: OnchainTransac
             {paginated.map((tx) => (
               <tr
                 key={tx.id}
-                className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer"
+                onClick={() => window.location.href = `/dashboard/finance/onchain/tx/${tx.id}`}
               >
                 <td className="py-2 px-3 text-gray-900 dark:text-white whitespace-nowrap">
                   {new Date(tx.timestamp).toLocaleDateString("es-MX", {

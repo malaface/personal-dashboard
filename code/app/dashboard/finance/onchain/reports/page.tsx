@@ -3,6 +3,8 @@ import { generateFiscalSummary } from "@/lib/finance/onchain/fiscal-engine"
 import FinanceModeTabs from "@/components/finance/FinanceModeTabs"
 import FiscalSummaryCard from "@/components/finance/onchain/FiscalSummaryCard"
 import FiscalReportTable from "@/components/finance/onchain/FiscalReportTable"
+import GainLossChart from "@/components/finance/onchain/GainLossChart"
+import OnchainPortfolioChart from "@/components/finance/onchain/OnchainPortfolioChart"
 import { prisma } from "@/lib/db/prisma"
 import Link from "next/link"
 
@@ -21,7 +23,20 @@ export default async function OnchainReportsPage() {
     }),
   ])
 
-  const { events, summary } = await generateFiscalSummary(user.id)
+  const [{ events, summary }, holdings] = await Promise.all([
+    generateFiscalSummary(user.id),
+    prisma.onchainTokenInventory.findMany({
+      where: {
+        wallet: { userId: user.id },
+        totalAmount: { gt: 0 },
+      },
+      select: {
+        tokenSymbol: true,
+        totalAmount: true,
+        avgCostBasisUSD: true,
+      },
+    }),
+  ])
 
   return (
     <div className="p-8">
@@ -88,6 +103,24 @@ export default async function OnchainReportsPage() {
                     </p>
                   </div>
                 ))}
+            </div>
+          </div>
+        )}
+
+        {/* Charts */}
+        {Object.keys(summary.byPeriod).length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                Ganancia/Perdida por Periodo
+              </h2>
+              <GainLossChart byPeriod={summary.byPeriod} currency="MXN" />
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                Portfolio (Costo Base)
+              </h2>
+              <OnchainPortfolioChart holdings={holdings} />
             </div>
           </div>
         )}
