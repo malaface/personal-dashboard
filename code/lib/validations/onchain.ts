@@ -23,6 +23,13 @@ export const CovalentKeySchema = z.object({
     .min(20, "La API key debe tener al menos 20 caracteres"),
 })
 
+export const ArbiscanKeySchema = z.object({
+  apiKey: z
+    .string()
+    .min(20, "La API key debe tener al menos 20 caracteres"),
+})
+
 export type OnchainWalletInput = z.infer<typeof OnchainWalletSchema>
 export type OnchainSyncInput = z.infer<typeof OnchainSyncSchema>
 export type CovalentKeyInput = z.infer<typeof CovalentKeySchema>
+export type ArbiscanKeyInput = z.infer<typeof ArbiscanKeySchema>

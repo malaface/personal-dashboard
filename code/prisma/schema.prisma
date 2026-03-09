@@ -857,6 +857,7 @@ enum AIProvider {
   CLAUDE
   HUGGINGFACE
   COVALENT
+  ARBISCAN
 }
 
 // ============================================
@@ -893,6 +894,7 @@ enum FiscalMethod {
 enum OnchainDataSource {
   COVALENT
   HYPERLIQUID
+  ARBISCAN
 }
 
 // ============================================

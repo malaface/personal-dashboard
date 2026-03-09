@@ -5,7 +5,7 @@ import { requireAuth } from "@/lib/auth/utils"
 import { prisma } from "@/lib/db/prisma"
 import { createAuditLog } from "@/lib/audit/logger"
 import { encryptAPIKey } from "@/lib/ai/encryption"
-import { OnchainWalletSchema, CovalentKeySchema } from "@/lib/validations/onchain"
+import { OnchainWalletSchema, CovalentKeySchema, ArbiscanKeySchema } from "@/lib/validations/onchain"
 import { syncWallet } from "@/lib/finance/onchain/sync"
 import { processBatchFiscalEvents } from "@/lib/finance/onchain/fiscal-engine"
 
@@ -175,6 +175,58 @@ export async function saveCovalentApiKey(formData: FormData) {
     return { success: true }
   } catch (error: unknown) {
     console.error("Save Covalent API key error:", error)
+    return { success: false, error: error instanceof Error ? error.message : "Error al guardar la API key" }
+  }
+}
+
+export async function saveArbiscanApiKey(formData: FormData) {
+  try {
+    const user = await requireAuth()
+
+    const rawData = {
+      apiKey: formData.get("apiKey") as string,
+    }
+
+    const validatedData = ArbiscanKeySchema.parse(rawData)
+    const encrypted = encryptAPIKey(validatedData.apiKey)
+
+    await prisma.aICredential.upsert({
+      where: {
+        id: (
+          await prisma.aICredential.findFirst({
+            where: { userId: user.id, provider: "ARBISCAN" },
+            select: { id: true },
+          })
+        )?.id || "",
+      },
+      update: {
+        apiKey: encrypted,
+        isActive: true,
+        isValid: false,
+      },
+      create: {
+        userId: user.id,
+        provider: "ARBISCAN",
+        apiKey: encrypted,
+        label: "Arbiscan (Etherscan V2) API Key",
+        isActive: true,
+      },
+    })
+
+    await createAuditLog({
+      userId: user.id,
+      action: "TRANSACTION_CREATED",
+      metadata: {
+        entity: "ai_credential",
+        provider: "ARBISCAN",
+        action: "upsert",
+      },
+    })
+
+    revalidatePath("/dashboard/finance/onchain")
+    return { success: true }
+  } catch (error: unknown) {
+    console.error("Save Arbiscan API key error:", error)
     return { success: false, error: error instanceof Error ? error.message : "Error al guardar la API key" }
   }
 }

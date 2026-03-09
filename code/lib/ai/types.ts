@@ -7,7 +7,7 @@
 // AI PROVIDERS
 // ============================================
 
-export type AIProvider = 'GEMINI' | 'OPENAI' | 'CLAUDE' | 'HUGGINGFACE' | 'COVALENT'
+export type AIProvider = 'GEMINI' | 'OPENAI' | 'CLAUDE' | 'HUGGINGFACE' | 'COVALENT' | 'ARBISCAN'
 
 export interface AIProviderInfo {
   name: string
@@ -64,6 +64,15 @@ export const AI_PROVIDERS: Record<AIProvider, AIProviderInfo> = {
     docsUrl: 'https://www.covalenthq.com/docs/api/',
     iconColor: '#FF4C8B',
     keyPrefix: 'cqt_',
+  },
+  ARBISCAN: {
+    name: 'ARBISCAN',
+    displayName: 'Arbiscan (Etherscan V2)',
+    description: 'Arbitrum blockchain explorer API with full transaction history',
+    website: 'https://arbiscan.io',
+    docsUrl: 'https://docs.etherscan.io',
+    iconColor: '#28A0F0',
+    keyPrefix: '',
   },
 }
 

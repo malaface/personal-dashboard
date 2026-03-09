@@ -119,6 +119,10 @@ export function validateAPIKeyFormat(apiKey: string, provider: string): boolean 
       // Covalent (GoldRush) keys typically start with "cqt_"
       return apiKey.startsWith('cqt_') && apiKey.length >= 20
 
+    case 'ARBISCAN':
+      // Arbiscan/Etherscan API keys are alphanumeric, ~34 chars
+      return apiKey.length >= 20
+
     default:
       // Generic validation: at least 20 characters
       return apiKey.length >= 20

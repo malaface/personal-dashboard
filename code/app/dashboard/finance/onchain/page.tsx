@@ -2,6 +2,7 @@ import { requireAuth } from "@/lib/auth/utils"
 import { prisma } from "@/lib/db/prisma"
 import FinanceModeTabs from "@/components/finance/FinanceModeTabs"
 import CovalentKeyForm from "@/components/finance/onchain/CovalentKeyForm"
+import ArbiscanKeyForm from "@/components/finance/onchain/ArbiscanKeyForm"
 import WalletForm from "@/components/finance/onchain/WalletForm"
 import WalletList from "@/components/finance/onchain/WalletList"
 import OnchainTransactionTable from "@/components/finance/onchain/OnchainTransactionTable"
@@ -16,6 +17,7 @@ export default async function OnchainPage() {
     cardCount,
     walletCount,
     hasCovalentKey,
+    hasArbiscanKey,
     wallets,
     transactions,
     fiscalEvents,
@@ -32,6 +34,12 @@ export default async function OnchainPage() {
     prisma.aICredential
       .findFirst({
         where: { userId: user.id, provider: "COVALENT", isActive: true },
+        select: { id: true },
+      })
+      .then((c) => !!c),
+    prisma.aICredential
+      .findFirst({
+        where: { userId: user.id, provider: "ARBISCAN", isActive: true },
         select: { id: true },
       })
       .then((c) => !!c),
@@ -102,7 +110,8 @@ export default async function OnchainPage() {
         />
 
         {/* API Key Configuration */}
-        <div className="mb-6">
+        <div className="mb-6 space-y-3">
+          <ArbiscanKeyForm hasKey={hasArbiscanKey} />
           <CovalentKeyForm hasKey={hasCovalentKey} />
         </div>
 
