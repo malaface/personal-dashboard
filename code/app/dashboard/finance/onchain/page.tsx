@@ -53,12 +53,15 @@ export default async function OnchainPage() {
     prisma.onchainTransaction.findMany({
       where: { wallet: { userId: user.id } },
       include: {
+        wallet: {
+          select: { id: true, label: true },
+        },
         fiscalEvent: {
           select: { gainLossUSD: true, gainLossMXN: true },
         },
       },
       orderBy: { timestamp: "desc" },
-      take: 200,
+      take: 1000,
     }),
     prisma.onchainFiscalEvent.findMany({
       where: { transaction: { wallet: { userId: user.id } } },
@@ -139,7 +142,10 @@ export default async function OnchainPage() {
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Transacciones On-Chain
             </h2>
-            <OnchainTransactionTable transactions={transactions} />
+            <OnchainTransactionTable
+              transactions={transactions}
+              wallets={wallets.map((w) => ({ id: w.id, label: w.label }))}
+            />
           </div>
         )}
       </div>

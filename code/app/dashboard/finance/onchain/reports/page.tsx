@@ -2,7 +2,7 @@ import { requireAuth } from "@/lib/auth/utils"
 import { generateFiscalSummary } from "@/lib/finance/onchain/fiscal-engine"
 import FinanceModeTabs from "@/components/finance/FinanceModeTabs"
 import FiscalSummaryCard from "@/components/finance/onchain/FiscalSummaryCard"
-import FiscalReportTable from "@/components/finance/onchain/FiscalReportTable"
+import FiscalReportClient from "@/components/finance/onchain/FiscalReportClient"
 import GainLossChart from "@/components/finance/onchain/GainLossChart"
 import OnchainPortfolioChart from "@/components/finance/onchain/OnchainPortfolioChart"
 import { prisma } from "@/lib/db/prisma"
@@ -34,6 +34,7 @@ export default async function OnchainReportsPage() {
         tokenSymbol: true,
         totalAmount: true,
         avgCostBasisUSD: true,
+        avgCostBasisMXN: true,
       },
     }),
   ])
@@ -125,13 +126,8 @@ export default async function OnchainReportsPage() {
           </div>
         )}
 
-        {/* Detailed Events Table */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Detalle de Eventos Fiscales
-          </h2>
-          <FiscalReportTable events={events} />
-        </div>
+        {/* Fiscal Report with Time Filter + Export */}
+        <FiscalReportClient events={events} holdings={holdings} />
       </div>
     </div>
   )

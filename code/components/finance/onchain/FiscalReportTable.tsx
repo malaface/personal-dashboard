@@ -11,7 +11,11 @@ interface FiscalEvent {
   exchangeRate: number
   transaction: {
     tokenSoldSymbol: string | null
+    tokenSoldAmount: number | null
+    tokenSoldPriceUSD: number | null
     tokenBoughtSymbol: string | null
+    tokenBoughtAmount: number | null
+    tokenBoughtPriceUSD: number | null
     timestamp: Date
     dataSource: string
   }
@@ -40,7 +44,9 @@ export default function FiscalReportTable({ events }: FiscalReportTableProps) {
             <th className="py-2 px-3 font-medium text-gray-500 dark:text-gray-400">Periodo</th>
             <th className="py-2 px-3 font-medium text-gray-500 dark:text-gray-400">Operación</th>
             <th className="py-2 px-3 font-medium text-gray-500 dark:text-gray-400">Costo Base</th>
+            <th className="py-2 px-3 font-medium text-gray-500 dark:text-gray-400">P. Costo Prom.</th>
             <th className="py-2 px-3 font-medium text-gray-500 dark:text-gray-400">Ingresos</th>
+            <th className="py-2 px-3 font-medium text-gray-500 dark:text-gray-400">P. Venta</th>
             <th className="py-2 px-3 font-medium text-gray-500 dark:text-gray-400">G/P (MXN)</th>
             <th className="py-2 px-3 font-medium text-gray-500 dark:text-gray-400">Gas</th>
             <th className="py-2 px-3 font-medium text-gray-500 dark:text-gray-400">TC</th>
@@ -65,8 +71,18 @@ export default function FiscalReportTable({ events }: FiscalReportTableProps) {
               <td className="py-2 px-3 text-gray-700 dark:text-gray-300">
                 ${event.costBasisMXN.toLocaleString("es-MX", { maximumFractionDigits: 2 })}
               </td>
+              <td className="py-2 px-3 text-gray-500 dark:text-gray-400 text-xs">
+                {event.transaction.tokenSoldAmount
+                  ? `$${(event.costBasisMXN / event.transaction.tokenSoldAmount).toLocaleString("es-MX", { maximumFractionDigits: 2 })}`
+                  : "-"}
+              </td>
               <td className="py-2 px-3 text-gray-700 dark:text-gray-300">
                 ${event.proceedsMXN.toLocaleString("es-MX", { maximumFractionDigits: 2 })}
+              </td>
+              <td className="py-2 px-3 text-gray-500 dark:text-gray-400 text-xs">
+                {event.transaction.tokenSoldAmount
+                  ? `$${(event.proceedsMXN / event.transaction.tokenSoldAmount).toLocaleString("es-MX", { maximumFractionDigits: 2 })}`
+                  : "-"}
               </td>
               <td className={`py-2 px-3 font-medium ${
                 event.gainLossMXN >= 0
